@@ -5,9 +5,12 @@ import { cx } from '../../lib/cx'
 import { formatDayMonth } from '../../lib/dates'
 import { habitHistory, historyYears } from '../../lib/habitHistory'
 import type { HistoryPeriod } from '../../lib/habitHistory'
+import { recall, remember, useSessionState } from '../../lib/sessionState'
 import styles from './HabitHistory.module.css'
 
 type Props = {
+  /** id привычки: по нему запоминаются выбранный период и прокрутка истории. */
+  habitId: string
   checks: ReadonlySet<string>
   today: string
   /** Самый ранний день, с которого у привычки может быть история: создание или первая отметка. */
@@ -26,9 +29,10 @@ const SCROLL_STEP_PX = 4
  * Сетка открывается прокрученной к концу периода. Подписи дней недели стоят с одной стороны:
  * справа, а когда сетку листают влево, переезжают налево.
  */
-export function HabitHistory({ checks, today, since, onToggle }: Props) {
+export function HabitHistory({ habitId, checks, today, since, onToggle }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
-  const [period, setPeriod] = useState<HistoryPeriod>('recent')
+  const [period, setPeriod] = useSessionState<HistoryPeriod>(`habit.period.${habitId}`, 'recent')
+  const scrollKey = `habit.scroll.${habitId}.${period}`
   const weeks = useMemo(() => habitHistory(today, period), [today, period])
   const years = historyYears(since, today)
 
@@ -39,14 +43,16 @@ export function HabitHistory({ checks, today, since, onToggle }: Props) {
   useEffect(() => {
     const scroll = scrollRef.current
     if (!scroll) return
-    scroll.scrollLeft = scroll.scrollWidth
+    // Если историю уже листали, она открывается на том же месте. Иначе на конце периода.
+    scroll.scrollLeft = recall<number>(scrollKey) ?? scroll.scrollWidth
     lastScroll.current = scroll.scrollLeft
     setSide('right')
-  }, [period])
+  }, [scrollKey])
 
   const onScroll = () => {
     const scroll = scrollRef.current
     if (!scroll) return
+    remember(scrollKey, scroll.scrollLeft)
     const delta = scroll.scrollLeft - lastScroll.current
     if (Math.abs(delta) < SCROLL_STEP_PX) return
     lastScroll.current = scroll.scrollLeft

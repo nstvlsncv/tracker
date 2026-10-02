@@ -1,12 +1,12 @@
 import { Moon, Sun } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
-import { useState } from 'react'
 import { useAuth } from '../auth/useAuth'
 import { Button } from '../components/Button'
 import { Section } from '../components/Section'
 import { Segmented } from '../components/Segmented'
 import { CHANGELOG } from '../data/changelog'
 import { formatDateNumeric } from '../lib/dates'
+import { useSessionState } from '../lib/sessionState'
 import { setTheme, useTheme } from '../lib/theme'
 import { PageHeader } from '../layout/PageHeader'
 import { AccountSection } from './profile/AccountSection'
@@ -20,7 +20,7 @@ export function Profile() {
   const { profile } = useAuth()
   const theme = useTheme()
   // В истории версий сразу видна только последняя, остальные открываются кнопкой.
-  const [showAll, setShowAll] = useState(false)
+  const [showAll, setShowAll] = useSessionState('profile.showAllReleases', false)
 
   return (
     <>

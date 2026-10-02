@@ -21,6 +21,7 @@ import {
   weekStartISO,
 } from '../../lib/dates'
 import { shiftDate, weekAnalytics } from '../../lib/metrics'
+import { recall, remember } from '../../lib/sessionState'
 import { NETWORK_ERROR_MESSAGE } from '../../lib/supabase'
 import { useToday } from '../../lib/useToday'
 import { AddTaskModal } from './AddTaskModal'
@@ -48,13 +49,17 @@ export function Week() {
     if (weekStart) loadWeek(weekStart)
   }, [weekStart, loadWeek])
 
-  // Текущая неделя открывается прокрученной к сегодняшнему дню.
+  // Ряд дней открывается там, где его оставили. Если неделю ещё не листали,
+  // текущая неделя открывается прокрученной к сегодняшнему дню.
+  const daysScrollKey = `week.days.${weekStart}`
   useEffect(() => {
-    if (status !== 'ready' || weekStart !== currentWeek) return
     const row = daysRef.current
-    const card = row?.querySelector<HTMLElement>('[aria-current="date"]')
-    if (row && card) row.scrollLeft = card.offsetLeft - row.offsetLeft
-  }, [status, weekStart, currentWeek])
+    if (status !== 'ready' || !row) return
+    const saved = recall<number>(daysScrollKey)
+    const card = row.querySelector<HTMLElement>('[aria-current="date"]')
+    if (saved !== undefined) row.scrollLeft = saved
+    else if (weekStart === currentWeek && card) row.scrollLeft = card.offsetLeft - row.offsetLeft
+  }, [status, weekStart, currentWeek, daysScrollKey])
 
   if (!weekStart) return <Navigate to=".." replace relative="path" />
 
@@ -156,7 +161,11 @@ export function Week() {
             )}
           </Section>
 
-          <div ref={daysRef} className={styles.days}>
+          <div
+            ref={daysRef}
+            className={styles.days}
+            onScroll={(event) => remember(daysScrollKey, event.currentTarget.scrollLeft)}
+          >
             {DAYS.map((offset) => {
               const date = shiftDate(weekStart, offset)
               return ready ? (

@@ -79,7 +79,7 @@ export function HabitCard({ habit, checks, today, open, onOpenChange, onToggle, 
             <StatCard variant="surface" value={totalChecks(checks)} label="всего выполнено" />
             <StatCard variant="surface" value="Каждый день" label="цель" />
           </div>
-          <HabitHistory checks={checks} today={today} since={since} onToggle={onToggle} />
+          <HabitHistory habitId={habit.id} checks={checks} today={today} since={since} onToggle={onToggle} />
         </div>
       )}
     </article>

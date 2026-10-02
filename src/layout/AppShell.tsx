@@ -1,7 +1,8 @@
 import { ArrowsClockwise, CalendarDots, House, SignOut, User } from '@phosphor-icons/react'
-import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router'
 import { cx } from '../lib/cx'
+import { recall, remember } from '../lib/sessionState'
 import { SignOutModal } from './SignOutModal'
 import styles from './AppShell.module.css'
 
@@ -18,12 +19,47 @@ const NAV = [
   { to: 'profile', label: 'Профиль', icon: User, end: false, motion: 'nod' },
 ] as const
 
+/** Раздел, к которому относится адрес: 'week' для /week/2026-W38, '' для Главной. */
+function sectionOf(pathname: string, basePath: string): string {
+  return pathname.slice(basePath.length).split('/').filter(Boolean)[0] ?? ''
+}
+
 /**
  * Каркас экранов после входа: меню и содержимое экрана. Меню стоит слева (на планшете
  * узкой полосой с иконками), а на телефоне превращается в нижнюю панель, как в iOS.
  */
 export function AppShell({ basePath = '' }: Props) {
   const [leaving, setLeaving] = useState(false)
+
+  // Каждый раздел помнит, где его оставили: адрес внутри раздела (выбранная неделя) и прокрутку.
+  const { pathname } = useLocation()
+  const section = sectionOf(pathname, basePath)
+
+  useEffect(() => {
+    remember(`shell.path.${section}`, pathname)
+  }, [section, pathname])
+
+  // Прокрутка записывается на тот раздел, который сейчас на экране. Раздел хранится в ref
+  // и меняется до того, как страница прокрутится под новый экран: иначе этот сдвиг
+  // записался бы на раздел, с которого уходят, и стёр бы его положение.
+  const shownSection = useRef(section)
+
+  useEffect(() => {
+    const save = () => remember(`shell.scroll.${shownSection.current}`, window.scrollY)
+    window.addEventListener('scroll', save, { passive: true })
+    return () => window.removeEventListener('scroll', save)
+  }, [])
+
+  // При переходе в другой раздел прокрутка встаёт туда, где была в нём в прошлый раз
+  // (в начало, если раздел открыт впервые), а не остаётся от предыдущего экрана.
+  useLayoutEffect(() => {
+    const top = recall<number>(`shell.scroll.${section}`) ?? 0
+    shownSection.current = section
+    window.scrollTo(0, top)
+    // Второй раз после отрисовки: к этому моменту содержимое экрана уже набрало высоту.
+    const frame = requestAnimationFrame(() => window.scrollTo(0, top))
+    return () => cancelAnimationFrame(frame)
+  }, [section])
   // Какой пункт нажали последним и в который раз. Счётчик идёт в key иконки: при каждом
   // нажатии она создаётся заново, и анимация проигрывается снова, даже на уже открытом разделе.
   const [tap, setTap] = useState<{ to: string | null; count: number }>({ to: null, count: 0 })
@@ -36,7 +72,9 @@ export function AppShell({ basePath = '' }: Props) {
           {NAV.map(({ to, label, icon: Icon, end, motion }) => (
             <NavLink
               key={to}
-              to={`${basePath}/${to}`}
+              // Из другого раздела возвращаемся туда, где были. Нажатие на уже открытый
+              // раздел ведёт в его начало (текущая неделя).
+              to={(to !== section && recall<string>(`shell.path.${to}`)) || `${basePath}/${to}`}
               end={end}
               className={({ isActive }) => cx('t-button', styles.item, isActive && styles.active)}
               onClick={() => setTap((last) => ({ to, count: last.count + 1 }))}

@@ -8,23 +8,26 @@ import { useToast } from '../../components/useToast'
 import type { Habit } from '../../data/types'
 import { useHabits } from '../../data/useHabits'
 import { PageHeader } from '../../layout/PageHeader'
+import { useSessionState } from '../../lib/sessionState'
 import { useToday } from '../../lib/useToday'
 import { HabitCard } from './HabitCard'
 import { HabitModal } from './HabitModal'
 import styles from './Habits.module.css'
 
 const NO_CHECKS: ReadonlySet<string> = new Set()
+const NONE_OPEN: ReadonlySet<string> = new Set()
 
 /** Экран «Привычки»: список карточек-аккордеонов, добавление, редактирование и архив. */
 export function Habits() {
   const store = useHabits()
   const toast = useToast()
   const today = useToday()
-  // Раскрытых карточек может быть несколько.
-  const [open, setOpen] = useState<ReadonlySet<string>>(new Set())
+  // Раскрытых карточек может быть несколько. Что раскрыто, запоминается на время сеанса:
+  // вернувшись в раздел, человек видит его таким, каким оставил.
+  const [open, setOpen] = useSessionState<ReadonlySet<string>>('habits.open', NONE_OPEN)
   // Что открыто в модалке: новая привычка или редактирование существующей.
   const [editing, setEditing] = useState<Habit | 'new'>()
-  const [archiveOpen, setArchiveOpen] = useState(false)
+  const [archiveOpen, setArchiveOpen] = useSessionState('habits.archiveOpen', false)
   const [deleting, setDeleting] = useState<Habit>()
 
   const checksOf = (habit: Habit) => store.checks[habit.id] ?? NO_CHECKS

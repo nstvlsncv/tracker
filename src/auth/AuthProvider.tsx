@@ -1,6 +1,7 @@
 import type { Session, User } from '@supabase/supabase-js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+import { forgetSessionState } from '../lib/sessionState'
 import { supabase } from '../lib/supabase'
 import { createSupabaseAccount } from './account'
 import { AuthContext } from './useAuth'
@@ -25,6 +26,7 @@ const toProfile = (row: ProfileRow): Profile => ({
 })
 
 const signOut = () => {
+  forgetSessionState()
   supabase.auth.signOut({ scope: 'local' })
 }
 
