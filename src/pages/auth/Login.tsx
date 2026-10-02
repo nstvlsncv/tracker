@@ -7,6 +7,7 @@ import { Input } from '../../components/Input'
 import { useToast } from '../../components/useToast'
 import { isNetworkError, NETWORK_ERROR_MESSAGE, supabase } from '../../lib/supabase'
 import { AuthLayout } from './AuthLayout'
+import styles from './Login.module.css'
 
 const ATTEMPTS_KEY = 'tracker.loginAttempts'
 const WRONG_MESSAGE = 'Неверный логин или пароль'
@@ -73,32 +74,34 @@ export function Login() {
   return (
     <AuthLayout title="С возвращением!" subtitle="Войди, чтобы продолжить">
       <form onSubmit={submit} noValidate>
-        <Input
-          label="Логин"
-          hideLabel
-          type="email"
-          autoComplete="email"
-          autoFocus
-          value={email}
-          error={errors.login}
-          invalid={errors.loginInvalid}
-          onChange={(event) => {
-            setEmail(event.target.value)
-            setErrors({})
-          }}
-        />
-        <Input
-          label="Пароль"
-          hideLabel
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          error={errors.password}
-          onChange={(event) => {
-            setPassword(event.target.value)
-            setErrors({})
-          }}
-        />
+        <div className={styles.fields}>
+          <Input
+            label="Логин"
+            hideLabel
+            type="email"
+            autoComplete="email"
+            autoFocus
+            value={email}
+            error={errors.login}
+            invalid={errors.loginInvalid}
+            onChange={(event) => {
+              setEmail(event.target.value)
+              setErrors({})
+            }}
+          />
+          <Input
+            label="Пароль"
+            hideLabel
+            type="password"
+            autoComplete="current-password"
+            value={password}
+            error={errors.password}
+            onChange={(event) => {
+              setPassword(event.target.value)
+              setErrors({})
+            }}
+          />
+        </div>
         <Button type="submit" size="lg" fullWidth pending={busy}>
           Войти
         </Button>

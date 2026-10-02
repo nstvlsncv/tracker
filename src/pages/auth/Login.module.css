@@ -1,0 +1,6 @@
+/* Логин и пароль стоят ближе друг к другу (8px), чем к кнопке. */
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
