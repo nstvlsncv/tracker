@@ -16,7 +16,7 @@ import { Profile } from './pages/Profile'
 import { Showcase } from './pages/Showcase'
 import { Week } from './pages/week/Week'
 
-/** Все иконки приложения: набор Phosphor, начертание bold, чтобы держать вес рядом с Unbounded. */
+/** Все иконки приложения: набор Phosphor, начертание bold. */
 const ICONS = { weight: 'bold' } as const
 
 /** Данные пользователя живут, пока он в аккаунте: при смене пользователя хранилище создаётся заново. */
