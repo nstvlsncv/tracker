@@ -1,0 +1,40 @@
+.burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.burst span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px;
+  border-radius: var(--radius-full);
+  background: var(--highlight-default);
+  opacity: 0;
+  animation: fly 650ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Через одну точки цвета основного акцента: на светлом фоне один лайм был бы бледным. */
+.burst span:nth-child(even) {
+  background: var(--accent-default);
+}
+
+@keyframes fly {
+  from {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateY(calc(-1 * var(--from)));
+  }
+  to {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateY(calc(-1 * var(--to))) scale(0.4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burst {
+    display: none;
+  }
+}

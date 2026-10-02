@@ -48,3 +48,20 @@
 .muted {
   color: var(--text-tertiary);
 }
+
+/* Праздник на 100%: кольцо один раз слегка «вздыхает». */
+.donut .pulse {
+  animation: pulse 500ms ease-out;
+}
+
+@keyframes pulse {
+  40% {
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .donut .pulse {
+    animation: none;
+  }
+}

@@ -151,6 +151,35 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
         })
       },
 
+      moveTasks: (ids, date) => {
+        const moved = latest.current.tasks.filter((task) => ids.includes(task.id))
+        if (moved.length === 0) return
+        const place = (target: (task: Task) => string) =>
+          setTasks((current) =>
+            current.map((task) => {
+              const original = moved.find((item) => item.id === task.id)
+              return original ? { ...task, date: target(original) } : task
+            }),
+          )
+        const send = (target: (task: Task) => string) =>
+          Promise.all(moved.map((task) => api.updateTask(task.id, { date: target(task) }))).then(
+            () => {},
+          )
+        place(() => date)
+        save(send(() => date), () => place((task) => task.date))
+        toast({
+          message: `Перенесено задач: ${moved.length}`,
+          duration: UNDO_TOAST_DURATION_MS,
+          action: {
+            label: 'Отменить',
+            onClick: () => {
+              place((task) => task.date)
+              save(send((task) => task.date), () => place(() => date))
+            },
+          },
+        })
+      },
+
       addGoal: (weekStart, title) => insertGoal({ ...base(), weekStart, title }),
       toggleGoal: (id, isDone) => patchGoal(id, { isDone, doneAt: isDone ? now() : null }),
       renameGoal: (id, title) => patchGoal(id, { title }),

@@ -1,16 +1,22 @@
 import { cx } from '../lib/cx'
+import { Burst } from './Burst'
+import { useBurst } from './useBurst'
 import styles from './Checkbox.module.css'
 
 type Props = {
   checked: boolean
   onChange: (checked: boolean) => void
   disabled?: boolean
+  /** Этой отметкой закрыто всё (например, все привычки за день): чекбокс празднует. */
+  celebrate?: boolean
   /** У чекбокса нет своего текста, подпись обязательна. */
   'aria-label': string
 }
 
 /** Круглый чекбокс 32×32. При отметке круг заливается, а галочка прорисовывается штрихом. */
-export function Checkbox({ checked, onChange, disabled, ...rest }: Props) {
+export function Checkbox({ checked, onChange, disabled, celebrate = false, ...rest }: Props) {
+  const burst = useBurst(celebrate)
+
   return (
     <button
       type="button"
@@ -28,6 +34,7 @@ export function Checkbox({ checked, onChange, disabled, ...rest }: Props) {
       <svg viewBox="0 0 32 32" aria-hidden>
         <path className={styles.check} d="M10 16.5l4.2 4.2L22 11.8" pathLength={1} />
       </svg>
+      {burst > 0 && <Burst key={burst} from={12} to={34} />}
     </button>
   )
 }

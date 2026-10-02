@@ -33,7 +33,8 @@ export type HabitCheck = { habitId: string; date: string }
 
 export type HabitPatch = { title?: string; archivedAt?: string | null }
 
-export type ItemPatch = { title?: string; isDone?: boolean; doneAt?: string | null }
+/** `date` меняется только у задач: перенос на другой день. */
+export type ItemPatch = { title?: string; isDone?: boolean; doneAt?: string | null; date?: string }
 
 /**
  * Откуда берутся и куда сохраняются задачи, цели и привычки. Настоящая реализация ходит в Supabase,

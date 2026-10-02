@@ -38,6 +38,7 @@ const toRowPatch = (patch: ItemPatch) => ({
   ...(patch.title !== undefined && { title: patch.title }),
   ...(patch.isDone !== undefined && { is_done: patch.isDone }),
   ...(patch.doneAt !== undefined && { done_at: patch.doneAt }),
+  ...(patch.date !== undefined && { date: patch.date }),
 })
 
 type HabitRow = {

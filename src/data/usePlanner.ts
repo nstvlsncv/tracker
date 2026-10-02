@@ -18,6 +18,8 @@ export type PlannerValue = {
   toggleTask: (id: string, done: boolean) => void
   renameTask: (id: string, title: string) => void
   deleteTask: (id: string) => void
+  /** Перенести задачи на другой день (невыполненное с прошлых дней на сегодня). */
+  moveTasks: (ids: string[], date: string) => void
 
   addGoal: (weekStart: string, title: string) => void
   toggleGoal: (id: string, done: boolean) => void

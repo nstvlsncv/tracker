@@ -29,12 +29,16 @@ export function Habits() {
   const [editing, setEditing] = useState<Habit | 'new'>()
   const [archiveOpen, setArchiveOpen] = useSessionState('habits.archiveOpen', false)
   const [deleting, setDeleting] = useState<Habit>()
+  // Привычка, отмеченная последней: если ею закрыты все привычки дня, её чекбокс празднует.
+  const [lastChecked, setLastChecked] = useState<string>()
 
   const checksOf = (habit: Habit) => store.checks[habit.id] ?? NO_CHECKS
   // Не выполненные сегодня сверху, выполненные снизу. Внутри группы по времени создания.
   const habits = [...store.habits].sort(
     (a, b) => Number(checksOf(a).has(today)) - Number(checksOf(b).has(today)),
   )
+
+  const allDoneToday = habits.length > 0 && habits.every((habit) => checksOf(habit).has(today))
 
   const setCardOpen = (id: string, next: boolean) =>
     setOpen((current) => {
@@ -101,7 +105,11 @@ export function Habits() {
             today={today}
             open={open.has(habit.id)}
             onOpenChange={(next) => setCardOpen(habit.id, next)}
-            onToggle={(date, done) => store.toggleCheck(habit.id, date, done)}
+            celebrate={allDoneToday && lastChecked === habit.id}
+            onToggle={(date, done) => {
+              if (date === today) setLastChecked(habit.id)
+              store.toggleCheck(habit.id, date, done)
+            }}
             onEdit={() => setEditing(habit)}
           />
         ))}

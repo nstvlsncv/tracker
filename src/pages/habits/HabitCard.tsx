@@ -20,13 +20,24 @@ type Props = {
   onOpenChange: (open: boolean) => void
   onToggle: (date: string, done: boolean) => void
   onEdit: () => void
+  /** Этой отметкой закрыты все привычки дня: чекбокс празднует. */
+  celebrate?: boolean
 }
 
 /**
  * Карточка привычки. Свёрнутая: отметка за сегодня, название и серии. Нажатие на карточку
  * (кроме чекбокса) раскрывает её на месте: показатели и история за год.
  */
-export function HabitCard({ habit, checks, today, open, onOpenChange, onToggle, onEdit }: Props) {
+export function HabitCard({
+  habit,
+  checks,
+  today,
+  open,
+  onOpenChange,
+  onToggle,
+  onEdit,
+  celebrate,
+}: Props) {
   const detailsId = useId()
   const doneToday = checks.has(today)
   const current = currentStreak(checks, today)
@@ -40,6 +51,7 @@ export function HabitCard({ habit, checks, today, open, onOpenChange, onToggle, 
       <div className={styles.head} onClick={() => onOpenChange(!open)}>
         <Checkbox
           checked={doneToday}
+          celebrate={celebrate}
           onChange={(done) => onToggle(today, done)}
           aria-label={doneToday ? `Снять отметку за сегодня: ${habit.title}` : `Отметить за сегодня: ${habit.title}`}
         />

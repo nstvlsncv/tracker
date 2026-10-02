@@ -1,19 +1,32 @@
 import { Plus } from '@phosphor-icons/react'
+import { parseISO } from 'date-fns'
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import { useAuth } from '../../auth/useAuth'
 import { AddItemField } from '../../components/AddItem'
+import { Button } from '../../components/Button'
 import { Checkbox } from '../../components/Checkbox'
+import { Donut } from '../../components/Donut'
 import { IconButton } from '../../components/IconButton'
 import { ItemList } from '../../components/ItemList'
 import { ListSkeleton } from '../../components/ListSkeleton'
 import { Section } from '../../components/Section'
+import { Skeleton } from '../../components/Skeleton'
 import { StatCard } from '../../components/StatCard'
 import { useToast } from '../../components/useToast'
 import { useHabits } from '../../data/useHabits'
 import { usePlanner } from '../../data/usePlanner'
 import { cx } from '../../lib/cx'
-import { formatWeekdayAndDay, weekStartISO } from '../../lib/dates'
-import { countDone, currentStreak, formatDays, greeting, progress } from '../../lib/metrics'
+import { formatWeekdayAndDay, formatWeekdayShort, weekStartISO } from '../../lib/dates'
+import {
+  countDone,
+  currentStreak,
+  formatDays,
+  greeting,
+  pluralize,
+  progress,
+  shiftDate,
+} from '../../lib/metrics'
 import { useNow } from '../../lib/useNow'
 import { useToday } from '../../lib/useToday'
 import { HabitModal } from '../habits/HabitModal'
@@ -40,9 +53,15 @@ export function Home() {
   // Что сейчас добавляют: цель и задача вписываются в поле под списком, привычка в модалке.
   const [adding, setAdding] = useState<'goal' | 'task' | 'habit'>()
 
+  // Прошлая неделя нужна ради невыполненных задач: в понедельник «вчера» лежит в ней.
+  const lastWeek = shiftDate(currentWeek, -7)
   useEffect(() => {
     loadWeek(currentWeek)
-  }, [loadWeek, currentWeek])
+    loadWeek(lastWeek)
+  }, [loadWeek, currentWeek, lastWeek])
+
+  // Привычка, отмеченная последней: если ею закрыты все привычки дня, её чекбокс празднует.
+  const [lastChecked, setLastChecked] = useState<string>()
 
   const ready = planner.weekStatus[currentWeek] === 'ready'
   const habitsReady = habitsStore.status === 'ready'
@@ -54,6 +73,13 @@ export function Home() {
   // Не выполненные сегодня сверху, как в списках задач.
   const habits = [...habitsStore.habits].sort(
     (a, b) => Number(checksOf(a.id).has(today)) - Number(checksOf(b.id).has(today)),
+  )
+
+  const allHabitsDone = habits.length > 0 && habitsDoneToday === habits.length
+  const weekDays = Array.from({ length: 7 }, (_, index) => shiftDate(currentWeek, index))
+  // Не закрытое за последние семь дней: можно одним нажатием перенести на сегодня.
+  const overdue = planner.tasks.filter(
+    (task) => !task.isDone && task.date < today && task.date >= shiftDate(today, -7),
   )
 
   const day = formatWeekdayAndDay(now)
@@ -113,6 +139,23 @@ export function Home() {
         />
       </div>
 
+      {/* Неделя одним взглядом: кольцо на каждый день. Нажатие открывает экран Недели. */}
+      <Link to="week" className={styles.week} aria-label="Открыть неделю">
+        {weekDays.map((date) => (
+          <span key={date} className={cx(styles.weekDay, date === today && styles.weekToday)}>
+            {ready ? (
+              <Donut
+                size="xs"
+                value={progress(planner.tasks.filter((task) => task.date === date)) ?? 0}
+              />
+            ) : (
+              <Skeleton width={44} height={44} round />
+            )}
+            <span className="t-caption">{formatWeekdayShort(parseISO(date))}</span>
+          </span>
+        ))}
+      </Link>
+
       <Section
         title="Цели недели"
         action={addButton('Добавить цель', 'goal')}
@@ -161,6 +204,21 @@ export function Home() {
             onClose={() => setAdding(undefined)}
           />
         )}
+        {overdue.length > 0 && (
+          <div className={styles.overdue}>
+            <span className={styles.overdueText}>
+              С прошлых дней {pluralize(overdue.length, 'осталась', 'остались', 'осталось')}{' '}
+              {overdue.length} {pluralize(overdue.length, 'задача', 'задачи', 'задач')}
+            </span>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => planner.moveTasks(overdue.map((task) => task.id), today)}
+            >
+              Перенести на сегодня
+            </Button>
+          </div>
+        )}
       </Section>
 
       <Section
@@ -178,7 +236,11 @@ export function Home() {
                 <li key={habit.id} className={styles.habit}>
                   <Checkbox
                     checked={done}
-                    onChange={(next) => habitsStore.toggleCheck(habit.id, today, next)}
+                    celebrate={allHabitsDone && lastChecked === habit.id}
+                    onChange={(next) => {
+                      setLastChecked(habit.id)
+                      habitsStore.toggleCheck(habit.id, today, next)
+                    }}
                     aria-label={done ? `Снять отметку: ${habit.title}` : `Отметить: ${habit.title}`}
                   />
                   <span className={cx(styles.habitTitle, done && styles.done)}>{habit.title}</span>
