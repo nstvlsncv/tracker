@@ -1,4 +1,4 @@
-import { IconPlus } from '@tabler/icons-react'
+import { Plus } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router'
@@ -91,7 +91,7 @@ export function Week() {
             <Button
               variant="secondary"
               size="lg"
-              icon={<IconPlus aria-hidden />}
+              icon={<Plus aria-hidden />}
               onClick={() => setAddingTask(true)}
             >
               Добавить задачу

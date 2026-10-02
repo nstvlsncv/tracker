@@ -1,4 +1,4 @@
-import { IconPencil, IconPlus } from '@tabler/icons-react'
+import { PencilSimple, Plus } from '@phosphor-icons/react'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { AddItem } from '../components/AddItem'
@@ -95,13 +95,13 @@ export function Showcase() {
       <Section title="Button">
         {BUTTON_STYLES.map((style) => (
           <Row key={style.label} label={style.label}>
-            <Button {...style.props} size="sm" icon={<IconPlus aria-hidden />}>
+            <Button {...style.props} size="sm" icon={<Plus aria-hidden />}>
               32
             </Button>
-            <Button {...style.props} icon={<IconPlus aria-hidden />}>
+            <Button {...style.props} icon={<Plus aria-hidden />}>
               40
             </Button>
-            <Button {...style.props} size="lg" icon={<IconPlus aria-hidden />}>
+            <Button {...style.props} size="lg" icon={<Plus aria-hidden />}>
               48
             </Button>
             <Button {...style.props} pending>
@@ -117,11 +117,11 @@ export function Showcase() {
       <Section title="IconButton">
         {BUTTON_STYLES.map((style) => (
           <Row key={style.label} label={style.label}>
-            <IconButton {...style.props} size="sm" icon={<IconPencil aria-hidden />} aria-label="32" />
-            <IconButton {...style.props} icon={<IconPencil aria-hidden />} aria-label="40" />
-            <IconButton {...style.props} size="lg" icon={<IconPencil aria-hidden />} aria-label="48" />
-            <IconButton {...style.props} pending icon={<IconPencil aria-hidden />} aria-label="Pending" />
-            <IconButton {...style.props} disabled icon={<IconPencil aria-hidden />} aria-label="Disabled" />
+            <IconButton {...style.props} size="sm" icon={<PencilSimple aria-hidden />} aria-label="32" />
+            <IconButton {...style.props} icon={<PencilSimple aria-hidden />} aria-label="40" />
+            <IconButton {...style.props} size="lg" icon={<PencilSimple aria-hidden />} aria-label="48" />
+            <IconButton {...style.props} pending icon={<PencilSimple aria-hidden />} aria-label="Pending" />
+            <IconButton {...style.props} disabled icon={<PencilSimple aria-hidden />} aria-label="Disabled" />
           </Row>
         ))}
       </Section>

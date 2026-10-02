@@ -1,4 +1,4 @@
-import { IconChevronDown } from '@tabler/icons-react'
+import { CaretDown } from '@phosphor-icons/react'
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { cx } from '../lib/cx'
@@ -83,7 +83,7 @@ export function CalendarPicker({
       >
         <span className={styles.value}>
           {label}
-          <IconChevronDown className={cx(styles.chevron, open && styles.chevronOpen)} aria-hidden />
+          <CaretDown className={cx(styles.chevron, open && styles.chevronOpen)} aria-hidden />
         </span>
       </button>
       {open && (

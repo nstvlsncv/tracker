@@ -1,4 +1,4 @@
-import { IconTrash } from '@tabler/icons-react'
+import { Trash } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { cx } from '../lib/cx'
 import { Checkbox } from './Checkbox'
@@ -56,7 +56,7 @@ export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
             tone="danger"
             variant="ghost"
             size="sm"
-            icon={<IconTrash aria-hidden />}
+            icon={<Trash aria-hidden />}
             aria-label={`Удалить: ${title}`}
             onClick={(event) => {
               event.stopPropagation()

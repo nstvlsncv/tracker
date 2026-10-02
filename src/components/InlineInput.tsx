@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ITEM_TITLE_MAX_LENGTH } from '../lib/constants'
 import styles from './InlineInput.module.css'
 
@@ -26,9 +26,37 @@ export function InlineInput({
   const [value, setValue] = useState(initialValue)
   // Esc и Enter размонтируют поле. Флаг не даёт blur сработать после них второй раз.
   const settled = useRef(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Поле должно быть на виду. На компьютере страница двигается, только если поля не видно.
+  // На телефоне поле ставится в середину видимой части экрана: нижнюю часть занимает
+  // клавиатура, и браузер про неё при обычной прокрутке не знает.
+  const reveal = () => {
+    const input = inputRef.current
+    if (!input) return
+    const viewport = window.visualViewport
+    if (!viewport || !window.matchMedia('(pointer: coarse)').matches) {
+      input.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' })
+      return
+    }
+    // Сначала обычная прокрутка: она же докручивает по горизонтали карточки дней.
+    input.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+    const rect = input.getBoundingClientRect()
+    const middle = viewport.offsetTop + viewport.height / 2
+    window.scrollBy({ top: rect.top + rect.height / 2 - middle })
+  }
+
+  useEffect(() => {
+    reveal()
+    // Клавиатура телефона выезжает не сразу: когда видимая часть экрана уменьшится, ставим поле заново.
+    const viewport = window.visualViewport
+    viewport?.addEventListener('resize', reveal)
+    return () => viewport?.removeEventListener('resize', reveal)
+  }, [])
 
   return (
     <input
+      ref={inputRef}
       className={`t-body-md ${styles.input}`}
       autoFocus
       value={value}
@@ -44,8 +72,11 @@ export function InlineInput({
         if (event.key === 'Enter') {
           const trimmed = value.trim()
           if (!trimmed) return
-          if (onEnter(trimmed)) setValue('')
-          else settled.current = true
+          if (onEnter(trimmed)) {
+            setValue('')
+            // Список вырос, поле уехало ниже: возвращаем его на вид.
+            requestAnimationFrame(reveal)
+          } else settled.current = true
         }
       }}
       onBlur={() => {

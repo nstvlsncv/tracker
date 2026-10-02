@@ -1,4 +1,4 @@
-import { IconAlertCircle, IconEye, IconEyeOff } from '@tabler/icons-react'
+import { Eye, EyeSlash, WarningCircle } from '@phosphor-icons/react'
 import { useId, useState } from 'react'
 import type { InputHTMLAttributes, Ref } from 'react'
 import { cx } from '../lib/cx'
@@ -55,13 +55,13 @@ export function Input({
             disabled={rest.disabled}
             onClick={() => setRevealed((value) => !value)}
           >
-            {revealed ? <IconEyeOff aria-hidden /> : <IconEye aria-hidden />}
+            {revealed ? <EyeSlash aria-hidden /> : <Eye aria-hidden />}
           </button>
         )}
       </div>
       {error && (
         <p id={`${id}-error`} className={`t-body-sm ${styles.message}`}>
-          <IconAlertCircle aria-hidden />
+          <WarningCircle aria-hidden />
           {error}
         </p>
       )}

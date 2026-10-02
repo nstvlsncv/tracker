@@ -1,4 +1,4 @@
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { addDays, addMonths, format, parseISO, startOfMonth } from 'date-fns'
 import { ru } from 'date-fns/locale'
 import { useState } from 'react'
@@ -43,7 +43,7 @@ export function Calendar({ mode, value, onChange, today, markedWeeks }: Props) {
         <IconButton
           variant="ghost"
           size="sm"
-          icon={<IconChevronLeft aria-hidden />}
+          icon={<CaretLeft aria-hidden />}
           aria-label="Предыдущий месяц"
           onClick={() => setMonth(addMonths(month, -1))}
         />
@@ -53,7 +53,7 @@ export function Calendar({ mode, value, onChange, today, markedWeeks }: Props) {
         <IconButton
           variant="ghost"
           size="sm"
-          icon={<IconChevronRight aria-hidden />}
+          icon={<CaretRight aria-hidden />}
           aria-label="Следующий месяц"
           onClick={() => setMonth(addMonths(month, 1))}
         />

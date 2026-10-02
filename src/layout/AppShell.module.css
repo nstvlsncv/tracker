@@ -114,14 +114,15 @@
   }
 }
 
-/* ---------- Телефон: меню становится полосой внизу экрана ---------- */
+/* ---------- Телефон: меню становится нижней панелью, как в iOS ---------- */
 @media (max-width: 640px) {
   .shell {
     display: block;
-    /* Место под нижнее меню: его высота плюс отступ. */
+    /* Место под нижнюю панель: её высота плюс отступ. */
     padding-bottom: calc(64px + var(--space-lg) + env(safe-area-inset-bottom));
   }
 
+  /* Полупрозрачная панель во всю ширину с размытием того, что под ней. */
   .sidebar {
     position: fixed;
     top: auto;
@@ -129,25 +130,54 @@
     bottom: 0;
     left: 0;
     z-index: 40;
-    flex-direction: row;
-    justify-content: space-around;
-    gap: var(--space-xs);
+    display: block;
     height: auto;
-    padding: var(--space-sm) var(--space-sm) calc(var(--space-sm) + env(safe-area-inset-bottom));
+    padding: var(--space-sm) var(--space-sm) calc(var(--space-xs) + env(safe-area-inset-bottom));
     border-top: 1px solid var(--border-subtle);
     border-radius: 0;
+    background: color-mix(in srgb, var(--bg-surface) 82%, transparent);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
   }
 
   .nav {
-    flex: 1;
-    flex-direction: row;
-    justify-content: space-around;
-    gap: var(--space-xs);
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
   }
 
+  /* Иконка сверху, подпись под ней. Активный раздел выделен цветом и залитой иконкой, без плашки. */
+  .item {
+    flex-direction: column;
+    gap: var(--space-xs);
+    width: auto;
+    height: auto;
+    padding: var(--space-xs) 0;
+    border-radius: var(--radius-md);
+    color: var(--text-placeholder);
+    font-size: var(--typography-caption-font-size);
+    line-height: var(--typography-caption-line-height);
+  }
+
+  .item:hover,
+  .active {
+    background: none;
+  }
+
+  .active {
+    color: var(--text-primary);
+  }
+
+  .label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+  }
+
+  /* Выход на телефоне живёт на экране Профиля. */
   .bottom {
-    margin-top: 0;
-    padding-top: 0;
-    border-top: 0;
+    display: none;
   }
 }

@@ -1,4 +1,4 @@
-import { IconChevronDown } from '@tabler/icons-react'
+import { CaretDown } from '@phosphor-icons/react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { cx } from '../lib/cx'
 import { buttonClassName } from './buttonStyles'
@@ -94,7 +94,7 @@ export function Dropdown<T extends string>({
       >
         <span className={styles.value}>
           {selected?.label}
-          <IconChevronDown className={cx(styles.chevron, open && styles.chevronOpen)} aria-hidden />
+          <CaretDown className={cx(styles.chevron, open && styles.chevronOpen)} aria-hidden />
         </span>
       </button>
       {open && (

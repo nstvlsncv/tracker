@@ -1,4 +1,4 @@
-import { IconPlus } from '@tabler/icons-react'
+import { Plus } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { Button } from './Button'
 import { InlineInput } from './InlineInput'
@@ -19,7 +19,7 @@ export function AddItem({ label, onAdd, onClick }: Props) {
   if (editing && onAdd) {
     return (
       <div className={styles.field}>
-        <IconPlus aria-hidden />
+        <Plus aria-hidden />
         <InlineInput
           aria-label={label}
           placeholder={label}
@@ -41,7 +41,7 @@ export function AddItem({ label, onAdd, onClick }: Props) {
     <div>
       <Button
         variant="secondary"
-        icon={<IconPlus aria-hidden />}
+        icon={<Plus aria-hidden />}
         onClick={onAdd ? () => setEditing(true) : onClick}
       >
         {label}

@@ -1,0 +1,14 @@
+.text {
+  color: var(--text-secondary);
+}
+
+/* На планшете и компьютере выход есть в боковом меню, здесь он только для телефона. */
+.logout {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .logout {
+    display: block;
+  }
+}

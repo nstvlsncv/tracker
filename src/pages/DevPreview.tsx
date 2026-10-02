@@ -7,6 +7,7 @@ import { createMemoryApi } from '../data/memoryApi'
 import { PlannerProvider } from '../data/PlannerProvider'
 import { AppShell } from '../layout/AppShell'
 import { ComingSoon } from './ComingSoon'
+import { Profile } from './Profile'
 import { Week } from './week/Week'
 
 const BASE = '/dev/app'
@@ -37,7 +38,7 @@ export function DevPreview() {
             <Route index element={<ComingSoon title="Главная" />} />
             <Route path="week/:isoWeek?" element={<Week />} />
             <Route path="habits" element={<ComingSoon title="Привычки" />} />
-            <Route path="profile" element={<ComingSoon title="Профиль" />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
         </Routes>
       </PlannerProvider>

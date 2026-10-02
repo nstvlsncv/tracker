@@ -1,4 +1,4 @@
-import { IconCalendarWeek, IconHome, IconLogout, IconRefresh, IconUser } from '@tabler/icons-react'
+import { ArrowsClockwise, CalendarDots, House, SignOut, User } from '@phosphor-icons/react'
 import { NavLink, Outlet } from 'react-router'
 import { useAuth } from '../auth/useAuth'
 import { cx } from '../lib/cx'
@@ -10,13 +10,16 @@ type Props = {
 }
 
 const NAV = [
-  { to: '', label: 'Главная', icon: IconHome, end: true },
-  { to: 'week', label: 'Неделя', icon: IconCalendarWeek, end: false },
-  { to: 'habits', label: 'Привычки', icon: IconRefresh, end: false },
-  { to: 'profile', label: 'Профиль', icon: IconUser, end: false },
+  { to: '', label: 'Главная', icon: House, end: true },
+  { to: 'week', label: 'Неделя', icon: CalendarDots, end: false },
+  { to: 'habits', label: 'Привычки', icon: ArrowsClockwise, end: false },
+  { to: 'profile', label: 'Профиль', icon: User, end: false },
 ]
 
-/** Каркас экранов после входа: боковое меню слева и содержимое экрана справа. */
+/**
+ * Каркас экранов после входа: меню и содержимое экрана. Меню стоит слева (на планшете
+ * узкой полосой с иконками), а на телефоне превращается в нижнюю панель, как в iOS.
+ */
 export function AppShell({ basePath = '' }: Props) {
   const { signOut } = useAuth()
 
@@ -32,15 +35,20 @@ export function AppShell({ basePath = '' }: Props) {
               end={end}
               className={({ isActive }) => cx('t-button', styles.item, isActive && styles.active)}
             >
-              <Icon aria-hidden />
-              <span className={styles.label}>{label}</span>
+              {({ isActive }) => (
+                <>
+                  {/* У активного раздела иконка залитая, у остальных контурная. */}
+                  <Icon weight={isActive ? 'fill' : undefined} aria-hidden />
+                  <span className={styles.label}>{label}</span>
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
+        {/* На телефоне этой кнопки в меню нет: выход там на экране Профиля. */}
         <div className={styles.bottom}>
-          {/* Выход сразу, без подтверждения. */}
           <button type="button" className={cx('t-button', styles.item, styles.logout)} onClick={signOut}>
-            <IconLogout aria-hidden />
+            <SignOut aria-hidden />
             <span className={styles.label}>Выйти</span>
           </button>
         </div>

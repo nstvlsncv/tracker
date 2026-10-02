@@ -1,4 +1,4 @@
-import { IconX } from '@tabler/icons-react'
+import { X } from '@phosphor-icons/react'
 import { useEffect, useId, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
@@ -98,7 +98,7 @@ export function Modal({ open, title, onClose, children, footer, footerStart }: P
         <IconButton
           className={styles.close}
           variant="secondary"
-          icon={<IconX aria-hidden />}
+          icon={<X aria-hidden />}
           aria-label="Закрыть"
           onClick={onClose}
         />

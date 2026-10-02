@@ -28,8 +28,9 @@
     line-height: var(--typography-heading-3-line-height);
   }
 
+  /* Главная кнопка (в разметке последняя) встаёт сверху. */
   .actions {
-    flex-direction: column;
+    flex-direction: column-reverse;
     width: 100%;
   }
 
