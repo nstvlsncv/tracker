@@ -228,8 +228,8 @@
     padding: var(--space-xs) 0;
     border-radius: var(--radius-md);
     color: var(--text-placeholder);
-    font-size: var(--typography-caption-font-size);
-    line-height: var(--typography-caption-line-height);
+    font-size: var(--typography-tab-font-size);
+    line-height: var(--typography-tab-line-height);
   }
 
   .item:hover,

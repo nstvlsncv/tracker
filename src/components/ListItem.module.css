@@ -46,17 +46,6 @@ button.title {
   cursor: inherit;
 }
 
-/*
- * На сенсорных экранах текст строки сразу 16px, как в поле ввода (меньше нельзя: iOS приближает
- * страницу). Так при переименовании текст не меняет размер.
- */
-@media (pointer: coarse) {
-  .title {
-    font-size: var(--typography-body-lg-font-size);
-    line-height: var(--typography-body-lg-line-height);
-  }
-}
-
 .done .title {
   color: var(--text-disabled);
   text-decoration: line-through;

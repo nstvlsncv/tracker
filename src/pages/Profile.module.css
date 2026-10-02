@@ -13,6 +13,12 @@
   gap: var(--space-xs);
 }
 
+/* Между версиями тонкая линия, как над кнопкой «Выйти» в боковом меню. */
+.release + .release {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
 /* Заголовок версии набран тем же стилем, что и описание, отличается только цветом. */
 .title {
   margin: 0;

@@ -60,7 +60,7 @@ for (const [group, node] of Object.entries(tokens.semantic)) {
     continue
   }
   for (const [style, props] of Object.entries(node)) {
-    const rules = Object.entries(props).map(([prop, ref]) => {
+    const rules = Object.entries(props).filter(([prop]) => prop in TYPO_PROPS).map(([prop, ref]) => {
       const name = varName(['typography', style, TYPO_PROPS[prop]])
       semantic.push(`  ${name}: ${refToVar(ref)};`)
       return `  ${TYPO_PROPS[prop]}: var(${name});`
@@ -72,6 +72,14 @@ for (const [group, node] of Object.entries(tokens.semantic)) {
 // Тёмная тема: те же имена переменных, что у semantic, но другие значения.
 for (const [group, node] of Object.entries(tokens['semantic-dark'] ?? {})) {
   if (typeof node === 'object') walk(node, [group], dark)
+}
+
+// Планшет и телефон: увеличенный набор текстовых стилей (те же переменные, другие значения).
+const touch = []
+for (const [style, props] of Object.entries(tokens['semantic-touch']?.typography ?? {})) {
+  for (const [prop, ref] of Object.entries(props)) {
+    if (prop in TYPO_PROPS) touch.push(`    ${varName(['typography', style, TYPO_PROPS[prop]])}: ${refToVar(ref)};`)
+  }
 }
 
 const css = `/* Сгенерировано из design-tokens.json (npm run tokens). Не редактировать вручную. */
@@ -91,6 +99,13 @@ ${semantic.join('\n')}
 ${dark.join('\n')}
 }
 
+/* semantic-touch: планшет и телефон (экран до 1024px или сенсорный), текст на ступень крупнее */
+@media (max-width: 1024px), (pointer: coarse) {
+  :root {
+${touch.join('\n')}
+  }
+}
+
 /* Текстовые стили из semantic.typography */
 ${typography.join('\n\n')}
 `
@@ -98,5 +113,5 @@ ${typography.join('\n\n')}
 mkdirSync(dirname(outFile), { recursive: true })
 writeFileSync(outFile, css)
 console.log(
-  `tokens.css: ${core.length} core, ${semantic.length} semantic, ${dark.length} dark, ${typography.length} text styles`,
+  `tokens.css: ${core.length} core, ${semantic.length} semantic, ${dark.length} dark, ${touch.length} touch, ${typography.length} text styles`,
 )
