@@ -7,7 +7,8 @@ type Option<T extends string> = { value: T; label: string; icon?: ReactNode }
 type Props<T extends string> = {
   options: Option<T>[]
   value: T
-  onChange: (value: T) => void
+  /** Вторым аргументом приходит нажатая кнопка: от неё можно строить анимацию. */
+  onChange: (value: T, button: HTMLButtonElement) => void
   /** Что выбирает переключатель: для скринридера. */
   'aria-label': string
 }
@@ -23,7 +24,7 @@ export function Segmented<T extends string>({ options, value, onChange, ...rest 
           role="radio"
           aria-checked={option.value === value}
           className={cx('t-button', styles.option, option.value === value && styles.selected)}
-          onClick={() => onChange(option.value)}
+          onClick={(event) => onChange(option.value, event.currentTarget)}
         >
           {option.icon}
           {option.label}

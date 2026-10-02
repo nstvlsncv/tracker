@@ -86,3 +86,11 @@ button:disabled {
     line-height: var(--typography-body-lg-line-height);
   }
 }
+
+/* Смена темы: новая тема открывается растущим кругом (см. src/lib/theme.ts).
+   Стандартное растворение старого снимка в новом отключено, круг рисуется поверх. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}

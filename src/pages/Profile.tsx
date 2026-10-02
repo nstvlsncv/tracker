@@ -25,7 +25,11 @@ export function Profile() {
           <Segmented
             aria-label="Тема оформления"
             value={theme}
-            onChange={setTheme}
+            onChange={(next, button) => {
+              // Новая тема расходится кругом из центра нажатой кнопки.
+              const rect = button.getBoundingClientRect()
+              setTheme(next, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+            }}
             options={[
               { value: 'light', label: 'Светлая', icon: <Sun aria-hidden /> },
               { value: 'dark', label: 'Тёмная', icon: <Moon aria-hidden /> },
