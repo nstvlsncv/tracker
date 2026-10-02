@@ -1,3 +1,4 @@
+import { SignOut } from '@phosphor-icons/react'
 import { useId, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useAuth } from '../../auth/useAuth'
@@ -12,7 +13,7 @@ import styles from './profile.module.css'
 
 /** Блок «Аккаунт»: имя, фамилия и логин. Имя и фамилия меняются в модалке, логин в ней только показан. */
 export function AccountSection() {
-  const { profile } = useAuth()
+  const { profile, signOut } = useAuth()
   const account = useAccount()
   const [editing, setEditing] = useState(false)
 
@@ -24,9 +25,13 @@ export function AccountSection() {
           <Field label="Фамилия" value={profile?.lastName} />
           <Field label="Логин" value={account.email} />
         </dl>
-        <div>
+        <div className={styles.actions}>
           <Button variant="secondary" onClick={() => setEditing(true)}>
             Изменить
+          </Button>
+          {/* Только на телефоне: в нижней панели кнопки выхода нет. */}
+          <Button tone="danger" className={styles.logout} icon={<SignOut aria-hidden />} onClick={signOut}>
+            Выйти
           </Button>
         </div>
       </Section>

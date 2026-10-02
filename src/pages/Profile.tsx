@@ -1,4 +1,4 @@
-import { Moon, SignOut, Sun } from '@phosphor-icons/react'
+import { Moon, Sun } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
 import { useState } from 'react'
 import { useAuth } from '../auth/useAuth'
@@ -17,7 +17,7 @@ import styles from './Profile.module.css'
 
 /** Экран Профиля: аккаунт, пароль, сессии, оформление, история версий и удаление аккаунта. */
 export function Profile() {
-  const { signOut, profile } = useAuth()
+  const { profile } = useAuth()
   const theme = useTheme()
   // В истории версий сразу видна только последняя, остальные открываются кнопкой.
   const [showAll, setShowAll] = useState(false)
@@ -70,12 +70,6 @@ export function Profile() {
       </Section>
 
       <DangerZone />
-
-      <div className={styles.logout}>
-        <Button tone="danger" size="lg" fullWidth icon={<SignOut aria-hidden />} onClick={signOut}>
-          Выйти
-        </Button>
-      </div>
     </>
   )
 }

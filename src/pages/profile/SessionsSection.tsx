@@ -107,7 +107,7 @@ export function SessionsSection() {
         })}
       </ul>
       {others.length > 1 && (
-        <div>
+        <div className={styles.wide}>
           <Button
             variant="secondary"
             pending={ending === 'others'}

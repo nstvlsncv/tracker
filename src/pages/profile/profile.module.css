@@ -46,6 +46,17 @@
   color: var(--text-placeholder);
 }
 
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+/* На планшете и компьютере выход есть в боковом меню, в блоке «Аккаунт» он только на телефоне. */
+.actions .logout {
+  display: none;
+}
+
 /* --- Пароль: чеклист требований --- */
 
 .checks {
@@ -99,6 +110,7 @@
 .sessions {
   display: flex;
   flex-direction: column;
+  gap: var(--space-md);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -108,11 +120,11 @@
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  min-height: 56px;
-  padding: var(--space-sm) 0;
 }
 
+/* Линия и отступы вокруг неё такие же, как между версиями в «Истории версий». */
 .session + .session {
+  padding-top: var(--space-md);
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -171,6 +183,25 @@
 }
 
 @media (max-width: 640px) {
+  .actions .logout {
+    display: inline-flex;
+  }
+
+  /* В узкой строке сессии тексту нужно больше места: отступы меньше. */
+  .session {
+    gap: var(--space-sm);
+  }
+
+  /* Длинная кнопка не вылезает за блок: во всю ширину, подпись может переноситься. */
+  .wide > button {
+    width: 100%;
+    height: auto;
+    min-height: 40px;
+    padding-top: var(--space-sm);
+    padding-bottom: var(--space-sm);
+    white-space: normal;
+  }
+
   .fields {
     grid-template-columns: minmax(0, 1fr);
   }
