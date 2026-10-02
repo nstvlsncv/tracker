@@ -16,22 +16,22 @@
       "900": { "value": "#171717", "type": "color" }
     },
     "Green": {
-      "100": { "value": "#EAF8E1", "type": "color" },
-      "600": { "value": "#43A63C", "type": "color" },
-      "900": { "value": "#16301A", "type": "color", "note": "Added for the dark theme: success background." }
+      "100": { "value": "#DDFAEB", "type": "color" },
+      "600": { "value": "#00B86B", "type": "color" },
+      "900": { "value": "#0A3323", "type": "color", "note": "Added for the dark theme: success background." }
     },
     "Lime": {
       "500": { "value": "#C6F432", "type": "color", "note": "The one juicy colour of the product. Marks achievement only: progress fill and checked checkboxes." }
     },
     "Orange": {
-      "100": { "value": "#FFF0D6", "type": "color" },
-      "600": { "value": "#F28A1A", "type": "color" },
-      "900": { "value": "#3A2608", "type": "color", "note": "Added for the dark theme: warning background." }
+      "100": { "value": "#FFF0D9", "type": "color" },
+      "600": { "value": "#FF8A00", "type": "color" },
+      "900": { "value": "#3D2500", "type": "color", "note": "Added for the dark theme: warning background." }
     },
     "Red": {
-      "100": { "value": "#FDE8E5", "type": "color" },
-      "600": { "value": "#E5483F", "type": "color" },
-      "900": { "value": "#3A1512", "type": "color", "note": "Added for the dark theme: danger background." }
+      "100": { "value": "#FFE8E5", "type": "color" },
+      "600": { "value": "#FF4433", "type": "color" },
+      "900": { "value": "#40120D", "type": "color", "note": "Added for the dark theme: danger background." }
     },
     "Base": {
       "black": { "value": "#000000", "type": "color" },
