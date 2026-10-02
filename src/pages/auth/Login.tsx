@@ -12,6 +12,8 @@ const ATTEMPTS_KEY = 'tracker.loginAttempts'
 const WRONG_MESSAGE = 'Неверный логин или пароль'
 const LOCKED_MESSAGE = 'Слишком много попыток. Попробуй через 5 минут'
 
+type FieldErrors = { login?: string; password?: string; loginInvalid?: boolean }
+
 function readAttempts(): LoginAttempts {
   try {
     return { ...NO_ATTEMPTS, ...JSON.parse(localStorage.getItem(ATTEMPTS_KEY) ?? '{}') }
@@ -32,15 +34,21 @@ export function Login() {
   const toast = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<FieldErrors>({})
   const [busy, setBusy] = useState(false)
+
+  // Общая ошибка на оба поля: подсвечены оба, текст один, под паролем.
+  const failBoth = (message: string) => setErrors({ loginInvalid: true, password: message })
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
-    if (isLocked(readAttempts(), Date.now())) {
-      setError(LOCKED_MESSAGE)
-      return
-    }
+    const noLogin = !email.trim()
+    const noPassword = !password
+    if (noLogin && noPassword) return failBoth('Введи логин и пароль, чтобы войти')
+    if (noLogin) return setErrors({ login: 'Введи логин, чтобы войти' })
+    if (noPassword) return setErrors({ password: 'Введи пароль, чтобы войти' })
+    if (isLocked(readAttempts(), Date.now())) return failBoth(LOCKED_MESSAGE)
+
     setBusy(true)
     const { error: authError } = await supabase.auth.signInWithPassword({
       email: email.trim(),
@@ -59,7 +67,7 @@ export function Login() {
     // Одно общее сообщение: нельзя раскрывать, существует ли такой логин.
     const attempts = registerFailure(readAttempts(), Date.now())
     writeAttempts(attempts)
-    setError(isLocked(attempts, Date.now()) ? LOCKED_MESSAGE : WRONG_MESSAGE)
+    failBoth(isLocked(attempts, Date.now()) ? LOCKED_MESSAGE : WRONG_MESSAGE)
   }
 
   return (
@@ -72,10 +80,11 @@ export function Login() {
           autoComplete="email"
           autoFocus
           value={email}
-          invalid={Boolean(error)}
+          error={errors.login}
+          invalid={errors.loginInvalid}
           onChange={(event) => {
             setEmail(event.target.value)
-            setError(null)
+            setErrors({})
           }}
         />
         <Input
@@ -84,19 +93,13 @@ export function Login() {
           type="password"
           autoComplete="current-password"
           value={password}
-          error={error ?? undefined}
+          error={errors.password}
           onChange={(event) => {
             setPassword(event.target.value)
-            setError(null)
+            setErrors({})
           }}
         />
-        <Button
-          type="submit"
-          size="lg"
-          fullWidth
-          disabled={!email.trim() || !password}
-          pending={busy}
-        >
+        <Button type="submit" size="lg" fullWidth pending={busy}>
           Войти
         </Button>
       </form>
