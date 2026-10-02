@@ -2,13 +2,15 @@ import { ArrowBendUpRight, Trash } from '@phosphor-icons/react'
 import { useEffect, useRef, useState } from 'react'
 import type { TouchEvent } from 'react'
 import { cx } from '../lib/cx'
+import { moveTarget } from '../lib/taskMove'
 import { Checkbox } from './Checkbox'
 import { IconButton } from './IconButton'
 import { InlineInput } from './InlineInput'
+import { MoveMenu } from './MoveMenu'
 import styles from './ListItem.module.css'
 
-/** Перенос задачи на другой день: подпись («Перенести на завтра») и само действие. */
-export type MoveAction = { label: string; run: () => void }
+/** Перенос задачи на другой день: где она стоит сейчас и что сделать с выбранным днём. */
+export type MoveAction = { date: string; today: string; onPick: (date: string) => void }
 
 type Props = {
   title: string
@@ -36,9 +38,10 @@ type Gesture = { x: number; y: number; base: number; offset: number; axis: 'x' |
 
 /**
  * Строка задачи или цели. Клик по строке (кроме чекбокса и кнопок) включает переименование.
- * На компьютере при наведении появляются кнопки: перенос (у задач) и корзина.
- * На сенсорных экранах, как в iOS: свайп влево открывает удаление, свайп вправо перенос;
- * короткий свайп показывает кнопку, длинный выполняет действие сразу.
+ * На компьютере при наведении появляются кнопки: перенос (у задач, открывает меню с днями)
+ * и корзина. На сенсорных экранах, как в iOS: свайп влево открывает удаление, свайп вправо
+ * перенос; короткий свайп показывает кнопку (у переноса она открывает то же меню шторкой),
+ * длинный выполняет действие сразу.
  */
 export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Props) {
   const [editing, setEditing] = useState(false)
@@ -47,6 +50,10 @@ export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Pr
   const gesture = useRef<Gesture | null>(null)
   // Сразу после свайпа браузер может прислать клик: он не должен включать переименование.
   const swiped = useRef(false)
+  // Открыто ли меню переноса и где: под кнопкой (компьютер) или шторкой (сенсорный экран).
+  const [moveMenu, setMoveMenu] = useState<DOMRect | 'sheet' | null>(null)
+  // Быстрый перенос длинным свайпом: с прошедшего дня на сегодня, иначе на следующий день.
+  const quick = move && moveTarget(move.date, move.today)
 
   const save = (next: string) => {
     if (next && next !== title) onRename(next)
@@ -113,13 +120,13 @@ export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Pr
     const width = swipe.offsetWidth
     const { offset } = current
     if (offset > width * FULL_SWIPE) {
-      // Протянули далеко влево: строка уезжает целиком и удаляется.
-      setOffset(width)
-      setTimeout(onDelete, SETTLE_MS)
+      // Протянули далеко влево: строка возвращается на место и удаляется (рассыпается в пыль).
+      close()
+      onDelete()
     } else if (move && offset < -width * FULL_SWIPE) {
-      // Далеко вправо: задача переносится сразу.
+      // Далеко вправо: задача переносится сразу, без меню.
       setOffset(-width)
-      setTimeout(move.run, SETTLE_MS)
+      setTimeout(() => quick && move.onPick(quick.date), SETTLE_MS)
     } else if (offset > REVEAL_PX / 2) {
       setOpen('delete')
       setOffset(REVEAL_PX)
@@ -144,9 +151,12 @@ export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Pr
         <button
           type="button"
           className={styles.move}
-          aria-label={`${move.label}: ${title}`}
+          aria-label={`Перенести: ${title}`}
           tabIndex={open === 'move' ? 0 : -1}
-          onClick={move.run}
+          onClick={() => {
+            close()
+            setMoveMenu('sheet')
+          }}
         >
           <ArrowBendUpRight aria-hidden />
         </button>
@@ -156,7 +166,10 @@ export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Pr
         className={styles.remove}
         aria-label={`Удалить: ${title}`}
         tabIndex={open === 'delete' ? 0 : -1}
-        onClick={onDelete}
+        onClick={() => {
+          close()
+          onDelete()
+        }}
       >
         <Trash aria-hidden />
       </button>
@@ -194,11 +207,11 @@ export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Pr
                 variant="ghost"
                 size="sm"
                 icon={<ArrowBendUpRight aria-hidden />}
-                aria-label={`${move.label}: ${title}`}
-                title={move.label}
+                aria-label={`Перенести: ${title}`}
+                aria-haspopup="dialog"
                 onClick={(event) => {
                   event.stopPropagation()
-                  move.run()
+                  setMoveMenu(event.currentTarget.getBoundingClientRect())
                 }}
               />
             )}
@@ -216,6 +229,18 @@ export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Pr
           </div>
         )}
       </div>
+      {move && moveMenu && (
+        <MoveMenu
+          date={move.date}
+          today={move.today}
+          anchor={moveMenu}
+          onClose={() => setMoveMenu(null)}
+          onPick={(date) => {
+            setMoveMenu(null)
+            move.onPick(date)
+          }}
+        />
+      )}
     </div>
   )
 }

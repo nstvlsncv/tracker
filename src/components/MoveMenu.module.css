@@ -1,0 +1,67 @@
+/* Выпадающий список под кнопкой переноса. Стоит поверх всего, место считает MoveMenu.tsx. */
+.popover {
+  position: fixed;
+  z-index: 60;
+  min-width: 260px;
+  padding: var(--space-sm);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-popover);
+  animation: appear 120ms ease-out;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
+  width: 100%;
+  min-height: 40px;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  text-align: left;
+  transition: background-color var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .option:hover {
+    background: var(--bg-secondary);
+  }
+}
+
+.option:focus-visible {
+  outline-offset: -2px;
+}
+
+.day {
+  flex: none;
+  color: var(--text-tertiary);
+}
+
+svg.day {
+  width: 20px;
+  height: 20px;
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover {
+    animation: none;
+  }
+}

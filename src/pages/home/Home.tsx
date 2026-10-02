@@ -23,7 +23,6 @@ import {
   progress,
   shiftDate,
 } from '../../lib/metrics'
-import { moveTarget } from '../../lib/taskMove'
 import { useNow } from '../../lib/useNow'
 import { useToday } from '../../lib/useToday'
 import { HabitModal } from '../habits/HabitModal'
@@ -72,7 +71,6 @@ export function Home() {
     (a, b) => Number(checksOf(a.id).has(today)) - Number(checksOf(b.id).has(today)),
   )
 
-  const tomorrow = moveTarget(today, today)
   const allHabitsDone = habits.length > 0 && habitsDoneToday === habits.length
   // Не закрытое за последние семь дней: можно одним нажатием перенести на сегодня.
   const overdue = planner.tasks.filter(
@@ -173,7 +171,7 @@ export function Home() {
             onToggle={planner.toggleTask}
             onRename={planner.renameTask}
             onDelete={planner.deleteTask}
-            moveOf={(id) => ({ label: tomorrow.label, run: () => planner.moveTasks([id], tomorrow.date) })}
+            moveOf={(id) => ({ date: today, today, onPick: (target) => planner.moveTasks([id], target) })}
           />
         ) : (
           adding !== 'task' && <p className={styles.placeholder}>На сегодня пока свободно</p>
