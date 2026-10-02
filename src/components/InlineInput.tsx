@@ -14,6 +14,11 @@ type Props = {
   onEscape: () => void
 }
 
+/** Насколько должна вырасти видимая часть экрана, чтобы считать, что клавиатуру убрали. */
+const KEYBOARD_MIN_HEIGHT = 120
+
+const isTouch = () => window.matchMedia('(pointer: coarse)').matches
+
 /** Инлайн-поле для добавления и переименования задач и целей (SPEC.md, раздел 11). */
 export function InlineInput({
   initialValue = '',
@@ -28,6 +33,17 @@ export function InlineInput({
   const settled = useRef(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
+  // Сохранить введённое и закрыть поле. Так же срабатывает потеря фокуса.
+  const commit = () => {
+    if (settled.current) return
+    settled.current = true
+    onBlur(inputRef.current?.value.trim() ?? '')
+  }
+  const commitRef = useRef(commit)
+  useEffect(() => {
+    commitRef.current = commit
+  })
+
   // Поле должно быть на виду. На компьютере страница двигается, только если поля не видно.
   // На телефоне поле ставится в середину видимой части экрана: нижнюю часть занимает
   // клавиатура, и браузер про неё при обычной прокрутке не знает.
@@ -35,7 +51,7 @@ export function InlineInput({
     const input = inputRef.current
     if (!input) return
     const viewport = window.visualViewport
-    if (!viewport || !window.matchMedia('(pointer: coarse)').matches) {
+    if (!viewport || !isTouch()) {
       input.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' })
       return
     }
@@ -48,10 +64,20 @@ export function InlineInput({
 
   useEffect(() => {
     reveal()
-    // Клавиатура телефона выезжает не сразу: когда видимая часть экрана уменьшится, ставим поле заново.
     const viewport = window.visualViewport
-    viewport?.addEventListener('resize', reveal)
-    return () => viewport?.removeEventListener('resize', reveal)
+    if (!viewport) return
+    let height = viewport.height
+    const onResize = () => {
+      const grew = viewport.height - height
+      height = viewport.height
+      // Видимая часть экрана заметно выросла: клавиатуру убрали. На телефоне это значит
+      // «готово»: сохраняем введённое и закрываем поле.
+      if (grew > KEYBOARD_MIN_HEIGHT && isTouch()) commitRef.current()
+      // Иначе клавиатура выезжает: ставим поле на видное место заново.
+      else reveal()
+    }
+    viewport.addEventListener('resize', onResize)
+    return () => viewport.removeEventListener('resize', onResize)
   }, [])
 
   return (
@@ -59,6 +85,7 @@ export function InlineInput({
       ref={inputRef}
       className={`t-body-md ${styles.input}`}
       autoFocus
+      enterKeyHint="done"
       value={value}
       maxLength={maxLength}
       onChange={(event) => setValue(event.target.value)}
@@ -70,6 +97,12 @@ export function InlineInput({
           onEscape()
         }
         if (event.key === 'Enter') {
+          // На телефоне кнопка «Готово» на клавиатуре добавляет и закрывает поле вместе с
+          // клавиатурой. Ввод нескольких строк подряд через Enter остаётся только на компьютере.
+          if (isTouch()) {
+            commit()
+            return
+          }
           const trimmed = value.trim()
           if (!trimmed) return
           if (onEnter(trimmed)) {
@@ -79,9 +112,7 @@ export function InlineInput({
           } else settled.current = true
         }
       }}
-      onBlur={() => {
-        if (!settled.current) onBlur(value.trim())
-      }}
+      onBlur={commit}
       {...rest}
     />
   )
