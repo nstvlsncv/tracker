@@ -17,8 +17,7 @@
 }
 
 html {
-  /* --chrome-bg задаётся только на время смены темы (см. src/lib/theme.ts). */
-  background: var(--chrome-bg, var(--bg-surface));
+  background: var(--bg-surface);
   /* Телефоны подсвечивают элемент серым прямоугольником при тапе. У нас своя анимация нажатия. */
   -webkit-tap-highlight-color: transparent;
 }
@@ -26,21 +25,14 @@ html {
 body {
   min-height: 100dvh;
   margin: 0;
-  /* По фону body браузер телефона красит свои панели (строку состояния, адресную строку).
-     Сам цвет страницы рисует #root, поэтому фон body можно придержать на время анимации темы. */
-  background: var(--chrome-bg, var(--bg-surface));
+  /* Не ниже экрана и растёт вместе с содержимым: фон страницы закрывает всё, что видно. */
+  background: var(--bg-surface);
   color: var(--text-primary);
   font-family: var(--typography-body-md-font-family);
   font-weight: var(--typography-body-md-font-weight);
   font-size: var(--typography-body-md-font-size);
   line-height: var(--typography-body-md-line-height);
   -webkit-font-smoothing: antialiased;
-}
-
-/* Цвет страницы. Не ниже экрана и растёт вместе с содержимым. */
-#root {
-  min-height: 100dvh;
-  background: var(--bg-surface);
 }
 
 h1,
@@ -92,10 +84,11 @@ button:disabled {
   }
 }
 
-/* Смена темы: новая тема открывается растущим кругом (см. src/lib/theme.ts).
-   Стандартное растворение старого снимка в новом отключено, круг рисуется поверх. */
-::view-transition-old(root),
-::view-transition-new(root) {
+/* Смена темы (см. src/lib/theme.ts). На планшете и телефоне работает стандартное растворение
+   старого снимка страницы в новом. На компьютере оно отключается пометкой на корне,
+   и новая тема открывается растущим кругом. */
+:root[data-theme-reveal='circle']::view-transition-old(root),
+:root[data-theme-reveal='circle']::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
 }
