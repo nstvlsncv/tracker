@@ -41,7 +41,11 @@
   stroke-linejoin: round;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  transition: stroke-dashoffset 120ms ease-in;
+  /* Без отметки галочка скрыта целиком: иначе на телефоне от неё остаётся точка в начале штриха. */
+  opacity: 0;
+  transition:
+    stroke-dashoffset 120ms ease-in,
+    opacity 0s 120ms;
 }
 
 .checkbox:hover:not(:disabled) {
@@ -67,7 +71,10 @@
 /* Галочка рисуется после того, как круг почти залился. */
 .checked .check {
   stroke-dashoffset: 0;
-  transition: stroke-dashoffset 260ms cubic-bezier(0.65, 0, 0.35, 1) 140ms;
+  opacity: 1;
+  transition:
+    stroke-dashoffset 260ms cubic-bezier(0.65, 0, 0.35, 1) 140ms,
+    opacity 0s 140ms;
 }
 
 .checked:hover:not(:disabled) {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   formatAgo,
-  formatDateTimeNumeric,
+  formatDateNumeric,
   formatDayMonth,
   formatDayShort,
   formatWeekdayShort,
@@ -34,7 +34,7 @@ describe('formatAgo', () => {
 describe('форматы дат', () => {
   it('день и месяц', () => {
     expect(formatDayMonth(new Date(2026, 8, 15))).toBe('15 сентября')
-    expect(formatDateTimeNumeric(new Date(2026, 9, 2, 9, 5))).toBe('02.10.2026 09:05')
+    expect(formatDateNumeric(new Date(2026, 9, 2, 9, 5))).toBe('02.10.2026')
     expect(formatDayShort(new Date(2026, 8, 5))).toBe('05.09')
   })
 

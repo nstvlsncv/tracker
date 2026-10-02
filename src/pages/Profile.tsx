@@ -6,7 +6,7 @@ import { Button } from '../components/Button'
 import { Section } from '../components/Section'
 import { Segmented } from '../components/Segmented'
 import { CHANGELOG } from '../data/changelog'
-import { formatDateTimeNumeric } from '../lib/dates'
+import { formatDateNumeric } from '../lib/dates'
 import { setTheme, useTheme } from '../lib/theme'
 import { PageHeader } from '../layout/PageHeader'
 import { AccountSection } from './profile/AccountSection'
@@ -54,7 +54,7 @@ export function Profile() {
           {(showAll ? CHANGELOG : CHANGELOG.slice(0, 1)).map((release) => (
             <li key={release.version} className={styles.release}>
               <h3 className={styles.title}>
-                Версия {release.version} · {formatDateTimeNumeric(parseISO(release.date))}
+                Версия {release.version} · {formatDateNumeric(parseISO(release.date))}
               </h3>
               <p className={styles.text}>{release.text}</p>
             </li>

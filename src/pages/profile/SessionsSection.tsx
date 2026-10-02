@@ -100,15 +100,15 @@ export function SessionsSection() {
         })}
       </ul>
       {others.length > 1 && (
-        <div className={styles.wide}>
+        <div>
           <Button variant="secondary" onClick={() => setAsking('others')}>
-            Завершить все другие сессии
+            Завершить остальные
           </Button>
         </div>
       )}
       {asking === 'others' && (
         <ConfirmModal
-          title="Завершить все другие сессии?"
+          title="Завершить остальные сессии?"
           confirmLabel="Завершить"
           onConfirm={() => end('others')}
           onClose={() => setAsking(undefined)}
