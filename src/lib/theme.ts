@@ -6,7 +6,7 @@ export type Theme = 'light' | 'dark'
 // чтобы страница не мигала светлой перед тем, как стать тёмной.
 const STORAGE_KEY = 'tracker.theme'
 const REVEAL_MS = 500
-/** Планшет или телефон: там тема меняется простым растворением, без круга. */
+/** Планшет или телефон: там тема меняется сразу, без анимации. */
 const TOUCH_QUERY = '(max-width: 1024px), (pointer: coarse)'
 const listeners = new Set<() => void>()
 
@@ -32,23 +32,21 @@ function applyTheme(theme: Theme) {
 }
 
 /**
- * Сменить тему. Браузер сам делает снимок страницы до и после смены (View Transitions)
- * и показывает переход между ними:
- * - на компьютере новая тема расходится кругом из точки `origin` (центр нажатой кнопки);
- * - на планшете и телефоне старая тема плавно растворяется в новой. Круга там нет:
- *   панели самого браузера в снимок не входят, и синхронизировать их с кругом не получается.
- * Где такой возможности нет или анимации отключены в системе, тема меняется сразу.
+ * Сменить тему.
+ * - На компьютере браузер делает снимок страницы до и после смены (View Transitions),
+ *   и новая тема расходится кругом из точки `origin` (центр нажатой кнопки).
+ * - На планшете и телефоне тема меняется сразу, без анимации: панели самого браузера
+ *   в снимок не входят и перекрашиваются отдельно от страницы, из-за чего любой переход
+ *   выглядит рывком.
+ * Где такой возможности нет или анимации отключены в системе, тема тоже меняется сразу.
  */
 export function setTheme(theme: Theme, origin?: { x: number; y: number }) {
   if (theme === getTheme()) return
 
   const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  if (still || !document.startViewTransition) {
+  const touch = window.matchMedia(TOUCH_QUERY).matches
+  if (still || touch || !origin || !document.startViewTransition) {
     applyTheme(theme)
-    return
-  }
-  if (!origin || window.matchMedia(TOUCH_QUERY).matches) {
-    document.startViewTransition(() => applyTheme(theme))
     return
   }
 

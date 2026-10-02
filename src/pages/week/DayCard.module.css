@@ -21,30 +21,12 @@
 }
 
 /*
- * Сегодняшний день в светлой теме: акценты наоборот, чёрная карточка и белый текст.
- * Внутри карточки семантические токены переназначены, поэтому чекбоксы, донат, строки
- * и кнопка сами перекрашиваются под тёмный фон, без отдельных стилей в каждом компоненте.
+ * Сегодняшний день: заливка как у остальных дней, а вокруг рамка акцентного цвета
+ * (чёрная в светлой теме, белая в тёмной). Рамка нарисована тенью внутрь, поэтому
+ * карточка не меняет размер и не сдвигает содержимое.
  */
-:global(:root:not([data-theme='dark'])) .today {
-  background: var(--bg-inverse);
-  color: var(--text-inverse);
-
-  --text-primary: var(--text-inverse);
-  --accent-default: var(--text-inverse);
-  --accent-foreground: var(--bg-inverse);
-  --accent-subtle: var(--accent-hover);
-  --bg-secondary: var(--accent-hover);
-  --bg-tertiary: var(--accent-pressed);
-  --bg-surface: transparent;
-  --effects-focus-ring: var(--text-inverse);
-}
-
-/*
- * В тёмной теме тот же приём дал бы белую карточку, которая слепит на чёрном.
- * Поэтому там сегодняшний день выделен белой рамкой, а заливка как у остальных дней.
- */
-:global(:root[data-theme='dark']) .today {
-  box-shadow: inset 0 0 0 1.5px var(--accent-default);
+.today {
+  box-shadow: inset 0 0 0 4px var(--accent-default);
 }
 
 .today .number {
