@@ -189,7 +189,7 @@
     padding-bottom: 55vh;
   }
 
-  /* Полупрозрачная панель во всю ширину с размытием того, что под ней. */
+  /* Белая панель во всю ширину с тонкой линией сверху. */
   .sidebar {
     position: fixed;
     top: auto;
@@ -202,9 +202,7 @@
     padding: var(--space-sm) var(--space-sm) calc(var(--space-xs) + env(safe-area-inset-bottom));
     border-top: 1px solid var(--border-subtle);
     border-radius: 0;
-    background: color-mix(in srgb, var(--bg-surface) 82%, transparent);
-    -webkit-backdrop-filter: saturate(180%) blur(20px);
-    backdrop-filter: saturate(180%) blur(20px);
+    background: var(--bg-surface);
   }
 
   .nav {
