@@ -74,7 +74,7 @@
   height: 20px;
   border: 1.5px solid var(--border-default);
   border-radius: var(--radius-full);
-  color: var(--accent-foreground);
+  color: var(--highlight-foreground);
   transition:
     background-color var(--transition-fast),
     border-color var(--transition-fast);
@@ -90,8 +90,8 @@
 }
 
 .passed .checkMark {
-  border-color: var(--accent-default);
-  background: var(--accent-default);
+  border-color: var(--highlight-default);
+  background: var(--highlight-default);
 }
 
 /* --- Сессии: строки через тонкую линию --- */
@@ -135,8 +135,8 @@
   flex: none;
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-sm);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
+  background: var(--highlight-default);
+  color: var(--highlight-foreground);
 }
 
 /* --- Опасная зона --- */

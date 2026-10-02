@@ -26,11 +26,6 @@ export function Profile() {
     <>
       <PageHeader title="Профиль" />
 
-      <AccountSection />
-      <PasswordSection />
-      {/* После смены пароля другие сессии завершаются: список перечитывается заново. */}
-      <SessionsSection key={profile?.passwordChangedAt} />
-
       <Section title="Оформление">
         <div>
           <Segmented
@@ -48,6 +43,11 @@ export function Profile() {
           />
         </div>
       </Section>
+
+      <AccountSection />
+      <PasswordSection />
+      {/* После смены пароля другие сессии завершаются: список перечитывается заново. */}
+      <SessionsSection key={profile?.passwordChangedAt} />
 
       <Section title="История версий">
         <ol className={styles.releases}>

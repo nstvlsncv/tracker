@@ -93,3 +93,8 @@
   width: 16px;
   height: 16px;
 }
+
+.hint {
+  margin: 0;
+  color: var(--text-tertiary);
+}

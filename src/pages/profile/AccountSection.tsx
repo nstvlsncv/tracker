@@ -1,4 +1,3 @@
-import { PencilSimple } from '@phosphor-icons/react'
 import { useId, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useAuth } from '../../auth/useAuth'
@@ -11,7 +10,7 @@ import { NAME_MAX_LENGTH } from '../../lib/constants'
 import { failureMessage, useAccount } from './useAccount'
 import styles from './profile.module.css'
 
-/** Блок «Аккаунт»: имя, фамилия и логин. Имя и фамилия меняются в модалке. */
+/** Блок «Аккаунт»: имя, фамилия и логин. Имя и фамилия меняются в модалке, логин в ней только показан. */
 export function AccountSection() {
   const { profile } = useAuth()
   const account = useAccount()
@@ -19,19 +18,17 @@ export function AccountSection() {
 
   return (
     <>
-      <Section
-        title="Аккаунт"
-        action={
-          <Button variant="ghost" size="sm" icon={<PencilSimple aria-hidden />} onClick={() => setEditing(true)}>
-            Изменить
-          </Button>
-        }
-      >
+      <Section title="Аккаунт">
         <dl className={styles.fields}>
           <Field label="Имя" value={profile?.name} />
           <Field label="Фамилия" value={profile?.lastName} />
           <Field label="Логин" value={account.email} />
         </dl>
+        <div>
+          <Button variant="secondary" onClick={() => setEditing(true)}>
+            Изменить
+          </Button>
+        </div>
       </Section>
       {editing && <EditAccountModal onClose={() => setEditing(false)} />}
     </>
@@ -106,6 +103,13 @@ function EditAccountModal({ onClose }: { onClose: () => void }) {
           maxLength={NAME_MAX_LENGTH}
           value={lastName}
           onChange={(event) => setLastName(event.target.value)}
+        />
+        <Input
+          label="Логин"
+          value={account.email}
+          disabled
+          readOnly
+          hint="Логин поменять нельзя. Зато не придётся запоминать новый"
         />
       </form>
     </Modal>

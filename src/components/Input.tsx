@@ -8,6 +8,8 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
   label: string
   /** Текст ошибки под полем. */
   error?: string
+  /** Пояснение под полем. Если есть ошибка, вместо него показывается она. */
+  hint?: string
   /** Состояние error без своего текста (общая ошибка на несколько полей, как на входе). */
   invalid?: boolean
   /** Подпись только для скринридера, в поле вместо неё плейсхолдер (экран входа). */
@@ -18,6 +20,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 export function Input({
   label,
   error,
+  hint,
   invalid,
   hideLabel,
   type = 'text',
@@ -42,7 +45,7 @@ export function Input({
           type={isPassword && revealed ? 'text' : type}
           className={cx('t-body-md', styles.input, hasError && styles.error, isPassword && styles.withToggle)}
           aria-invalid={hasError || undefined}
-          aria-describedby={error ? `${id}-error` : undefined}
+          aria-describedby={error ? `${id}-error` : hint ? `${id}-hint` : undefined}
           placeholder={hideLabel ? label : undefined}
           {...rest}
         />
@@ -63,6 +66,11 @@ export function Input({
         <p id={`${id}-error`} className={`t-body-sm ${styles.message}`}>
           <WarningCircle aria-hidden />
           {error}
+        </p>
+      )}
+      {hint && !error && (
+        <p id={`${id}-hint`} className={`t-body-sm ${styles.hint}`}>
+          {hint}
         </p>
       )}
     </div>
