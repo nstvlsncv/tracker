@@ -36,7 +36,7 @@ export function Profile() {
       </Section>
 
       <div className={styles.logout}>
-        <Button tone="danger" variant="ghost" size="lg" icon={<SignOut aria-hidden />} onClick={signOut}>
+        <Button tone="danger" size="lg" fullWidth icon={<SignOut aria-hidden />} onClick={signOut}>
           Выйти
         </Button>
       </div>
