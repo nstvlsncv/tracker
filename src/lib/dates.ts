@@ -22,9 +22,9 @@ export function formatDayMonth(date: Date): string {
   return fmt(date, 'd MMMM')
 }
 
-/** «15.09.2026» */
-export function formatDateNumeric(date: Date): string {
-  return fmt(date, 'dd.MM.yyyy')
+/** «15.09.2026 19:58» */
+export function formatDateTimeNumeric(date: Date): string {
+  return fmt(date, 'dd.MM.yyyy HH:mm')
 }
 
 /** «15.09» */
