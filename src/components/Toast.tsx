@@ -1,64 +1,48 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback } from 'react'
 import type { ReactNode } from 'react'
-import { createPortal } from 'react-dom'
+import { Toaster, toast as sonner, useSonner } from 'sonner'
 import { TOAST_DURATION_MS } from '../lib/constants'
 import { ToastContext } from './useToast'
 import type { ToastOptions } from './useToast'
 import styles from './Toast.module.css'
 
-type ToastState = ToastOptions & { id: number }
+/** Сколько тостов показывается списком. Когда их больше, они складываются в стопку. */
+const STACK_AFTER = 3
 
+/**
+ * Тосты сверху по центру, на 48px ниже верхнего края. Показывает их библиотека Sonner:
+ * она складывает тосты в стопку и даёт смахнуть любой из них в любую сторону.
+ * Остальное приложение про Sonner не знает и вызывает тосты через useToast.
+ */
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toasts, setToasts] = useState<ToastState[]>([])
-  const nextId = useRef(0)
+  const { toasts } = useSonner()
 
-  const show = useCallback((options: ToastOptions) => {
-    const id = nextId.current++
-    setToasts((current) => [...current, { ...options, id }])
-  }, [])
-
-  const dismiss = useCallback((id: number) => {
-    setToasts((current) => current.filter((toast) => toast.id !== id))
+  const show = useCallback(({ message, action, duration = TOAST_DURATION_MS }: ToastOptions) => {
+    // После нажатия на кнопку действия Sonner закрывает тост сам.
+    sonner(message, { duration, action })
   }, [])
 
   return (
     <ToastContext.Provider value={show}>
       {children}
-      {createPortal(
-        <div className={styles.region} role="status" aria-live="polite">
-          {toasts.map((toast) => (
-            <Toast key={toast.id} toast={toast} onDismiss={dismiss} />
-          ))}
-        </div>,
-        document.body,
-      )}
+      <Toaster
+        position="top-center"
+        offset={48}
+        mobileOffset={24}
+        gap={8}
+        visibleToasts={STACK_AFTER}
+        expand={toasts.length <= STACK_AFTER}
+        swipeDirections={['top', 'right', 'bottom', 'left']}
+        containerAriaLabel="Уведомления"
+        toastOptions={{
+          unstyled: true,
+          classNames: {
+            toast: `t-body-md ${styles.toast}`,
+            content: styles.content,
+            actionButton: `t-button ${styles.action}`,
+          },
+        }}
+      />
     </ToastContext.Provider>
-  )
-}
-
-function Toast({ toast, onDismiss }: { toast: ToastState; onDismiss: (id: number) => void }) {
-  const { id, message, action, duration = TOAST_DURATION_MS } = toast
-
-  useEffect(() => {
-    const timer = setTimeout(() => onDismiss(id), duration)
-    return () => clearTimeout(timer)
-  }, [id, duration, onDismiss])
-
-  return (
-    <div className={`t-body-md ${styles.toast}`}>
-      <span>{message}</span>
-      {action && (
-        <button
-          type="button"
-          className={`t-button ${styles.action}`}
-          onClick={() => {
-            action.onClick()
-            onDismiss(id)
-          }}
-        >
-          {action.label}
-        </button>
-      )}
-    </div>
   )
 }

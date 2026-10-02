@@ -1,4 +1,6 @@
 import { cx } from '../lib/cx'
+import { useAfterMount } from '../lib/useAfterMount'
+import { RollingNumber } from './RollingNumber'
 import styles from './Donut.module.css'
 
 type Props = {
@@ -14,12 +16,17 @@ const SIZES = {
   xl: { diameter: 150, stroke: 14 },
 }
 
+/**
+ * Кольцо прогресса. При появлении полоска заполняется от нуля, а процент в центре
+ * проворачивается как счётчик; при смене значения оба плавно переходят к новому.
+ */
 export function Donut({ value, size = 'sm' }: Props) {
+  const ready = useAfterMount()
   const { diameter, stroke } = SIZES[size]
   const radius = (diameter - stroke) / 2
   const length = 2 * Math.PI * radius
   const center = diameter / 2
-  const label = value === null ? '—' : `${value}%`
+  const filled = ready && value !== null ? Math.min(value, 100) / 100 : 0
 
   return (
     <div
@@ -30,18 +37,16 @@ export function Donut({ value, size = 'sm' }: Props) {
     >
       <svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} aria-hidden>
         <circle className={styles.track} cx={center} cy={center} r={radius} strokeWidth={stroke} />
-        {value !== null && value > 0 && (
-          <circle
-            className={styles.fill}
-            cx={center}
-            cy={center}
-            r={radius}
-            strokeWidth={stroke}
-            strokeDasharray={length}
-            strokeDashoffset={length * (1 - Math.min(value, 100) / 100)}
-            transform={`rotate(-90 ${center} ${center})`}
-          />
-        )}
+        <circle
+          className={cx(styles.fill, filled === 0 && styles.empty)}
+          cx={center}
+          cy={center}
+          r={radius}
+          strokeWidth={stroke}
+          strokeDasharray={length}
+          strokeDashoffset={length * (1 - filled)}
+          transform={`rotate(-90 ${center} ${center})`}
+        />
       </svg>
       <span
         className={cx(
@@ -50,7 +55,7 @@ export function Donut({ value, size = 'sm' }: Props) {
           value === null && styles.muted,
         )}
       >
-        {label}
+        {value === null ? '—' : <RollingNumber value={`${value}%`} />}
       </span>
     </div>
   )
