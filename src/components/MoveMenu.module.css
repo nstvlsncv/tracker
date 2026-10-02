@@ -11,6 +11,12 @@
   animation: appear 120ms ease-out;
 }
 
+/* С календарём список шире: в узком день трудно разглядеть и попасть по нему. */
+.calendar {
+  width: 450px;
+  max-width: calc(100vw - 2 * var(--space-sm));
+}
+
 .options {
   display: flex;
   flex-direction: column;

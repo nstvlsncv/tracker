@@ -1,6 +1,8 @@
 const SVG_NS = 'http://www.w3.org/2000/svg'
 /** Сколько длится эффект. Столько же строка ещё занимает своё место в списке. */
 export const DISSOLVE_MS = 900
+/** Зерно шума: чем меньше число, тем крупнее «пылинки». */
+const GRAIN = 0.4
 /** Насколько далеко разлетаются «пылинки» к концу, px. */
 const SCATTER_PX = 320
 
@@ -23,7 +25,7 @@ export function dissolve(node: HTMLElement): Promise<void> {
   // Область фильтра шире самого элемента: пыли нужно место, куда разлетаться.
   svg.innerHTML = `
     <filter id="${id}" x="-50%" y="-300%" width="220%" height="700%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="${counter}" result="noise" />
+      <feTurbulence type="fractalNoise" baseFrequency="${GRAIN}" numOctaves="1" seed="${counter}" result="noise" />
       <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" />
     </filter>`
   document.body.appendChild(svg)

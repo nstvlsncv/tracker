@@ -2,6 +2,7 @@ import { CalendarDots } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { cx } from '../lib/cx'
 import { formatDayMonth } from '../lib/dates'
 import { shiftDate } from '../lib/metrics'
 import { Calendar } from './Calendar'
@@ -106,7 +107,7 @@ export function MoveMenu({ date, today, anchor, onPick, onClose }: Props) {
   return createPortal(
     <div
       ref={popoverRef}
-      className={styles.popover}
+      className={cx(styles.popover, picking && styles.calendar)}
       role="dialog"
       aria-label="Перенести задачу"
       // Пока место не посчитано, список невидим: иначе он мелькнул бы в углу окна.
