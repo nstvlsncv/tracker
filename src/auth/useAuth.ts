@@ -1,5 +1,6 @@
 import type { Session } from '@supabase/supabase-js'
 import { createContext, useContext } from 'react'
+import type { AccountApi } from './account'
 
 export type Profile = {
   id: string
@@ -17,6 +18,8 @@ export type AuthContextValue = {
   profile: Profile | null
   /** Перечитать профиль (после изменения или после ошибки сети). */
   refreshProfile: () => Promise<void>
+  /** Действия с аккаунтом для экрана Профиля. null, пока вход не выполнен. */
+  account: AccountApi | null
   /** Выйти на этом устройстве. Остальные сессии остаются. */
   signOut: () => void
 }

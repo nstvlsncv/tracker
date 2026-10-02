@@ -18,3 +18,20 @@ export function registerFailure(attempts: LoginAttempts, now: number): LoginAtte
     ? { failures: 0, lockedUntil: now + LOGIN_LOCK_MS }
     : { failures, lockedUntil: 0 }
 }
+
+// Требования к новому паролю. Те же пункты показываются чеклистом под полем.
+
+export const PASSWORD_MIN_LENGTH = 8
+
+export type PasswordCheck = { label: string; passed: boolean }
+
+export function checkPassword(password: string): PasswordCheck[] {
+  return [
+    { label: `Минимум ${PASSWORD_MIN_LENGTH} символов`, passed: password.length >= PASSWORD_MIN_LENGTH },
+    { label: 'Есть цифра', passed: /\d/.test(password) },
+  ]
+}
+
+export function isPasswordValid(password: string): boolean {
+  return checkPassword(password).every((check) => check.passed)
+}

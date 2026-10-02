@@ -1,4 +1,4 @@
-import { addDays, format, isSameMonth, isSameYear, isValid, parse, parseISO, startOfWeek } from 'date-fns'
+import { addDays, format, formatDistanceStrict, isSameMonth, isSameYear, isValid, parse, parseISO, startOfWeek } from 'date-fns'
 import { ru } from 'date-fns/locale'
 
 const fmt = (date: Date, pattern: string) => format(date, pattern, { locale: ru })
@@ -25,6 +25,12 @@ export function formatDayMonth(date: Date): string {
 /** «15.09.2026 19:58» */
 export function formatDateTimeNumeric(date: Date): string {
   return fmt(date, 'dd.MM.yyyy HH:mm')
+}
+
+/** «2 часа назад», «3 месяца назад». Меньше минуты: «только что». */
+export function formatAgo(date: Date, now: Date): string {
+  if (now.getTime() - date.getTime() < 60_000) return 'только что'
+  return formatDistanceStrict(date, now, { locale: ru, addSuffix: true })
 }
 
 /** «15.09» */

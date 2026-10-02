@@ -119,6 +119,42 @@ $$;
 revoke all on function public.delete_account() from public, anon;
 grant execute on function public.delete_account() to authenticated;
 
+-- Сессии для экрана Профиля. Таблица auth.sessions снаружи недоступна, поэтому список
+-- отдаёт функция, и только сессии того, кто её вызвал.
+create or replace function public.list_sessions()
+returns table (id uuid, user_agent text, last_active_at timestamptz, is_current boolean)
+language sql
+security definer
+stable
+set search_path = ''
+as $$
+  select
+    s.id,
+    s.user_agent,
+    coalesce(s.refreshed_at at time zone 'utc', s.updated_at, s.created_at) as last_active_at,
+    s.id = ((select auth.jwt()) ->> 'session_id')::uuid as is_current
+  from auth.sessions s
+  where s.user_id = (select auth.uid())
+  order by is_current desc, last_active_at desc;
+$$;
+
+revoke all on function public.list_sessions() from public, anon;
+grant execute on function public.list_sessions() to authenticated;
+
+-- Завершить одну свою сессию: на том устройстве вход пропадёт в течение часа,
+-- когда истечёт уже выданный ему пропуск.
+create or replace function public.end_session(target uuid)
+returns void
+language sql
+security definer
+set search_path = ''
+as $$
+  delete from auth.sessions where id = target and user_id = (select auth.uid());
+$$;
+
+revoke all on function public.end_session(uuid) from public, anon;
+grant execute on function public.end_session(uuid) to authenticated;
+
 -- ---------------------------------------------------------------------------
 -- Приведение базы, созданной прежней версией этого файла, к текущей схеме
 -- ---------------------------------------------------------------------------

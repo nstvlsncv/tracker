@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Route, Routes } from 'react-router'
+import { createDemoAccount } from '../auth/demoAccount'
 import { AuthContext } from '../auth/useAuth'
-import type { AuthContextValue } from '../auth/useAuth'
+import type { AuthContextValue, Profile as ProfileData } from '../auth/useAuth'
 import { useToast } from '../components/useToast'
 import { createMemoryApi } from '../data/memoryApi'
 import { PlannerProvider } from '../data/PlannerProvider'
@@ -19,15 +20,30 @@ const BASE = '/dev/app'
 export function DevPreview() {
   const toast = useToast()
   const api = useMemo(() => createMemoryApi(), [])
+  const [profile, setProfile] = useState<ProfileData>(() => ({
+    id: 'demo',
+    name: 'Анастасия',
+    lastName: 'Власенкова',
+    passwordChangedAt: new Date(Date.now() - 95 * 24 * 60 * 60 * 1000).toISOString(),
+  }))
+  const account = useMemo(
+    () =>
+      createDemoAccount({
+        update: (patch) => setProfile((current) => ({ ...current, ...patch })),
+        onDeleted: () => toast({ message: 'В демо-режиме аккаунт остаётся на месте' }),
+      }),
+    [toast],
+  )
   const auth = useMemo<AuthContextValue>(
     () => ({
       status: 'authenticated',
       session: null,
-      profile: { id: 'demo', name: 'Анастасия', lastName: 'Власенкова', passwordChangedAt: null },
+      profile,
       refreshProfile: async () => {},
+      account,
       signOut: () => toast({ message: 'В демо-режиме выхода нет' }),
     }),
-    [toast],
+    [toast, profile, account],
   )
 
   return (

@@ -9,12 +9,15 @@ import { CHANGELOG } from '../data/changelog'
 import { formatDateTimeNumeric } from '../lib/dates'
 import { setTheme, useTheme } from '../lib/theme'
 import { PageHeader } from '../layout/PageHeader'
+import { AccountSection } from './profile/AccountSection'
+import { DangerZone } from './profile/DangerZone'
+import { PasswordSection } from './profile/PasswordSection'
+import { SessionsSection } from './profile/SessionsSection'
 import styles from './Profile.module.css'
 
-// Сам экран Профиля (имя, пароль, сессии) появится на одном из следующих шагов.
-// Пока здесь тема оформления, история версий и выход для телефона: в нижней панели его нет.
+/** Экран Профиля: аккаунт, пароль, сессии, оформление, история версий и удаление аккаунта. */
 export function Profile() {
-  const { signOut } = useAuth()
+  const { signOut, profile } = useAuth()
   const theme = useTheme()
   // В истории версий сразу видна только последняя, остальные открываются кнопкой.
   const [showAll, setShowAll] = useState(false)
@@ -22,6 +25,11 @@ export function Profile() {
   return (
     <>
       <PageHeader title="Профиль" />
+
+      <AccountSection />
+      <PasswordSection />
+      {/* После смены пароля другие сессии завершаются: список перечитывается заново. */}
+      <SessionsSection key={profile?.passwordChangedAt} />
 
       <Section title="Оформление">
         <div>
@@ -60,6 +68,8 @@ export function Profile() {
           </div>
         )}
       </Section>
+
+      <DangerZone />
 
       <div className={styles.logout}>
         <Button tone="danger" size="lg" fullWidth icon={<SignOut aria-hidden />} onClick={signOut}>

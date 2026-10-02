@@ -2,6 +2,7 @@ import type { Session, User } from '@supabase/supabase-js'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { supabase } from '../lib/supabase'
+import { createSupabaseAccount } from './account'
 import { AuthContext } from './useAuth'
 import type { AuthStatus, Profile } from './useAuth'
 
@@ -95,15 +96,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (userId && current) setLoaded({ userId, profile: await loadProfile(current) })
   }, [userId])
 
+  const email = user?.email
+  const account = useMemo(
+    () => (userId && email ? createSupabaseAccount({ userId, email }) : null),
+    [userId, email],
+  )
+
   const value = useMemo(
     () => ({
       status,
       session: session ?? null,
       profile: profile && profile !== 'error' ? profile : null,
       refreshProfile,
+      account,
       signOut,
     }),
-    [status, session, profile, refreshProfile],
+    [status, session, profile, refreshProfile, account],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

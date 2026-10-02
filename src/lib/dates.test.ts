@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  formatAgo,
   formatDateTimeNumeric,
   formatDayMonth,
   formatDayShort,
@@ -18,6 +19,15 @@ describe('weekStartOf', () => {
     expect(toISODate(weekStartOf(new Date(2026, 8, 15)))).toBe('2026-09-14') // вторник
     expect(toISODate(weekStartOf(new Date(2026, 8, 20)))).toBe('2026-09-14') // воскресенье
     expect(toISODate(weekStartOf(new Date(2026, 8, 14)))).toBe('2026-09-14') // понедельник
+  })
+})
+
+describe('formatAgo', () => {
+  const now = new Date(2026, 9, 2, 12, 0)
+  it('сколько прошло времени', () => {
+    expect(formatAgo(new Date(2026, 9, 2, 11, 59, 30), now)).toBe('только что')
+    expect(formatAgo(new Date(2026, 9, 2, 10, 0), now)).toBe('2 часа назад')
+    expect(formatAgo(new Date(2026, 6, 2, 12, 0), now)).toBe('3 месяца назад')
   })
 })
 

@@ -1,0 +1,112 @@
+import { isNetworkError, supabase } from '../lib/supabase'
+
+/** Сессия: одно устройство или браузер, где выполнен вход. */
+export type AccountSession = {
+  id: string
+  userAgent: string | null
+  /** Когда сессией пользовались последний раз, ISO-строка. */
+  lastActiveAt: string
+  current: boolean
+}
+
+/** Пароль не подошёл либо новый пароль совпал со старым. Остальные ошибки бросаются. */
+export type PasswordResult = 'ok' | 'wrong-password' | 'same-password'
+
+/**
+ * Действия с аккаунтом на экране Профиля. Настоящая реализация ходит в Supabase,
+ * демо-реализация (`demoAccount.ts`) нужна экранам на /dev/app.
+ * При сбое сети и прочих неожиданных ошибках методы бросают исключение.
+ * Профиль в приложении методы не перечитывают: после успеха экран сам вызывает refreshProfile.
+ */
+export type AccountApi = {
+  /** Логин. Поменять его нельзя: почтовый сервис не подключён, подтвердить новый адрес нечем. */
+  email: string
+  saveName: (name: string, lastName: string) => Promise<void>
+  /** Меняет пароль и завершает все остальные сессии. */
+  changePassword: (current: string, next: string) => Promise<PasswordResult>
+  listSessions: () => Promise<AccountSession[]>
+  endSession: (id: string) => Promise<void>
+  endOtherSessions: () => Promise<void>
+  /** Удаляет аккаунт со всеми данными и выходит. */
+  deleteAccount: (password: string) => Promise<PasswordResult>
+}
+
+type Options = {
+  userId: string
+  email: string
+}
+
+type SessionRow = {
+  id: string
+  user_agent: string | null
+  last_active_at: string
+  is_current: boolean
+}
+
+/** Проверка текущего пароля: повторный вход с ним. false: пароль не подошёл. */
+async function confirmPassword(email: string, password: string): Promise<boolean> {
+  const { error } = await supabase.auth.signInWithPassword({ email, password })
+  if (!error) return true
+  if (isNetworkError(error)) throw error
+  return false
+}
+
+export function createSupabaseAccount({ userId, email }: Options): AccountApi {
+  return {
+    email,
+
+    async saveName(name, lastName) {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ name, last_name: lastName || null })
+        .eq('id', userId)
+      if (error) throw error
+    },
+
+    async changePassword(current, next) {
+      if (!(await confirmPassword(email, current))) return 'wrong-password'
+      const { error } = await supabase.auth.updateUser({ password: next })
+      if (error) {
+        if (error.code === 'same_password') return 'same-password'
+        throw error
+      }
+      // Дата смены нужна только для подписи в Профиле: если не записалась, пароль всё равно сменён.
+      await supabase
+        .from('profiles')
+        .update({ password_changed_at: new Date().toISOString() })
+        .eq('id', userId)
+      await supabase.auth.signOut({ scope: 'others' })
+      return 'ok'
+    },
+
+    async listSessions() {
+      const { data, error } = await supabase.rpc('list_sessions')
+      if (error) throw error
+      return (data as SessionRow[]).map((row) => ({
+        id: row.id,
+        userAgent: row.user_agent,
+        lastActiveAt: row.last_active_at,
+        current: row.is_current,
+      }))
+    },
+
+    async endSession(id) {
+      const { error } = await supabase.rpc('end_session', { target: id })
+      if (error) throw error
+    },
+
+    async endOtherSessions() {
+      const { error } = await supabase.auth.signOut({ scope: 'others' })
+      if (error) throw error
+    },
+
+    async deleteAccount(password) {
+      if (!(await confirmPassword(email, password))) return 'wrong-password'
+      const { error } = await supabase.rpc('delete_account')
+      if (error) throw error
+      // Аккаунта уже нет, осталось забыть сессию в этом браузере.
+      await supabase.auth.signOut({ scope: 'local' })
+      return 'ok'
+    },
+  }
+}
