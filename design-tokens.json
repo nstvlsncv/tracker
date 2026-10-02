@@ -10,8 +10,8 @@
       "700": { "value": "#525252", "type": "color" },
       "800": { "value": "#333333", "type": "color" },
       "850": { "value": "#262626", "type": "color", "note": "Added for the dark theme: raised surfaces and subtle borders." },
-      "900": { "value": "#171717", "type": "color" },
-      "950": { "value": "#0D0D0D", "type": "color", "note": "Added for the dark theme: page background." }
+      "875": { "value": "#1F1F1F", "type": "color", "note": "Added for the dark theme: cards." },
+      "900": { "value": "#171717", "type": "color" }
     },
     "Green": {
       "100": { "value": "#EAF8E1", "type": "color" },
@@ -178,10 +178,10 @@
   "semantic-dark": {
     "note": "Dark theme. Same keys as the colour groups of `semantic`; everything not listed here (radius, space, typography) is shared with the light theme. Applied when <html> has data-theme=\"dark\".",
     "bg": {
-      "primary": { "value": "{core.Neutral.900}", "type": "color" },
+      "primary": { "value": "{core.Neutral.875}", "type": "color" },
       "secondary": { "value": "{core.Neutral.850}", "type": "color" },
       "tertiary": { "value": "{core.Neutral.800}", "type": "color" },
-      "surface": { "value": "{core.Neutral.950}", "type": "color" },
+      "surface": { "value": "{core.Neutral.900}", "type": "color" },
       "inverse": { "value": "{core.Neutral.100}", "type": "color" }
     },
     "border": {

@@ -11,8 +11,8 @@
   --core-neutral-700: #525252;
   --core-neutral-800: #333333;
   --core-neutral-850: #262626;
+  --core-neutral-875: #1F1F1F;
   --core-neutral-900: #171717;
-  --core-neutral-950: #0D0D0D;
   --core-green-100: #EAF8E1;
   --core-green-600: #43A63C;
   --core-green-900: #16301A;
@@ -170,10 +170,10 @@
 /* semantic-dark: тёмная тема, включается атрибутом data-theme="dark" на <html> */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --bg-primary: var(--core-neutral-900);
+  --bg-primary: var(--core-neutral-875);
   --bg-secondary: var(--core-neutral-850);
   --bg-tertiary: var(--core-neutral-800);
-  --bg-surface: var(--core-neutral-950);
+  --bg-surface: var(--core-neutral-900);
   --bg-inverse: var(--core-neutral-100);
   --border-subtle: var(--core-neutral-850);
   --border-default: var(--core-neutral-700);
