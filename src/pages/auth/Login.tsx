@@ -9,7 +9,7 @@ import { isNetworkError, NETWORK_ERROR_MESSAGE, supabase } from '../../lib/supab
 import { AuthLayout } from './AuthLayout'
 
 const ATTEMPTS_KEY = 'tracker.loginAttempts'
-const WRONG_MESSAGE = 'Неверный email или пароль'
+const WRONG_MESSAGE = 'Неверный логин или пароль'
 const LOCKED_MESSAGE = 'Слишком много попыток. Попробуй через 5 минут'
 
 function readAttempts(): LoginAttempts {
@@ -56,17 +56,17 @@ export function Login() {
       toast({ message: NETWORK_ERROR_MESSAGE })
       return
     }
-    // Одно общее сообщение: нельзя раскрывать, существует ли email.
+    // Одно общее сообщение: нельзя раскрывать, существует ли такой логин.
     const attempts = registerFailure(readAttempts(), Date.now())
     writeAttempts(attempts)
     setError(isLocked(attempts, Date.now()) ? LOCKED_MESSAGE : WRONG_MESSAGE)
   }
 
   return (
-    <AuthLayout title="С возвращением" subtitle="Войди, чтобы продолжить">
+    <AuthLayout title="С возвращением!" subtitle="Войди, чтобы продолжить">
       <form onSubmit={submit} noValidate>
         <Input
-          label="Email"
+          label="Логин"
           hideLabel
           type="email"
           autoComplete="email"

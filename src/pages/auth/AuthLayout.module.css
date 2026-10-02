@@ -2,10 +2,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: var(--space-lg);
+  gap: var(--space-xl);
   min-height: 100%;
-  padding: var(--space-xl) var(--space-md);
+  /* Блок с названием и формой стоит на 120px ниже верхнего края, подпись на 24px выше нижнего. */
+  padding: 120px var(--space-md) var(--space-lg);
+}
+
+/* Над канвасом с точками. */
+.content,
+.footer {
+  position: relative;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+  width: 100%;
 }
 
 .card {
@@ -34,4 +48,22 @@
 
 .subtitle {
   color: var(--text-secondary);
+}
+
+.footer {
+  margin-top: auto;
+  color: var(--text-disabled);
+  text-align: center;
+}
+
+.author {
+  border-radius: var(--radius-xs);
+  color: var(--text-primary);
+  font-weight: var(--typography-caption-font-weight);
+  text-decoration: none;
+}
+
+.author:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
