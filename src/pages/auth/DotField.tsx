@@ -9,11 +9,15 @@ const MAX_RADIUS = 2.6
 const FADE = 1.4 // насколько быстро точки бледнеют к краю пятна
 const EASE = 0.12 // доля пути до курсора за кадр: чем меньше, тем плавнее догоняет
 
+/** Когда пятно не следует за указателем. */
+const STILL_QUERY = '(max-width: 1024px), (hover: none), (prefers-reduced-motion: reduce)'
+
 type Point = { x: number; y: number }
 
 /**
  * Фон экрана входа: сетка точек, которые видны пятном. Сначала пятно стоит под формой,
  * при движении курсора плавно следует за ним, а когда курсор уходит из окна, возвращается.
+ * На планшетах и телефонах пятно неподвижно.
  */
 export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | null> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -98,8 +102,10 @@ export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | nul
     document.fonts.ready.then(resize)
     window.addEventListener('resize', resize)
 
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (!reducedMotion) {
+    // На планшетах и телефонах пятно стоит под формой и не двигается: там нет курсора,
+    // а пятно, прыгающее за каждым касанием, только мешает.
+    const still = window.matchMedia(STILL_QUERY).matches
+    if (!still) {
       window.addEventListener('pointermove', onMove)
       document.documentElement.addEventListener('pointerleave', onLeave)
     }

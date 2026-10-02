@@ -72,3 +72,12 @@ button:disabled {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* Телефоны и планшеты: iOS приближает страницу, когда фокус попадает в поле с текстом мельче 16px.
+   Поэтому на сенсорных экранах текст в полях ввода 16px. */
+@media (pointer: coarse) {
+  input.t-body-md {
+    font-size: var(--typography-body-lg-font-size);
+    line-height: var(--typography-body-lg-line-height);
+  }
+}
