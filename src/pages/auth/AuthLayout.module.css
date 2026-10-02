@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-xl);
-  min-height: 100%;
+  min-height: 100dvh;
   /* Блок с названием и формой стоит на 120px ниже верхнего края, подпись на 24px выше нижнего. */
   padding: 120px var(--space-md) var(--space-lg);
 }

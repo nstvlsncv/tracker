@@ -16,18 +16,16 @@
   box-sizing: border-box;
 }
 
-html,
-body,
-#root {
-  height: 100%;
-}
-
 html {
+  /* Фон корня: его же браузер телефона берёт для своих панелей. */
+  background: var(--bg-surface);
   /* Телефоны подсвечивают элемент серым прямоугольником при тапе. У нас своя анимация нажатия. */
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
+  /* Не ниже экрана и растёт вместе с содержимым: фон страницы закрывает всё, что видно. */
+  min-height: 100dvh;
   margin: 0;
   background: var(--bg-surface);
   color: var(--text-primary);

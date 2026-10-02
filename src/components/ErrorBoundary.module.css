@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-md);
-  min-height: 100%;
+  min-height: 100dvh;
   padding: var(--space-lg);
   text-align: center;
 }
