@@ -154,6 +154,16 @@
     padding-right: var(--space-xl);
   }
 
+  /* Действие слева («Архивировать») на телефоне встаёт под основные кнопки, тоже во всю ширину. */
+  .footer > div:first-child {
+    order: 1;
+    width: 100%;
+  }
+
+  .footer > div:first-child:empty {
+    display: none;
+  }
+
   /* Кнопки друг под другом, главное действие сверху, длинные подписи переносятся. */
   .actions {
     flex-direction: column-reverse;
