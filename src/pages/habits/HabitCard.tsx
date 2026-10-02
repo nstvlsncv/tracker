@@ -43,27 +43,26 @@ export function HabitCard({ habit, checks, today, open, onOpenChange, onToggle, 
           aria-label={doneToday ? `Снять отметку за сегодня: ${habit.title}` : `Отметить за сегодня: ${habit.title}`}
         />
         <div className={styles.text}>
-          {/* Кнопка, а не просто текст: так карточку можно раскрыть и с клавиатуры. */}
-          <button
-            type="button"
-            className={cx('t-heading-5', styles.title, doneToday && styles.done)}
-            aria-expanded={open}
-            aria-controls={detailsId}
-          >
-            {habit.title}
-          </button>
+          <div className={styles.titleRow}>
+            {/* Сегодня выполнено: огонёк залит лаймом. Иначе контурный, серый. */}
+            <Fire
+              className={cx(styles.fire, doneToday && styles.lit)}
+              weight={doneToday ? 'fill' : 'bold'}
+              aria-hidden
+            />
+            {/* Кнопка, а не просто текст: так карточку можно раскрыть и с клавиатуры. */}
+            <button
+              type="button"
+              className={cx('t-heading-5', styles.title, doneToday && styles.done)}
+              aria-expanded={open}
+              aria-controls={detailsId}
+            >
+              {habit.title}
+            </button>
+          </div>
           <span className={`t-body-md ${styles.streak}`}>
             {/* Две неразрывные части: на компьютере строка переносится только между ними. */}
-            <span>текущая серия {formatDays(current)} ·</span>{' '}
-            <span>
-              лучшая {formatDays(best)}{' '}
-              {/* Сегодня выполнено: огонёк залит лаймом. Иначе контурный, серый. */}
-              <Fire
-                className={doneToday ? styles.lit : undefined}
-                weight={doneToday ? 'fill' : 'bold'}
-                aria-hidden
-              />
-            </span>
+            <span>текущая серия {formatDays(current)} ·</span> <span>лучшая {formatDays(best)}</span>
           </span>
         </div>
         {open && (

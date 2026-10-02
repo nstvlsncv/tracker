@@ -21,7 +21,23 @@
   min-width: 0;
 }
 
+/* Огонёк стоит слева от названия, по центру его текста, в 8px от него. */
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.fire {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  color: var(--text-tertiary);
+}
+
 .title {
+  min-width: 0;
   overflow-wrap: anywhere;
   text-align: left;
   color: var(--text-primary);
@@ -43,16 +59,8 @@
   white-space: nowrap;
 }
 
-/* Огонёк 24px. Отрицательные отступы не дают ему раздвигать строку текста по высоте. */
-.streak svg {
-  width: 24px;
-  height: 24px;
-  margin: -4px 0 -4px var(--space-xs);
-  vertical-align: middle;
-}
-
 /* Привычка выполнена сегодня: огонёк залит лаймом. Текст серии всегда серый. */
-.lit {
+.fire.lit {
   color: var(--habit-streak-accent);
 }
 
@@ -87,7 +95,7 @@
 }
 
 @media (max-width: 640px) {
-  /* В узкой карточке строка серий течёт как обычный текст, огонёк остаётся после последнего слова. */
+  /* В узкой карточке строка серий течёт как обычный текст. */
   .streak {
     display: block;
   }
