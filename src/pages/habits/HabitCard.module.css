@@ -43,11 +43,12 @@
   white-space: nowrap;
 }
 
+/* Огонёк 24px. Отрицательные отступы не дают ему раздвигать строку текста по высоте. */
 .streak svg {
-  width: 16px;
-  height: 16px;
-  margin-left: var(--space-xs);
-  vertical-align: -2px;
+  width: 24px;
+  height: 24px;
+  margin: -4px 0 -4px var(--space-xs);
+  vertical-align: middle;
 }
 
 /* Привычка выполнена сегодня: огонёк залит лаймом. Текст серии всегда серый. */
