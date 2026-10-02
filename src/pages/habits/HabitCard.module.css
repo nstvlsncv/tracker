@@ -67,6 +67,19 @@
   gap: var(--space-md);
 }
 
+/* Перестановка привычки в списке: подпись и две маленькие кнопки. */
+.order {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.orderLabel {
+  margin-right: auto;
+  color: var(--text-tertiary);
+}
+
 @media (max-width: 800px) {
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));

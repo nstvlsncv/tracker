@@ -40,6 +40,18 @@ export function Habits() {
 
   const allDoneToday = habits.length > 0 && habits.every((habit) => checksOf(habit).has(today))
 
+  /** Поменять привычку местами с соседкой: той, что стоит рядом в списке на экране. */
+  const swap = (index: number, neighbour: number) => {
+    const ids = store.habits.map((habit) => habit.id)
+    const from = ids.indexOf(habits[index].id)
+    const to = ids.indexOf(habits[neighbour].id)
+    ;[ids[from], ids[to]] = [ids[to], ids[from]]
+    store.reorderHabits(ids)
+  }
+  // Двигать можно только внутри своей группы: выполненные сегодня всегда стоят ниже остальных.
+  const sameGroup = (a: number, b: number) =>
+    habits[a] && habits[b] && checksOf(habits[a]).has(today) === checksOf(habits[b]).has(today)
+
   const setCardOpen = (id: string, next: boolean) =>
     setOpen((current) => {
       const ids = new Set(current)
@@ -97,7 +109,7 @@ export function Habits() {
       )}
 
       {store.status === 'ready' &&
-        habits.map((habit) => (
+        habits.map((habit, index) => (
           <HabitCard
             key={habit.id}
             habit={habit}
@@ -111,6 +123,8 @@ export function Habits() {
               store.toggleCheck(habit.id, date, done)
             }}
             onEdit={() => setEditing(habit)}
+            onMoveUp={sameGroup(index, index - 1) ? () => swap(index, index - 1) : undefined}
+            onMoveDown={sameGroup(index, index + 1) ? () => swap(index, index + 1) : undefined}
           />
         ))}
 

@@ -5,7 +5,7 @@ export type HabitsStatus = 'loading' | 'ready' | 'error'
 
 export type HabitsValue = {
   status: HabitsStatus
-  /** Активные привычки. */
+  /** Активные привычки в заданном порядке (а где он не задан, по времени создания). */
   habits: Habit[]
   /** Привычки в архиве: на экранах и в подсчётах не участвуют, но хранят историю. */
   archived: Habit[]
@@ -18,6 +18,8 @@ export type HabitsValue = {
   renameHabit: (id: string, title: string) => void
   /** Поставить или снять отметку за день (сегодня или задним числом). */
   toggleCheck: (id: string, date: string, done: boolean) => void
+  /** Задать порядок активных привычек: id сверху вниз. */
+  reorderHabits: (ids: string[]) => void
   /** Убрать в архив. Показывает тост с «Отменить». */
   archiveHabit: (id: string) => void
   restoreHabit: (id: string) => void

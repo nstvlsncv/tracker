@@ -1,6 +1,7 @@
-import { CaretDown, CaretUp, PencilSimple } from '@phosphor-icons/react'
+import { ArrowDown, ArrowUp, CaretDown, CaretUp, PencilSimple } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
 import { useId } from 'react'
+import { Button } from '../../components/Button'
 import { Checkbox } from '../../components/Checkbox'
 import { Collapse } from '../../components/Collapse'
 import { IconButton } from '../../components/IconButton'
@@ -22,6 +23,9 @@ type Props = {
   onEdit: () => void
   /** Этой отметкой закрыты все привычки дня: чекбокс празднует. */
   celebrate?: boolean
+  /** Поднять или опустить привычку в списке. Нет функции: двигать в эту сторону некуда. */
+  onMoveUp?: () => void
+  onMoveDown?: () => void
 }
 
 /**
@@ -37,6 +41,8 @@ export function HabitCard({
   onToggle,
   onEdit,
   celebrate,
+  onMoveUp,
+  onMoveDown,
 }: Props) {
   const detailsId = useId()
   const doneToday = checks.has(today)
@@ -93,6 +99,21 @@ export function HabitCard({
             <StatCard variant="surface" value="Каждый день" label="цель" />
           </div>
           <HabitHistory habitId={habit.id} checks={checks} today={today} since={since} onToggle={onToggle} />
+          {(onMoveUp || onMoveDown) && (
+            <div className={styles.order}>
+              <span className={styles.orderLabel}>Место в списке</span>
+              {onMoveUp && (
+                <Button variant="ghost" size="sm" icon={<ArrowUp aria-hidden />} onClick={onMoveUp}>
+                  Выше
+                </Button>
+              )}
+              {onMoveDown && (
+                <Button variant="ghost" size="sm" icon={<ArrowDown aria-hidden />} onClick={onMoveDown}>
+                  Ниже
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </Collapse>
     </article>

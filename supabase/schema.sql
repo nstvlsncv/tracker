@@ -42,6 +42,8 @@ create table if not exists public.habits (
   user_id uuid not null default auth.uid() references auth.users on delete cascade,
   title text not null check (char_length(title) between 1 and 60),
   frequency text not null default 'daily',
+  -- место в списке, меньше значит выше; null = по времени создания
+  position integer,
   -- null = активна
   archived_at timestamptz,
   created_at timestamptz not null default now()
@@ -158,6 +160,9 @@ grant execute on function public.end_session(uuid) to authenticated;
 -- ---------------------------------------------------------------------------
 -- Приведение базы, созданной прежней версией этого файла, к текущей схеме
 -- ---------------------------------------------------------------------------
+
+-- Порядок привычек в списке (перестановка кнопками «Выше» и «Ниже»).
+alter table public.habits add column if not exists position integer;
 
 -- Регистрация с кодом из письма и согласием убрана вместе со своими полями и функцией.
 drop function if exists public.email_registered(text);

@@ -25,13 +25,15 @@ export type Habit = {
   frequency: string
   /** Когда привычку убрали в архив. null: активна. */
   archivedAt: string | null
+  /** Место в списке, меньше значит выше. null: порядок не задан, идёт по времени создания. */
+  position: number | null
   createdAt: string
 }
 
 /** Отметка «привычка выполнена в этот день». */
 export type HabitCheck = { habitId: string; date: string }
 
-export type HabitPatch = { title?: string; archivedAt?: string | null }
+export type HabitPatch = { title?: string; archivedAt?: string | null; position?: number }
 
 /** `date` меняется только у задач: перенос на другой день. */
 export type ItemPatch = { title?: string; isDone?: boolean; doneAt?: string | null; date?: string }

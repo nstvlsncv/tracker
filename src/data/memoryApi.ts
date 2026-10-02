@@ -46,6 +46,7 @@ export function createMemoryApi(): PlannerApi {
     title,
     frequency: 'daily',
     archivedAt: archived ? new Date().toISOString() : null,
+    position: null,
     createdAt: new Date(Date.UTC(2026, 0, 1, 0, 0, stamp++)).toISOString(),
   })
   let habits: Habit[] = [

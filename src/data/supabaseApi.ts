@@ -47,15 +47,19 @@ type HabitRow = {
   frequency: string
   archived_at: string | null
   created_at: string
+  /** Колонки может ещё не быть в базе (её добавляет свежая версия schema.sql). */
+  position?: number | null
 }
 
-const HABIT_COLUMNS = 'id, title, frequency, archived_at, created_at'
+// Все колонки, а не список: так чтение работает и до того, как в базе появилась position.
+const HABIT_COLUMNS = '*'
 
 const toHabit = (row: HabitRow): Habit => ({
   id: row.id,
   title: row.title,
   frequency: row.frequency,
   archivedAt: row.archived_at,
+  position: row.position ?? null,
   createdAt: row.created_at,
 })
 
@@ -186,6 +190,7 @@ export const supabaseApi: PlannerApi = {
         .update({
           ...(patch.title !== undefined && { title: patch.title }),
           ...(patch.archivedAt !== undefined && { archived_at: patch.archivedAt }),
+          ...(patch.position !== undefined && { position: patch.position }),
         })
         .eq('id', id),
     )

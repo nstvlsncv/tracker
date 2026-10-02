@@ -83,12 +83,14 @@ export function HabitsProvider({ api, children }: { api: PlannerApi; children: R
       save(api.updateHabit(id, patch), () => put(before))
     }
 
-    const byAge = (a: Habit, b: Habit) => a.createdAt.localeCompare(b.createdAt)
+    // Сначала по заданному порядку, привычки без места идут следом по времени создания.
+    const byOrder = (a: Habit, b: Habit) =>
+      (a.position ?? Infinity) - (b.position ?? Infinity) || a.createdAt.localeCompare(b.createdAt)
 
     return {
       status,
-      habits: all.filter((habit) => !habit.archivedAt).sort(byAge),
-      archived: all.filter((habit) => habit.archivedAt).sort(byAge),
+      habits: all.filter((habit) => !habit.archivedAt).sort(byOrder),
+      archived: all.filter((habit) => habit.archivedAt).sort(byOrder),
       checks,
       reload,
 
@@ -98,6 +100,7 @@ export function HabitsProvider({ api, children }: { api: PlannerApi; children: R
           title,
           frequency: 'daily',
           archivedAt: null,
+          position: null,
           createdAt: new Date().toISOString(),
         }
         setAll((current) => [...current, habit])
@@ -112,6 +115,20 @@ export function HabitsProvider({ api, children }: { api: PlannerApi; children: R
         setChecks((current) => withCheck(current, id, date, done))
         save(api.setHabitCheck(id, date, done), () =>
           setChecks((current) => withCheck(current, id, date, !done)),
+        )
+      },
+
+      reorderHabits: (ids) => {
+        const before = latest.current.all
+        const place = new Map(ids.map((id, index) => [id, index]))
+        const changed = before.filter((habit) => place.has(habit.id) && place.get(habit.id) !== habit.position)
+        if (changed.length === 0) return
+        setAll(before.map((habit) => (place.has(habit.id) ? { ...habit, position: place.get(habit.id)! } : habit)))
+        save(
+          Promise.all(
+            changed.map((habit) => api.updateHabit(habit.id, { position: place.get(habit.id)! })),
+          ).then(() => {}),
+          () => setAll(before),
         )
       },
 
