@@ -1,21 +1,24 @@
 .shell {
+  /* Поля страницы. Экраны берут их отсюда, когда блоку нужно дотянуться до края окна. */
+  --page-pad: var(--space-lg);
+
   display: flex;
   align-items: flex-start;
-  gap: var(--space-lg);
+  gap: var(--page-pad);
   min-height: 100%;
-  padding: var(--space-lg);
+  padding: var(--page-pad);
 }
 
 .sidebar {
   position: sticky;
-  top: var(--space-lg);
+  top: var(--page-pad);
   display: flex;
   flex: none;
   flex-direction: column;
   gap: var(--space-lg);
   width: 300px;
   /* Высота окна минус отступы сверху и снизу. */
-  height: calc(100vh - 2 * var(--space-lg));
+  height: calc(100vh - 2 * var(--page-pad));
   padding: var(--space-lg);
   border-radius: var(--radius-xl);
   background: var(--bg-primary);
@@ -80,4 +83,71 @@
   flex-direction: column;
   gap: var(--space-md);
   min-width: 0;
+}
+
+/* ---------- Планшет: меню сжимается в узкую полосу с иконками ---------- */
+@media (max-width: 1024px) {
+  .shell {
+    --page-pad: var(--space-md);
+  }
+
+  .sidebar {
+    align-items: center;
+    width: auto;
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .logo,
+  .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .item {
+    justify-content: center;
+    width: 48px;
+    padding: 0;
+  }
+}
+
+/* ---------- Телефон: меню становится полосой внизу экрана ---------- */
+@media (max-width: 640px) {
+  .shell {
+    display: block;
+    /* Место под нижнее меню: его высота плюс отступ. */
+    padding-bottom: calc(64px + var(--space-lg) + env(safe-area-inset-bottom));
+  }
+
+  .sidebar {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: var(--space-xs);
+    height: auto;
+    padding: var(--space-sm) var(--space-sm) calc(var(--space-sm) + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--border-subtle);
+    border-radius: 0;
+  }
+
+  .nav {
+    flex: 1;
+    flex-direction: row;
+    justify-content: space-around;
+    gap: var(--space-xs);
+  }
+
+  .bottom {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: 0;
+  }
 }

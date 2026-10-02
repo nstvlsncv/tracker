@@ -24,7 +24,6 @@ import { shiftDate, weekAnalytics } from '../../lib/metrics'
 import { NETWORK_ERROR_MESSAGE } from '../../lib/supabase'
 import { useToday } from '../../lib/useToday'
 import { AddTaskModal } from './AddTaskModal'
-import { AddWeekModal } from './AddWeekModal'
 import { DayCard } from './DayCard'
 import styles from './Week.module.css'
 
@@ -37,7 +36,7 @@ export function Week() {
   const { loadWeek } = planner
   const daysRef = useRef<HTMLDivElement>(null)
   const toast = useToast()
-  const [modal, setModal] = useState<'week' | 'task' | null>(null)
+  const [addingTask, setAddingTask] = useState(false)
 
   const today = useToday()
   const currentWeek = weekStartISO(today)
@@ -62,8 +61,6 @@ export function Week() {
   const tasks = planner.tasks.filter((task) => weekStartISO(task.date) === weekStart)
   const goals = planner.goals.filter((goal) => goal.weekStart === weekStart)
 
-  // В списке: недели с данными, добавленные вручную, текущая и та, что открыта сейчас.
-  const weeks = [...new Set([...planner.knownWeeks, currentWeek, weekStart])].sort()
   const weekLabel = formatWeekRange(parseISO(weekStart), {
     year: !weekStart.startsWith(today.slice(0, 4)),
   })
@@ -71,15 +68,9 @@ export function Week() {
   const goToWeek = (week: string) =>
     navigate(isoWeek ? `../${toWeekParam(week)}` : toWeekParam(week), { relative: 'path' })
 
-  const addWeek = (week: string) => {
-    planner.addWeek(week)
-    setModal(null)
-    goToWeek(week)
-  }
-
   const addTask = (date: string, title: string) => {
     planner.addTask(date, title)
-    setModal(null)
+    setAddingTask(false)
     const week = weekStartISO(date)
     toast({
       message: `Задача добавлена на ${formatDayMonth(parseISO(date))}`,
@@ -95,53 +86,40 @@ export function Week() {
     <>
       <PageHeader
         title="Неделя"
-        aside={
-          <CalendarPicker
-            aria-label="Неделя"
-            mode="week"
-            value={weekStart}
-            label={weekLabel}
-            today={today}
-            markedWeeks={planner.knownWeeks}
-            onChange={goToWeek}
-            footer={
-              weekStart !== currentWeek && (
-                <Button variant="ghost" fullWidth onClick={() => goToWeek(currentWeek)}>
-                  Текущая неделя
-                </Button>
-              )
-            }
-          />
-        }
         actions={
           <>
             <Button
               variant="secondary"
               size="lg"
               icon={<IconPlus aria-hidden />}
-              onClick={() => setModal('task')}
+              onClick={() => setAddingTask(true)}
             >
               Добавить задачу
             </Button>
-            <Button size="lg" icon={<IconPlus aria-hidden />} onClick={() => setModal('week')}>
-              Добавить неделю
-            </Button>
+            <CalendarPicker
+              aria-label="Неделя"
+              mode="week"
+              variant="main"
+              align="end"
+              value={weekStart}
+              label={weekLabel}
+              today={today}
+              markedWeeks={planner.weeksWithData}
+              onChange={goToWeek}
+              footer={
+                weekStart !== currentWeek && (
+                  <Button variant="ghost" fullWidth onClick={() => goToWeek(currentWeek)}>
+                    Текущая неделя
+                  </Button>
+                )
+              }
+            />
           </>
         }
       />
 
-      {modal === 'week' && (
-        <AddWeekModal
-          // По умолчанию выбрана неделя, следующая за последней в списке.
-          initialWeek={shiftDate(weeks[weeks.length - 1], 7)}
-          today={today}
-          markedWeeks={planner.knownWeeks}
-          onClose={() => setModal(null)}
-          onAdd={addWeek}
-        />
-      )}
-      {modal === 'task' && (
-        <AddTaskModal today={today} onClose={() => setModal(null)} onAdd={addTask} />
+      {addingTask && (
+        <AddTaskModal today={today} onClose={() => setAddingTask(false)} onAdd={addTask} />
       )}
 
       {status === 'error' ? (

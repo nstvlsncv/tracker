@@ -56,3 +56,14 @@ button.title {
   opacity: 1;
   pointer-events: auto;
 }
+
+/* На сенсорных экранах наведения нет: корзина видна всегда и стоит в строке, а не поверх текста. */
+@media (hover: none) {
+  .actions {
+    position: static;
+    padding-left: 0;
+    background: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

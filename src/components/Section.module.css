@@ -13,3 +13,9 @@
   justify-content: space-between;
   gap: var(--space-md);
 }
+
+@media (max-width: 640px) {
+  .section {
+    padding: var(--space-md);
+  }
+}

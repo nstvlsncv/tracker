@@ -86,3 +86,37 @@
     animation: none;
   }
 }
+
+/* Планшет и телефон: рядом с карточкой нет места, крестик встаёт над её правым верхним углом. */
+@media (max-width: 800px) {
+  .overlay {
+    padding: 72px var(--space-md) var(--space-lg);
+  }
+
+  .close {
+    top: calc(-40px - var(--space-sm));
+    right: 0;
+    left: auto;
+  }
+}
+
+/* Телефон: кнопки друг под другом, главное действие сверху, длинные подписи переносятся. */
+@media (max-width: 640px) {
+  .dialog {
+    padding: var(--space-md);
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+    width: 100%;
+  }
+
+  .actions > button {
+    width: 100%;
+    height: auto;
+    min-height: 40px;
+    padding-top: var(--space-sm);
+    padding-bottom: var(--space-sm);
+    white-space: normal;
+  }
+}

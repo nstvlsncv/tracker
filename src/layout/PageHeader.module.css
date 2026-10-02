@@ -20,3 +20,21 @@
   display: flex;
   gap: var(--space-sm);
 }
+
+/* Телефон: заголовок меньше, кнопки во всю ширину друг под другом. */
+@media (max-width: 640px) {
+  .title h1 {
+    font-size: var(--typography-heading-3-font-size);
+    line-height: var(--typography-heading-3-line-height);
+  }
+
+  .actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .actions > *,
+  .actions > * > button {
+    width: 100%;
+  }
+}

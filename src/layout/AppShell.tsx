@@ -33,7 +33,7 @@ export function AppShell({ basePath = '' }: Props) {
               className={({ isActive }) => cx('t-button', styles.item, isActive && styles.active)}
             >
               <Icon aria-hidden />
-              {label}
+              <span className={styles.label}>{label}</span>
             </NavLink>
           ))}
         </nav>
@@ -41,7 +41,7 @@ export function AppShell({ basePath = '' }: Props) {
           {/* Выход сразу, без подтверждения. */}
           <button type="button" className={cx('t-button', styles.item, styles.logout)} onClick={signOut}>
             <IconLogout aria-hidden />
-            Выйти
+            <span className={styles.label}>Выйти</span>
           </button>
         </div>
       </aside>

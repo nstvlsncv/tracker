@@ -17,6 +17,9 @@ type Props = {
   today: string
   /** Понедельники недель, в которых есть данные: в календаре они помечены точкой. */
   markedWeeks?: string[]
+  variant?: 'main' | 'secondary'
+  /** К какому краю кнопки прижат календарь. */
+  align?: 'start' | 'end'
   /** Что выбирает кнопка: для скринридера. */
   'aria-label': string
   /** Содержимое под календарём. Клик по нему закрывает окошко. */
@@ -24,7 +27,7 @@ type Props = {
 }
 
 /**
- * Серая кнопка с выбранным днём или неделей. По клику под ней открывается календарь.
+ * Кнопка с выбранным днём или неделей. По клику под ней открывается календарь.
  * В отличие от списка, не разрастается, сколько бы недель ни накопилось.
  */
 export function CalendarPicker({
@@ -34,6 +37,8 @@ export function CalendarPicker({
   label,
   today,
   markedWeeks,
+  variant = 'secondary',
+  align = 'start',
   footer,
   ...rest
 }: Props) {
@@ -70,7 +75,7 @@ export function CalendarPicker({
       <button
         ref={triggerRef}
         type="button"
-        className={buttonClassName({ variant: 'secondary', size: 'lg' })}
+        className={buttonClassName({ variant, size: 'lg' })}
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
@@ -82,7 +87,11 @@ export function CalendarPicker({
         </span>
       </button>
       {open && (
-        <div className={styles.popover} role="dialog" {...rest}>
+        <div
+          className={cx(styles.popover, align === 'end' ? styles.end : styles.start)}
+          role="dialog"
+          {...rest}
+        >
           <Calendar
             mode={mode}
             value={value}

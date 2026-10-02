@@ -33,3 +33,9 @@
 .inverse .label {
   color: var(--text-inverse);
 }
+
+@media (max-width: 640px) {
+  .card {
+    padding: var(--space-md) var(--space-sm);
+  }
+}

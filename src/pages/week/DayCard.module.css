@@ -33,3 +33,11 @@
 .empty {
   color: var(--text-placeholder);
 }
+
+/* Телефон: карточка почти во весь экран, край следующей виден и подсказывает, что можно листать. */
+@media (max-width: 640px) {
+  .card {
+    width: 82vw;
+    padding: var(--space-md);
+  }
+}

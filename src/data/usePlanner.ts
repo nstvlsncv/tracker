@@ -9,10 +9,8 @@ export type PlannerValue = {
   goals: Goal[]
   /** Состояние загрузки по понедельнику недели. undefined: неделю ещё не запрашивали. */
   weekStatus: Record<string, WeekStatus | undefined>
-  /** Понедельники недель для списка: те, где есть данные, и добавленные вручную за сеанс. */
-  knownWeeks: string[]
-  /** Добавить неделю в список. Пустая неделя живёт до перезагрузки страницы. */
-  addWeek: (weekStart: string) => void
+  /** Понедельники недель, в которых есть хотя бы одна задача или цель. */
+  weeksWithData: string[]
   /** Загрузить неделю, если она ещё не загружена. `force` перезапрашивает после ошибки. */
   loadWeek: (weekStart: string, force?: boolean) => void
 

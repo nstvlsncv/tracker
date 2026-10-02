@@ -67,3 +67,14 @@
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+/* Телефон: блок ближе к верху, поля карточки меньше. */
+@media (max-width: 640px) {
+  .page {
+    padding-top: var(--space-2xl);
+  }
+
+  .card {
+    padding: var(--space-md);
+  }
+}
