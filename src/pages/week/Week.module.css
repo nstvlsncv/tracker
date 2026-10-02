@@ -27,7 +27,10 @@
   gap: var(--space-md);
   margin-right: calc(-1 * var(--page-pad));
   padding-right: var(--page-pad);
+  /* Место под полосу прокрутки. Отрицательный отступ возвращает его обратно, чтобы
+     до статистики оставалось ровно 16px, как между остальными блоками. */
   padding-bottom: var(--space-sm);
+  margin-bottom: calc(-1 * var(--space-sm));
   overflow-x: auto;
   scroll-snap-type: x proximity;
 }
@@ -75,8 +78,4 @@
   .daySkeleton {
     width: 82vw;
   }
-}
-
-.addSkeleton {
-  margin-top: auto;
 }

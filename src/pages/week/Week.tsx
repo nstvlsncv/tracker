@@ -170,9 +170,7 @@ export function Week() {
                     <Skeleton width={150} height={150} round />
                   </div>
                   <ListSkeleton rows={2} />
-                  <div className={styles.addSkeleton}>
-                    <Skeleton width={180} height={40} />
-                  </div>
+                  <Skeleton width={180} height={40} />
                 </div>
               )
             })}
