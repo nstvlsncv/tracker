@@ -14,8 +14,6 @@ type Props = {
   onEscape: () => void
 }
 
-/** Насколько должна вырасти видимая часть экрана, чтобы считать, что клавиатуру убрали. */
-const KEYBOARD_MIN_HEIGHT = 120
 /** Сколько ждать, пока выедет клавиатура телефона, прежде чем прокручивать к полю. */
 const KEYBOARD_DELAY_MS = 350
 
@@ -35,16 +33,14 @@ export function InlineInput({
   const settled = useRef(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Сохранить введённое и закрыть поле. Так же срабатывает потеря фокуса.
+  // Сохранить введённое и закрыть поле: по потере фокуса и по кнопке «Готово» на телефоне.
+  // Скрытие клавиатуры отдельно не отслеживается: размер экрана на телефоне меняют ещё и
+  // панели браузера, и угадывать по нему клавиатуру ненадёжно (поле закрывалось само).
   const commit = () => {
     if (settled.current) return
     settled.current = true
     onBlur(inputRef.current?.value.trim() ?? '')
   }
-  const commitRef = useRef(commit)
-  useEffect(() => {
-    commitRef.current = commit
-  })
 
   // Поле должно быть на виду. На компьютере страница двигается, только если поля не видно.
   // На телефоне поле ставится в середину экрана: нижнюю половину занимает клавиатура.
@@ -60,22 +56,7 @@ export function InlineInput({
     // Один раз и с задержкой: к этому моменту клавиатура телефона уже выехала.
     // Прокрутка на каждое изменение экрана заставляла страницу дёргаться.
     const timer = setTimeout(reveal, isTouch() ? KEYBOARD_DELAY_MS : 0)
-
-    const viewport = window.visualViewport
-    if (!viewport) return () => clearTimeout(timer)
-    let height = viewport.height
-    const onResize = () => {
-      const grew = viewport.height - height
-      height = viewport.height
-      // Видимая часть экрана заметно выросла: клавиатуру убрали. На телефоне это значит
-      // «готово»: сохраняем введённое и закрываем поле.
-      if (grew > KEYBOARD_MIN_HEIGHT && isTouch()) commitRef.current()
-    }
-    viewport.addEventListener('resize', onResize)
-    return () => {
-      clearTimeout(timer)
-      viewport.removeEventListener('resize', onResize)
-    }
+    return () => clearTimeout(timer)
   }, [])
 
   return (
