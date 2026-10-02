@@ -1,11 +1,21 @@
+/* Обёртка строки: под самой строкой лежит красная кнопка удаления для сенсорных экранов. */
+.swipe {
+  position: relative;
+  /* Фон при наведении выступает за край текста, а чекбокс стоит вровень с заголовком секции. */
+  margin: 0 calc(-1 * var(--space-sm));
+  border-radius: var(--radius-md);
+}
+
+.remove {
+  display: none;
+}
+
 .item {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-md);
   min-height: 40px;
-  /* Фон при наведении выступает за край текста, а чекбокс стоит вровень с заголовком секции. */
-  margin: 0 calc(-1 * var(--space-sm));
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-md);
   cursor: text;
@@ -63,13 +73,54 @@ button.title {
   pointer-events: auto;
 }
 
-/* На сенсорных экранах наведения нет: корзина видна всегда и стоит в строке, а не поверх текста. */
+/*
+ * Сенсорные экраны: корзины в строке нет, удаление свайпом влево. Строка сдвигается на
+ * --reveal (его меняет ListItem.tsx), а на освободившемся месте растёт красная кнопка.
+ */
 @media (hover: none) {
   .actions {
-    position: static;
-    padding-left: 0;
-    background: none;
-    opacity: 1;
-    pointer-events: auto;
+    display: none;
+  }
+
+  .swipe {
+    overflow: hidden;
+  }
+
+  .item {
+    /* Горизонтальный жест по строке отдаём свайпу, вертикальный остаётся прокрутке страницы. */
+    touch-action: pan-y;
+    transform: translateX(calc(-1 * var(--reveal, 0px)));
+    transition:
+      transform 200ms ease-out,
+      background-color var(--transition-fast);
+  }
+
+  .remove {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--reveal, 0px);
+    padding: 0;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: var(--status-danger-text);
+    color: var(--status-danger-foreground);
+    transition: width 200ms ease-out;
+  }
+
+  .remove svg {
+    flex: none;
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Пока палец ведёт строку, она идёт за ним без задержки. */
+  .dragging .item,
+  .dragging .remove {
+    transition: none;
   }
 }
