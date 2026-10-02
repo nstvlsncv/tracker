@@ -6,7 +6,8 @@
   border-radius: var(--radius-md);
 }
 
-.remove {
+.remove,
+.move {
   display: none;
 }
 
@@ -51,7 +52,7 @@ button.title {
   text-decoration: line-through;
 }
 
-/* Иконки лежат поверх правого края строки и не отнимают ширину у текста (важно в узких карточках дней). */
+/* Кнопки (перенос и корзина) лежат поверх правого края строки и не отнимают ширину у текста (важно в узких карточках дней). */
 .actions {
   position: absolute;
   top: 0;
@@ -74,8 +75,9 @@ button.title {
 }
 
 /*
- * Сенсорные экраны: корзины в строке нет, удаление свайпом влево. Строка сдвигается на
- * --reveal (его меняет ListItem.tsx), а на освободившемся месте растёт красная кнопка.
+ * Сенсорные экраны: кнопок в строке нет, действия открываются свайпом. Строку сдвигают
+ * переменные --reveal (влево, под удаление) и --pull (вправо, под перенос), их меняет
+ * ListItem.tsx. На освободившемся месте растёт кнопка: красная справа, тёмная слева.
  */
 @media (hover: none) {
   .actions {
@@ -89,30 +91,42 @@ button.title {
   .item {
     /* Горизонтальный жест по строке отдаём свайпу, вертикальный остаётся прокрутке страницы. */
     touch-action: pan-y;
-    transform: translateX(calc(-1 * var(--reveal, 0px)));
+    transform: translateX(calc(var(--pull, 0px) - var(--reveal, 0px)));
     transition:
       transform 200ms ease-out,
       background-color var(--transition-fast);
   }
 
-  .remove {
+  .remove,
+  .move {
     position: absolute;
     top: 0;
-    right: 0;
     bottom: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: var(--reveal, 0px);
     padding: 0;
     overflow: hidden;
     border-radius: var(--radius-md);
-    background: var(--status-danger-text);
-    color: var(--status-danger-foreground);
     transition: width 200ms ease-out;
   }
 
-  .remove svg {
+  .remove {
+    right: 0;
+    width: var(--reveal, 0px);
+    background: var(--status-danger-text);
+    color: var(--status-danger-foreground);
+  }
+
+  .move {
+    left: 0;
+    width: var(--pull, 0px);
+    background: var(--accent-default);
+    color: var(--accent-foreground);
+  }
+
+  .remove svg,
+  .move svg {
     flex: none;
     width: 16px;
     height: 16px;
@@ -120,7 +134,8 @@ button.title {
 
   /* Пока палец ведёт строку, она идёт за ним без задержки. */
   .dragging .item,
-  .dragging .remove {
+  .dragging .remove,
+  .dragging .move {
     transition: none;
   }
 }

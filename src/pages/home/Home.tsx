@@ -1,23 +1,19 @@
 import { Plus } from '@phosphor-icons/react'
-import { parseISO } from 'date-fns'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router'
 import { useAuth } from '../../auth/useAuth'
 import { AddItemField } from '../../components/AddItem'
 import { Button } from '../../components/Button'
 import { Checkbox } from '../../components/Checkbox'
-import { Donut } from '../../components/Donut'
 import { IconButton } from '../../components/IconButton'
 import { ItemList } from '../../components/ItemList'
 import { ListSkeleton } from '../../components/ListSkeleton'
 import { Section } from '../../components/Section'
-import { Skeleton } from '../../components/Skeleton'
 import { StatCard } from '../../components/StatCard'
 import { useToast } from '../../components/useToast'
 import { useHabits } from '../../data/useHabits'
 import { usePlanner } from '../../data/usePlanner'
 import { cx } from '../../lib/cx'
-import { formatWeekdayAndDay, formatWeekdayShort, weekStartISO } from '../../lib/dates'
+import { formatWeekdayAndDay, weekStartISO } from '../../lib/dates'
 import {
   countDone,
   currentStreak,
@@ -27,6 +23,7 @@ import {
   progress,
   shiftDate,
 } from '../../lib/metrics'
+import { moveTarget } from '../../lib/taskMove'
 import { useNow } from '../../lib/useNow'
 import { useToday } from '../../lib/useToday'
 import { HabitModal } from '../habits/HabitModal'
@@ -75,8 +72,8 @@ export function Home() {
     (a, b) => Number(checksOf(a.id).has(today)) - Number(checksOf(b.id).has(today)),
   )
 
+  const tomorrow = moveTarget(today, today)
   const allHabitsDone = habits.length > 0 && habitsDoneToday === habits.length
-  const weekDays = Array.from({ length: 7 }, (_, index) => shiftDate(currentWeek, index))
   // Не закрытое за последние семь дней: можно одним нажатием перенести на сегодня.
   const overdue = planner.tasks.filter(
     (task) => !task.isDone && task.date < today && task.date >= shiftDate(today, -7),
@@ -139,23 +136,6 @@ export function Home() {
         />
       </div>
 
-      {/* Неделя одним взглядом: кольцо на каждый день. Нажатие открывает экран Недели. */}
-      <Link to="week" className={styles.week} aria-label="Открыть неделю">
-        {weekDays.map((date) => (
-          <span key={date} className={cx(styles.weekDay, date === today && styles.weekToday)}>
-            {ready ? (
-              <Donut
-                size="xs"
-                value={progress(planner.tasks.filter((task) => task.date === date)) ?? 0}
-              />
-            ) : (
-              <Skeleton width={44} height={44} round />
-            )}
-            <span className="t-caption">{formatWeekdayShort(parseISO(date))}</span>
-          </span>
-        ))}
-      </Link>
-
       <Section
         title="Цели недели"
         action={addButton('Добавить цель', 'goal')}
@@ -193,6 +173,7 @@ export function Home() {
             onToggle={planner.toggleTask}
             onRename={planner.renameTask}
             onDelete={planner.deleteTask}
+            moveOf={(id) => ({ label: tomorrow.label, run: () => planner.moveTasks([id], tomorrow.date) })}
           />
         ) : (
           adding !== 'task' && <p className={styles.placeholder}>На сегодня пока свободно</p>

@@ -7,6 +7,8 @@ import { usePlanner } from '../../data/usePlanner'
 import { cx } from '../../lib/cx'
 import { formatDayMonth, formatWeekdayShort } from '../../lib/dates'
 import { progress } from '../../lib/metrics'
+import { moveTarget } from '../../lib/taskMove'
+import { useToday } from '../../lib/useToday'
 import styles from './DayCard.module.css'
 
 type Props = {
@@ -18,7 +20,9 @@ type Props = {
 
 /** Карточка дня на экране Недели: донат с процентом и список задач. */
 export function DayCard({ date, tasks, isToday }: Props) {
-  const { addTask, toggleTask, renameTask, deleteTask } = usePlanner()
+  const { addTask, toggleTask, renameTask, deleteTask, moveTasks } = usePlanner()
+  const today = useToday()
+  const target = moveTarget(date, today)
   const day = parseISO(date)
 
   return (
@@ -37,7 +41,13 @@ export function DayCard({ date, tasks, isToday }: Props) {
         <Donut value={progress(tasks) ?? 0} size="xl" />
       </div>
       {tasks.length > 0 ? (
-        <ItemList items={tasks} onToggle={toggleTask} onRename={renameTask} onDelete={deleteTask} />
+        <ItemList
+          items={tasks}
+          onToggle={toggleTask}
+          onRename={renameTask}
+          onDelete={deleteTask}
+          moveOf={(id) => ({ label: target.label, run: () => moveTasks([id], target.date) })}
+        />
       ) : (
         <p className={styles.empty}>Пока свободно</p>
       )}

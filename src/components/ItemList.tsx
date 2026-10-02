@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import { sortItems } from '../lib/metrics'
+import { dissolve } from '../lib/dissolve'
 import { ListItem } from './ListItem'
+import type { MoveAction } from './ListItem'
 import styles from './ItemList.module.css'
 
 export type Item = {
@@ -15,6 +17,8 @@ type Props = {
   onToggle: (id: string, done: boolean) => void
   onRename: (id: string, title: string) => void
   onDelete: (id: string) => void
+  /** Перенос на другой день для задачи с этим id. undefined: переносить нельзя или некуда. */
+  moveOf?: (id: string) => MoveAction | undefined
 }
 
 const MOVE_DURATION_MS = 200
@@ -22,15 +26,18 @@ const FADE_DURATION_MS = 180
 
 /**
  * Список задач или целей. Невыполненные сверху. Строки не прыгают: при отметке элемент
- * переезжает на новое место, новая строка проявляется, удалённая растворяется.
+ * переезжает на новое место, новая строка проявляется, удалённая рассыпается в пыль.
  */
-export function ItemList({ items, onToggle, onRename, onDelete }: Props) {
+export function ItemList({ items, onToggle, onRename, onDelete, moveOf }: Props) {
   const listRef = useRef<HTMLUListElement>(null)
   // Где стояла каждая строка при прошлой отрисовке: от этого считается сдвиг.
   const tops = useRef<Map<string, number> | null>(null)
   // Положения из отрисовки перед последней: к моменту, когда замечено удаление строки,
   // свежая карта её уже не содержит.
   const olderTops = useRef<Map<string, number> | null>(null)
+  // Строки, которые удалил сам человек: они рассыпаются в пыль. Те, что ушли из списка
+  // по другой причине (перенос на другой день), просто гаснут.
+  const deleted = useRef(new Set<string>())
 
   useLayoutEffect(() => {
     const list = listRef.current
@@ -63,7 +70,7 @@ export function ItemList({ items, onToggle, onRename, onDelete }: Props) {
   })
 
   // Удалённую строку React убирает из страницы сразу. Чтобы она не исчезала рывком,
-  // её возвращаем на прежнее место поверх списка уже неживой и даём раствориться.
+  // её возвращаем на прежнее место поверх списка уже неживой и даём рассыпаться.
   useEffect(() => {
     const list = listRef.current
     if (!list || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -74,7 +81,8 @@ export function ItemList({ items, onToggle, onRename, onDelete }: Props) {
           if (!(node instanceof HTMLElement) || ghosts.has(node) || !node.dataset.id) continue
           // Строка на месте: её не удалили, а переставили (после отметки).
           if (node.isConnected) continue
-          const top = tops.current?.get(node.dataset.id) ?? olderTops.current?.get(node.dataset.id)
+          const id = node.dataset.id
+          const top = tops.current?.get(id) ?? olderTops.current?.get(id)
           if (top === undefined) continue
           ghosts.add(node)
           delete node.dataset.id
@@ -82,13 +90,17 @@ export function ItemList({ items, onToggle, onRename, onDelete }: Props) {
           node.setAttribute('aria-hidden', 'true')
           Object.assign(node.style, { position: 'absolute', top: `${top}px`, left: '0', right: '0' })
           list.appendChild(node)
-          node.animate([{ opacity: 1 }, { opacity: 0, transform: 'scale(0.98)' }], {
-            duration: FADE_DURATION_MS,
-            easing: 'ease-in',
-            fill: 'forwards',
-          })
-          // Таймер, а не ожидание конца анимации: во вкладке в фоне анимация может не дойти до конца.
-          setTimeout(() => node.remove(), FADE_DURATION_MS)
+          if (deleted.current.delete(id)) {
+            // Строка рассыпается в пыль и сама убирается из страницы.
+            dissolve(node)
+          } else {
+            node.animate([{ opacity: 1 }, { opacity: 0 }], {
+              duration: FADE_DURATION_MS,
+              easing: 'ease-in',
+              fill: 'forwards',
+            })
+            setTimeout(() => node.remove(), FADE_DURATION_MS)
+          }
         }
       }
     })
@@ -105,7 +117,11 @@ export function ItemList({ items, onToggle, onRename, onDelete }: Props) {
             done={item.isDone}
             onToggle={(done) => onToggle(item.id, done)}
             onRename={(title) => onRename(item.id, title)}
-            onDelete={() => onDelete(item.id)}
+            onDelete={() => {
+              deleted.current.add(item.id)
+              onDelete(item.id)
+            }}
+            move={item.isDone ? undefined : moveOf?.(item.id)}
           />
         </li>
       ))}

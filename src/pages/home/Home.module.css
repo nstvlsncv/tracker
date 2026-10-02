@@ -39,29 +39,6 @@
   gap: var(--space-md);
 }
 
-/* Неделя одним взглядом: семь колец с подписями дней, вся плашка ведёт на экран Недели. */
-.week {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-xs);
-  padding: var(--space-md) var(--space-lg);
-  border-radius: var(--radius-xl);
-  background: var(--bg-primary);
-  color: var(--text-tertiary);
-  text-decoration: none;
-}
-
-.weekDay {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.weekToday {
-  color: var(--text-primary);
-}
-
 /* Невыполненное с прошлых дней: строка под списком задач. */
 .overdue {
   display: flex;
@@ -128,14 +105,5 @@
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-sm);
-  }
-
-  .week {
-    padding: var(--space-md) var(--space-sm);
-  }
-
-  /* Семь колец по 44px не помещаются в ширину телефона: на нём они чуть меньше. */
-  .weekDay > div:first-child {
-    zoom: 0.82;
   }
 }

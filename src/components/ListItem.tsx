@@ -1,4 +1,4 @@
-import { Trash } from '@phosphor-icons/react'
+import { ArrowBendUpRight, Trash } from '@phosphor-icons/react'
 import { useEffect, useRef, useState } from 'react'
 import type { TouchEvent } from 'react'
 import { cx } from '../lib/cx'
@@ -7,34 +7,42 @@ import { IconButton } from './IconButton'
 import { InlineInput } from './InlineInput'
 import styles from './ListItem.module.css'
 
+/** Перенос задачи на другой день: подпись («Перенести на завтра») и само действие. */
+export type MoveAction = { label: string; run: () => void }
+
 type Props = {
   title: string
   done: boolean
   onToggle: (done: boolean) => void
   onRename: (title: string) => void
   onDelete: () => void
+  /** Есть у невыполненных задач. У целей и выполненных задач переноса нет. */
+  move?: MoveAction
 }
 
-/** Сенсорный экран: корзины в строке нет, удаление свайпом влево. */
+/** Сенсорный экран: кнопок в строке нет, действия открываются свайпом. */
 const TOUCH_QUERY = '(hover: none)'
-/** Ширина красной кнопки, которая открывается под строкой. */
+/** Ширина кнопки, которая открывается под строкой. */
 const REVEAL_PX = 72
 /** С какого сдвига понятно, куда ведут палец: вбок (свайп) или вверх-вниз (прокрутка). */
 const LOCK_PX = 8
-/** Какую долю ширины строки нужно протянуть, чтобы удалить сразу, без нажатия на кнопку. */
+/** Какую долю ширины строки нужно протянуть, чтобы действие сработало сразу, без нажатия на кнопку. */
 const FULL_SWIPE = 0.6
 const SETTLE_MS = 200
 
+// offset: сдвиг строки. Больше нуля: строку увели влево (открывается удаление справа).
+// Меньше нуля: увели вправо (открывается перенос слева).
 type Gesture = { x: number; y: number; base: number; offset: number; axis: 'x' | 'y' | null }
 
 /**
- * Строка задачи или цели. Клик по строке (кроме чекбокса и корзины) включает переименование.
- * Удаление: на компьютере корзина при наведении, на сенсорных экранах свайп влево, как в iOS.
- * Короткий свайп открывает красную кнопку, длинный удаляет сразу.
+ * Строка задачи или цели. Клик по строке (кроме чекбокса и кнопок) включает переименование.
+ * На компьютере при наведении появляются кнопки: перенос (у задач) и корзина.
+ * На сенсорных экранах, как в iOS: свайп влево открывает удаление, свайп вправо перенос;
+ * короткий свайп показывает кнопку, длинный выполняет действие сразу.
  */
-export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
+export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Props) {
   const [editing, setEditing] = useState(false)
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState<'delete' | 'move' | null>(null)
   const swipeRef = useRef<HTMLDivElement>(null)
   const gesture = useRef<Gesture | null>(null)
   // Сразу после свайпа браузер может прислать клик: он не должен включать переименование.
@@ -45,12 +53,15 @@ export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
     setEditing(false)
   }
 
-  /** На сколько пикселей строка сдвинута влево. Двигаем стилем напрямую, без перерисовки. */
-  const setReveal = (px: number) => swipeRef.current?.style.setProperty('--reveal', `${px}px`)
+  /** Сдвинуть строку. Стиль меняется напрямую, без перерисовки: строка идёт за пальцем. */
+  const setOffset = (px: number) => {
+    swipeRef.current?.style.setProperty('--reveal', `${Math.max(px, 0)}px`)
+    swipeRef.current?.style.setProperty('--pull', `${Math.max(-px, 0)}px`)
+  }
 
   const close = () => {
-    setOpen(false)
-    setReveal(0)
+    setOpen(null)
+    setOffset(0)
   }
 
   // Открытая кнопка прячется, как только нажали куда-то мимо этой строки.
@@ -58,8 +69,9 @@ export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
     if (!open) return
     const onPointerDown = (event: PointerEvent) => {
       if (event.target instanceof Node && swipeRef.current?.contains(event.target)) return
-      setOpen(false)
-      setReveal(0)
+      setOpen(null)
+      swipeRef.current?.style.setProperty('--reveal', '0px')
+      swipeRef.current?.style.setProperty('--pull', '0px')
     }
     document.addEventListener('pointerdown', onPointerDown)
     return () => document.removeEventListener('pointerdown', onPointerDown)
@@ -67,7 +79,7 @@ export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
 
   const onTouchStart = (event: TouchEvent) => {
     if (editing || !window.matchMedia(TOUCH_QUERY).matches) return
-    const base = open ? REVEAL_PX : 0
+    const base = open === 'delete' ? REVEAL_PX : open === 'move' ? -REVEAL_PX : 0
     const { clientX, clientY } = event.touches[0]
     gesture.current = { x: clientX, y: clientY, base, offset: base, axis: null }
   }
@@ -83,8 +95,9 @@ export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
       if (current.axis === 'x') swipeRef.current?.classList.add(styles.dragging)
     }
     if (current.axis !== 'x') return
-    current.offset = Math.max(0, current.base - dx)
-    setReveal(current.offset)
+    // Вправо строка едет, только если у неё есть перенос.
+    current.offset = Math.max(current.base - dx, move ? -Infinity : 0)
+    setOffset(current.offset)
   }
 
   const onTouchEnd = () => {
@@ -98,13 +111,21 @@ export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
     setTimeout(() => (swiped.current = false), 300)
 
     const width = swipe.offsetWidth
-    if (current.offset > width * FULL_SWIPE) {
-      // Протянули далеко: строка уезжает целиком и удаляется.
-      setReveal(width)
+    const { offset } = current
+    if (offset > width * FULL_SWIPE) {
+      // Протянули далеко влево: строка уезжает целиком и удаляется.
+      setOffset(width)
       setTimeout(onDelete, SETTLE_MS)
-    } else if (current.offset > REVEAL_PX / 2) {
-      setOpen(true)
-      setReveal(REVEAL_PX)
+    } else if (move && offset < -width * FULL_SWIPE) {
+      // Далеко вправо: задача переносится сразу.
+      setOffset(-width)
+      setTimeout(move.run, SETTLE_MS)
+    } else if (offset > REVEAL_PX / 2) {
+      setOpen('delete')
+      setOffset(REVEAL_PX)
+    } else if (offset < -REVEAL_PX / 2) {
+      setOpen('move')
+      setOffset(-REVEAL_PX)
     } else {
       close()
     }
@@ -118,12 +139,23 @@ export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
 
   return (
     <div ref={swipeRef} className={styles.swipe}>
-      {/* Лежит под строкой и видна только на сенсорных экранах, когда строку сдвинули. */}
+      {/* Кнопки лежат под строкой и видны только на сенсорных экранах, когда строку сдвинули. */}
+      {move && (
+        <button
+          type="button"
+          className={styles.move}
+          aria-label={`${move.label}: ${title}`}
+          tabIndex={open === 'move' ? 0 : -1}
+          onClick={move.run}
+        >
+          <ArrowBendUpRight aria-hidden />
+        </button>
+      )}
       <button
         type="button"
         className={styles.remove}
         aria-label={`Удалить: ${title}`}
-        tabIndex={open ? 0 : -1}
+        tabIndex={open === 'delete' ? 0 : -1}
         onClick={onDelete}
       >
         <Trash aria-hidden />
@@ -157,6 +189,19 @@ export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
         )}
         {!editing && (
           <div className={styles.actions}>
+            {move && (
+              <IconButton
+                variant="ghost"
+                size="sm"
+                icon={<ArrowBendUpRight aria-hidden />}
+                aria-label={`${move.label}: ${title}`}
+                title={move.label}
+                onClick={(event) => {
+                  event.stopPropagation()
+                  move.run()
+                }}
+              />
+            )}
             <IconButton
               tone="danger"
               variant="ghost"

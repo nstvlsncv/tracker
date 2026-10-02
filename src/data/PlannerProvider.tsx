@@ -1,8 +1,9 @@
+import { parseISO } from 'date-fns'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useToast } from '../components/useToast'
 import { UNDO_TOAST_DURATION_MS } from '../lib/constants'
-import { weekStartISO } from '../lib/dates'
+import { formatDayMonth, weekStartISO } from '../lib/dates'
 import { newId } from '../lib/id'
 import type { Goal, ItemPatch, PlannerApi, Task } from './types'
 import { PlannerContext } from './usePlanner'
@@ -168,7 +169,10 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
         place(() => date)
         save(send(() => date), () => place((task) => task.date))
         toast({
-          message: `Перенесено задач: ${moved.length}`,
+          message:
+            moved.length === 1
+              ? `Задача перенесена на ${formatDayMonth(parseISO(date))}`
+              : `Перенесено задач: ${moved.length}`,
           duration: UNDO_TOAST_DURATION_MS,
           action: {
             label: 'Отменить',
