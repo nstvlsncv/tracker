@@ -16,8 +16,11 @@ type Props = {
 
 /** Сколько ждать, пока выедет клавиатура телефона, прежде чем прокручивать к полю. */
 const KEYBOARD_DELAY_MS = 350
+/** Одно нажатие «Готово» может прийти сразу несколькими событиями: лишние отбрасываются. */
+const REPEAT_GUARD_MS = 100
 
-const isTouch = () => window.matchMedia('(pointer: coarse)').matches
+/** Телефон или планшет: сенсорный экран либо узкое окно. */
+const isTouch = () => window.matchMedia('(pointer: coarse), (max-width: 640px)').matches
 
 /** Инлайн-поле для добавления и переименования задач и целей (SPEC.md, раздел 11). */
 export function InlineInput({
@@ -32,10 +35,9 @@ export function InlineInput({
   // Esc и Enter размонтируют поле. Флаг не даёт blur сработать после них второй раз.
   const settled = useRef(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const lastConfirm = useRef(0)
 
   // Сохранить введённое и закрыть поле: по потере фокуса и по кнопке «Готово» на телефоне.
-  // Скрытие клавиатуры отдельно не отслеживается: размер экрана на телефоне меняют ещё и
-  // панели браузера, и угадывать по нему клавиатуру ненадёжно (поле закрывалось само).
   const commit = () => {
     if (settled.current) return
     settled.current = true
@@ -52,47 +54,85 @@ export function InlineInput({
     })
   }
 
+  // Подтверждение ввода: Enter на компьютере, «Готово» или галочка на клавиатуре телефона.
+  const confirm = () => {
+    const now = Date.now()
+    if (now - lastConfirm.current < REPEAT_GUARD_MS) return
+    lastConfirm.current = now
+
+    // На телефоне подтверждение добавляет и закрывает поле вместе с клавиатурой.
+    // Ввод нескольких строк подряд через Enter остаётся только на компьютере.
+    if (isTouch()) {
+      commit()
+      return
+    }
+    const trimmed = inputRef.current?.value.trim()
+    if (!trimmed) return
+    if (onEnter(trimmed)) {
+      setValue('')
+      // Список вырос, поле уехало ниже: возвращаем его на вид.
+      requestAnimationFrame(reveal)
+    } else settled.current = true
+  }
+  const confirmRef = useRef(confirm)
+  useEffect(() => {
+    confirmRef.current = confirm
+  })
+
   useEffect(() => {
     // Один раз и с задержкой: к этому моменту клавиатура телефона уже выехала.
     // Прокрутка на каждое изменение экрана заставляла страницу дёргаться.
     const timer = setTimeout(reveal, isTouch() ? KEYBOARD_DELAY_MS : 0)
-    return () => clearTimeout(timer)
+
+    // Клавиатуры телефонов не всегда присылают нажатие Enter как клавишу (на Android оно
+    // может прийти «неопознанным»). Зато перенос строки в однострочном поле приходит
+    // событием beforeinput: ловим и его.
+    const input = inputRef.current
+    const onBeforeInput = (event: InputEvent) => {
+      if (event.inputType !== 'insertLineBreak') return
+      event.preventDefault()
+      confirmRef.current()
+    }
+    input?.addEventListener('beforeinput', onBeforeInput)
+    return () => {
+      clearTimeout(timer)
+      input?.removeEventListener('beforeinput', onBeforeInput)
+    }
   }, [])
 
   return (
-    <input
-      ref={inputRef}
-      className={`t-body-md ${styles.input}`}
-      autoFocus
-      enterKeyHint="done"
-      value={value}
-      maxLength={maxLength}
-      onChange={(event) => setValue(event.target.value)}
-      onFocus={(event) => event.target.select()}
-      onKeyDown={(event) => {
-        if (event.key === 'Escape') {
-          event.stopPropagation()
-          settled.current = true
-          onEscape()
-        }
-        if (event.key === 'Enter') {
-          // На телефоне кнопка «Готово» на клавиатуре добавляет и закрывает поле вместе с
-          // клавиатурой. Ввод нескольких строк подряд через Enter остаётся только на компьютере.
-          if (isTouch()) {
-            commit()
-            return
-          }
-          const trimmed = value.trim()
-          if (!trimmed) return
-          if (onEnter(trimmed)) {
-            setValue('')
-            // Список вырос, поле уехало ниже: возвращаем его на вид.
-            requestAnimationFrame(reveal)
-          } else settled.current = true
-        }
+    // Форма нужна ради её события submit: кнопка подтверждения на клавиатуре телефона
+    // надёжнее всего срабатывает как отправка формы.
+    <form
+      className={styles.form}
+      onSubmit={(event) => {
+        event.preventDefault()
+        confirm()
       }}
-      onBlur={commit}
-      {...rest}
-    />
+    >
+      <input
+        ref={inputRef}
+        className={`t-body-md ${styles.input}`}
+        autoFocus
+        enterKeyHint="done"
+        value={value}
+        maxLength={maxLength}
+        onChange={(event) => setValue(event.target.value)}
+        onFocus={(event) => event.target.select()}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            event.stopPropagation()
+            settled.current = true
+            onEscape()
+          }
+          if (event.key === 'Enter') {
+            event.preventDefault()
+            confirm()
+          }
+        }}
+        onBlur={commit}
+        {...rest}
+      />
+    </form>
   )
 }
