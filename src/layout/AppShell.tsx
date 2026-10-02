@@ -1,4 +1,5 @@
 import { ArrowsClockwise, CalendarDots, House, SignOut, User } from '@phosphor-icons/react'
+import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router'
 import { useAuth } from '../auth/useAuth'
 import { cx } from '../lib/cx'
@@ -9,7 +10,7 @@ type Props = {
   basePath?: string
 }
 
-// motion: как иконка оживает, когда раздел выбирают (как в нижнем меню Телеграма).
+// motion: как иконка оживает при нажатии на раздел (как в нижнем меню Телеграма).
 const NAV = [
   { to: '', label: 'Главная', icon: House, end: true, motion: 'bounce' },
   { to: 'week', label: 'Неделя', icon: CalendarDots, end: false, motion: 'flip' },
@@ -23,6 +24,9 @@ const NAV = [
  */
 export function AppShell({ basePath = '' }: Props) {
   const { signOut } = useAuth()
+  // Какой пункт нажали последним и в который раз. Счётчик идёт в key иконки: при каждом
+  // нажатии она создаётся заново, и анимация проигрывается снова, даже на уже открытом разделе.
+  const [tap, setTap] = useState<{ to: string | null; count: number }>({ to: null, count: 0 })
 
   return (
     <div className={styles.shell}>
@@ -35,8 +39,13 @@ export function AppShell({ basePath = '' }: Props) {
               to={`${basePath}/${to}`}
               end={end}
               className={({ isActive }) => cx('t-button', styles.item, isActive && styles.active)}
+              onClick={() => setTap((last) => ({ to, count: last.count + 1 }))}
             >
-              <Icon className={styles[motion]} aria-hidden />
+              <Icon
+                key={tap.to === to ? tap.count : 0}
+                className={tap.to === to ? styles[motion] : undefined}
+                aria-hidden
+              />
               <span className={styles.label}>{label}</span>
             </NavLink>
           ))}

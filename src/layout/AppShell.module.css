@@ -85,21 +85,21 @@
   min-width: 0;
 }
 
-/* ---------- Иконки разделов: сами не меняются, но коротко оживают при выборе ---------- */
+/* ---------- Иконки разделов: сами не меняются, но коротко оживают при каждом нажатии ---------- */
 
-.active .bounce {
+.bounce {
   animation: bounce 450ms ease-out;
 }
 
-.active .flip {
+.flip {
   animation: flip 450ms ease-out;
 }
 
-.active .spin {
+.spin {
   animation: spin 500ms ease-out;
 }
 
-.active .nod {
+.nod {
   animation: nod 450ms ease-out;
 }
 
@@ -141,7 +141,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .active svg {
+  .item svg {
     animation: none;
   }
 }

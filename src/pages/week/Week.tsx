@@ -153,25 +153,6 @@ export function Week() {
             )}
           </Section>
 
-          <div className={styles.stats}>
-            <StatCard loading={!ready} value={stats.total} label="всего задач" />
-            <StatCard loading={!ready} value={stats.done} label="выполнено" />
-            <StatCard loading={!ready} value={stats.remaining} label="осталось" />
-            <StatCard
-              loading={!ready}
-              value={stats.averageProgress !== null ? `${stats.averageProgress}%` : '—'}
-              label="ср. прогресс"
-            />
-            <StatCard
-              loading={!ready}
-              value={
-                stats.productiveDay ? formatWeekdayShort(parseISO(stats.productiveDay)) : '—'
-              }
-              label="лучший день"
-            />
-            <StatCard loading={!ready} value={stats.goalsDone} label="вып. целей" />
-          </div>
-
           <div ref={daysRef} className={styles.days}>
             {DAYS.map((offset) => {
               const date = shiftDate(weekStart, offset)
@@ -189,10 +170,31 @@ export function Week() {
                     <Skeleton width={150} height={150} round />
                   </div>
                   <ListSkeleton rows={2} />
-                  <Skeleton width={180} height={40} />
+                  <div className={styles.addSkeleton}>
+                    <Skeleton width={180} height={40} />
+                  </div>
                 </div>
               )
             })}
+          </div>
+
+          <div className={styles.stats}>
+            <StatCard loading={!ready} value={stats.total} label="всего задач" />
+            <StatCard loading={!ready} value={stats.done} label="выполнено" />
+            <StatCard loading={!ready} value={stats.remaining} label="осталось" />
+            <StatCard
+              loading={!ready}
+              value={stats.averageProgress !== null ? `${stats.averageProgress}%` : '—'}
+              label="ср. прогресс"
+            />
+            <StatCard
+              loading={!ready}
+              value={
+                stats.productiveDay ? formatWeekdayShort(parseISO(stats.productiveDay)) : '—'
+              }
+              label="лучший день"
+            />
+            <StatCard loading={!ready} value={stats.goalsDone} label="вып. целей" />
           </div>
         </>
       )}
