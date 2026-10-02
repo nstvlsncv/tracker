@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { useToast } from '../components/useToast'
 import { UNDO_TOAST_DURATION_MS } from '../lib/constants'
 import { weekStartISO } from '../lib/dates'
+import { newId } from '../lib/id'
 import type { Goal, ItemPatch, PlannerApi, Task } from './types'
 import { PlannerContext } from './usePlanner'
 import type { PlannerValue, WeekStatus } from './usePlanner'
@@ -92,7 +93,7 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
   const value = useMemo<PlannerValue>(() => {
     const now = () => new Date().toISOString()
     const base = () => ({
-      id: crypto.randomUUID(),
+      id: newId(),
       isDone: false,
       doneAt: null,
       createdAt: now(),

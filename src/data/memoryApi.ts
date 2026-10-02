@@ -1,4 +1,5 @@
 import { toISODate, weekStartISO } from '../lib/dates'
+import { newId } from '../lib/id'
 import { shiftDate } from '../lib/metrics'
 import type { Goal, PlannerApi, Task } from './types'
 
@@ -11,7 +12,7 @@ export function createMemoryApi(): PlannerApi {
   const weekStart = weekStartISO(toISODate(new Date()))
   let stamp = 0
   const base = (title: string, isDone = false) => ({
-    id: crypto.randomUUID(),
+    id: newId(),
     title,
     isDone,
     doneAt: isDone ? new Date().toISOString() : null,

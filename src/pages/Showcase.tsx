@@ -14,6 +14,7 @@ import { Modal } from '../components/Modal'
 import { StatCard } from '../components/StatCard'
 import { useToast } from '../components/useToast'
 import { UNDO_TOAST_DURATION_MS } from '../lib/constants'
+import { newId } from '../lib/id'
 import styles from './Showcase.module.css'
 
 // Витрина базовых компонентов. Открывается по адресу /dev, только в режиме разработки.
@@ -74,7 +75,7 @@ export function Showcase() {
   const addItem = (title: string) =>
     setItems((current) => [
       ...current,
-      { id: crypto.randomUUID(), title, isDone: false, createdAt: new Date().toISOString() },
+      { id: newId(), title, isDone: false, createdAt: new Date().toISOString() },
     ])
 
   const deleteItem = (id: string) => {
