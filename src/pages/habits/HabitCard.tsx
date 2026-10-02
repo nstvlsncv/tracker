@@ -52,11 +52,17 @@ export function HabitCard({ habit, checks, today, open, onOpenChange, onToggle, 
           >
             {habit.title}
           </button>
-          <span className={cx('t-body-md', styles.streak, doneToday && styles.onStreak)}>
+          <span className={`t-body-md ${styles.streak}`}>
             {/* Две неразрывные части: на компьютере строка переносится только между ними. */}
             <span>текущая серия {formatDays(current)} ·</span>{' '}
             <span>
-              лучшая {formatDays(best)} <Fire aria-hidden />
+              лучшая {formatDays(best)}{' '}
+              {/* Сегодня выполнено: огонёк залит лаймом. Иначе контурный, серый. */}
+              <Fire
+                className={doneToday ? styles.lit : undefined}
+                weight={doneToday ? 'fill' : 'bold'}
+                aria-hidden
+              />
             </span>
           </span>
         </div>

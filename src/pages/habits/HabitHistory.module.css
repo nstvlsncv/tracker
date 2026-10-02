@@ -1,6 +1,8 @@
 .card {
   /* Размер точки: на сенсорных экранах крупнее, чтобы удобно попадать пальцем. */
   --dot: 20px;
+  /* Ширина колонки с подписями дней недели. */
+  --labels: 36px;
 
   display: flex;
   flex-direction: column;
@@ -23,15 +25,15 @@
   color: var(--text-secondary);
 }
 
-/* Сетка прокручивается по горизонтали, подписи дней недели стоят слева и справа и остаются на месте. */
+/*
+ * Сетка прокручивается по горизонтали. Подписи дней недели лежат поверх её краёв и видны
+ * только с одной стороны: справа, а при прокрутке влево слева.
+ */
 .body {
-  display: flex;
-  gap: var(--space-sm);
+  position: relative;
 }
 
 .scroll {
-  flex: 1;
-  min-width: 0;
   padding-bottom: var(--space-sm);
   overflow-x: auto;
 }
@@ -42,6 +44,8 @@
   width: max-content;
   /* Сетка прижата к правому краю: когда блок шире неё, сегодняшний день стоит у подписей. */
   margin-left: auto;
+  /* Место под подписи: у краёв сетки они не закрывают крайние столбцы. */
+  padding: 0 var(--labels);
 }
 
 .week,
@@ -50,6 +54,30 @@
   flex: none;
   flex-direction: column;
   gap: var(--space-xs);
+}
+
+.weekdays {
+  position: absolute;
+  top: 0;
+  z-index: 1;
+  width: var(--labels);
+  background: var(--bg-surface);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast);
+}
+
+.left {
+  left: 0;
+}
+
+.right {
+  right: 0;
+  align-items: flex-end;
+}
+
+.shown {
+  opacity: 1;
 }
 
 /* Строка названий месяцев. Название шире столбца и выступает вправо, не раздвигая сетку. */

@@ -42,9 +42,15 @@ export function habitHistory(today: string, period: HistoryPeriod = 'recent'): H
   return weeks
 }
 
-/** Годы, за которые у привычки может быть история: с года `since` по текущий, новые сверху. */
+/** На сколько лет назад можно выбрать год, даже если привычка заведена недавно. */
+const YEARS_BACK = 4
+
+/**
+ * Годы для выбора в истории, новые сверху: текущий и четыре предыдущих (привычку из жизни
+ * можно внести задним числом), а если отметки есть и раньше, то до года `since`.
+ */
 export function historyYears(since: string, today: string): number[] {
-  const first = Number(since.slice(0, 4))
   const last = Number(today.slice(0, 4))
-  return Array.from({ length: Math.max(last - first + 1, 0) }, (_, index) => last - index)
+  const first = Math.min(Number(since.slice(0, 4)), last - YEARS_BACK)
+  return Array.from({ length: last - first + 1 }, (_, index) => last - index)
 }

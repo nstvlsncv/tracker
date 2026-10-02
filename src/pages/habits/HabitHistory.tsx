@@ -16,12 +16,15 @@ type Props = {
 }
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+/** Сдвиг, с которого прокрутка считается намеренной, а не дрожанием. */
+const SCROLL_STEP_PX = 4
 
 /**
  * История привычки: столбцы это недели, строки дни с понедельника. Точка залита, если день
  * выполнен. Нажатие на прошедший день ставит или снимает отметку задним числом.
- * По умолчанию последние 12 месяцев; если привычке больше года, можно выбрать календарный год.
- * Сетка открывается прокрученной к концу периода, подписи дней стоят по обе стороны и не уезжают.
+ * По умолчанию последние 12 месяцев, в списке справа можно выбрать календарный год.
+ * Сетка открывается прокрученной к концу периода. Подписи дней недели стоят с одной стороны:
+ * справа, а когда сетку листают влево, переезжают налево.
  */
 export function HabitHistory({ checks, today, since, onToggle }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -29,13 +32,29 @@ export function HabitHistory({ checks, today, since, onToggle }: Props) {
   const weeks = useMemo(() => habitHistory(today, period), [today, period])
   const years = historyYears(since, today)
 
+  // С какой стороны стоят подписи дней недели: с той, куда листали последним.
+  const [side, setSide] = useState<'left' | 'right'>('right')
+  const lastScroll = useRef(0)
+
   useEffect(() => {
     const scroll = scrollRef.current
-    if (scroll) scroll.scrollLeft = scroll.scrollWidth
+    if (!scroll) return
+    scroll.scrollLeft = scroll.scrollWidth
+    lastScroll.current = scroll.scrollLeft
+    setSide('right')
   }, [period])
 
-  const weekdays = (
-    <div className={styles.weekdays} aria-hidden>
+  const onScroll = () => {
+    const scroll = scrollRef.current
+    if (!scroll) return
+    const delta = scroll.scrollLeft - lastScroll.current
+    if (Math.abs(delta) < SCROLL_STEP_PX) return
+    lastScroll.current = scroll.scrollLeft
+    setSide(delta < 0 ? 'left' : 'right')
+  }
+
+  const weekdays = (place: 'left' | 'right') => (
+    <div className={cx(styles.weekdays, styles[place], side === place && styles.shown)} aria-hidden>
       <span className={styles.month} />
       {WEEKDAYS.map((day) => (
         <span key={day} className={`t-caption ${styles.weekday}`}>
@@ -51,23 +70,20 @@ export function HabitHistory({ checks, today, since, onToggle }: Props) {
         <h3 className={`t-body-md ${styles.title}`}>
           {period === 'recent' ? 'История за год' : `История за ${period}`}
         </h3>
-        {/* Выбор года нужен, только когда история не умещается в последние 12 месяцев. */}
-        {years.length > 1 && (
-          <Dropdown
-            aria-label="Период истории"
-            size="sm"
-            value={String(period)}
-            onChange={(value) => setPeriod(value === 'recent' ? 'recent' : Number(value))}
-            options={[
-              { value: 'recent', label: '12 месяцев' },
-              ...years.map((year) => ({ value: String(year), label: String(year) })),
-            ]}
-          />
-        )}
+        <Dropdown
+          aria-label="Период истории"
+          size="sm"
+          value={String(period)}
+          onChange={(value) => setPeriod(value === 'recent' ? 'recent' : Number(value))}
+          options={[
+            { value: 'recent', label: '12 месяцев' },
+            ...years.map((year) => ({ value: String(year), label: String(year) })),
+          ]}
+        />
       </div>
       <div className={styles.body}>
-        {weekdays}
-        <div ref={scrollRef} className={styles.scroll}>
+        {weekdays('left')}
+        <div ref={scrollRef} className={styles.scroll} onScroll={onScroll}>
           <div className={styles.grid}>
             {weeks.map((week) => (
               <div key={week.start} className={styles.week}>
@@ -92,7 +108,7 @@ export function HabitHistory({ checks, today, since, onToggle }: Props) {
             ))}
           </div>
         </div>
-        {weekdays}
+        {weekdays('right')}
       </div>
     </div>
   )

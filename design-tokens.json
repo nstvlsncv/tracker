@@ -21,8 +21,7 @@
       "900": { "value": "#0A3323", "type": "color", "note": "Added for the dark theme: success background." }
     },
     "Lime": {
-      "500": { "value": "#C6F432", "type": "color", "note": "The one juicy colour of the product. Marks what is done or current." },
-      "700": { "value": "#627F00", "type": "color", "note": "Same hue as Lime 500, dark enough for text on light backgrounds (habit streaks in the light theme)." }
+      "500": { "value": "#C6F432", "type": "color", "note": "The one juicy colour of the product. Marks what is done or current." }
     },
     "Orange": {
       "100": { "value": "#FFF0D9", "type": "color" },
@@ -144,7 +143,7 @@
       "foreground": { "value": "{core.Neutral.900}", "type": "color", "note": "Marks drawn on top of highlight (the check mark). Dark in both themes: lime is always light." }
     },
     "habit": {
-      "streak-accent": { "value": "{core.Lime.700}", "type": "color", "note": "Streak line and flame of a habit done today. Lime family, dark enough to read as text on the light theme." }
+      "streak-accent": { "value": "{core.Lime.500}", "type": "color", "note": "Flame of a habit done today (filled icon). The streak text itself stays grey." }
     },
     "effects": {
       "focus-ring": { "value": "{core.Neutral.900}", "type": "color" },
