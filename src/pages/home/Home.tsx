@@ -2,20 +2,25 @@ import { Plus } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../auth/useAuth'
-import { AddItem } from '../../components/AddItem'
-import { Button } from '../../components/Button'
+import { AddItemField } from '../../components/AddItem'
 import { CalendarPicker } from '../../components/CalendarPicker'
 import { Checkbox } from '../../components/Checkbox'
+import { IconButton } from '../../components/IconButton'
 import { ItemList } from '../../components/ItemList'
 import { ListSkeleton } from '../../components/ListSkeleton'
 import { Section } from '../../components/Section'
-import { Skeleton } from '../../components/Skeleton'
 import { StatCard } from '../../components/StatCard'
 import { useToast } from '../../components/useToast'
 import { useHabits } from '../../data/useHabits'
 import { usePlanner } from '../../data/usePlanner'
 import { cx } from '../../lib/cx'
-import { formatDayMonth, formatDayShort, formatNow, formatWeekRangeShort, weekStartISO } from '../../lib/dates'
+import {
+  formatDayMonth,
+  formatDayShort,
+  formatWeekdayAndDay,
+  formatWeekRangeShort,
+  weekStartISO,
+} from '../../lib/dates'
 import { countDone, currentStreak, formatDays, greeting, progress } from '../../lib/metrics'
 import { useSessionState } from '../../lib/sessionState'
 import { useNow } from '../../lib/useNow'
@@ -44,7 +49,8 @@ export function Home() {
   const [pickedWeek, setPickedWeek] = useSessionState<string | null>('home.goalsWeek', null)
   const [pickedTaskDate, setPickedTaskDate] = useSessionState<string | null>('home.tasksDate', null)
   const [pickedHabitDate, setPickedHabitDate] = useSessionState<string | null>('home.habitsDate', null)
-  const [addingHabit, setAddingHabit] = useState(false)
+  // Что сейчас добавляют: цель и задача вписываются в поле под списком, привычка в модалке.
+  const [adding, setAdding] = useState<'goal' | 'task' | 'habit'>()
 
   const goalsWeek = pickedWeek ?? currentWeek
   const tasksDate = pickedTaskDate ?? today
@@ -76,14 +82,39 @@ export function Home() {
   const dayTitle = (date: string, todayTitle: string, otherTitle: string) =>
     date === today ? todayTitle : `${otherTitle} ${formatDayMonth(parseISO(date))}`
 
+  const day = formatWeekdayAndDay(now)
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
+
+  /** Справа в заголовке секции: выбор недели или дня и кнопка с плюсом, между ними 8px. */
+  const sectionActions = (picker: React.ReactNode, label: string, kind: 'goal' | 'task' | 'habit') => (
+    <div className={styles.actions}>
+      {picker}
+      <IconButton
+        variant="secondary"
+        size="sm"
+        icon={<Plus aria-hidden />}
+        aria-label={label}
+        onClick={() => setAdding(kind)}
+      />
+    </div>
+  )
+
   return (
     <>
       <header className={styles.header}>
-        <p className={`t-heading-4 ${styles.greeting}`}>
+        <p className={`t-heading-1 ${styles.title}`}>
           {greeting(now.getHours())}
           {profile?.name ? `, ${profile.name}` : ''}
         </p>
-        <h1 className={`t-heading-1 ${styles.title}`}>Сегодня {formatNow(now)}</h1>
+        <h1 className={`t-heading-1 ${styles.title}`} aria-label={`Сегодня ${day} · ${hours}:${minutes}`}>
+          <span aria-hidden>
+            Сегодня {day} · {hours}
+            {/* Двоеточие мигает раз в секунду, как на настоящих часах. */}
+            <span className={styles.colon}>:</span>
+            {minutes}
+          </span>
+        </h1>
       </header>
 
       <div className={styles.stats}>
@@ -113,7 +144,7 @@ export function Home() {
 
       <Section
         title="Цели недели"
-        action={
+        action={sectionActions(
           <CalendarPicker
             aria-label="Неделя целей"
             mode="week"
@@ -124,8 +155,10 @@ export function Home() {
             today={today}
             markedWeeks={planner.weeksWithData}
             onChange={(week) => setPickedWeek(week === currentWeek ? null : week)}
-          />
-        }
+          />,
+          'Добавить цель',
+          'goal',
+        )}
       >
         {!ready(goalsWeek) ? (
           <ListSkeleton rows={3} />
@@ -137,18 +170,20 @@ export function Home() {
             onDelete={planner.deleteGoal}
           />
         ) : (
-          <p className={styles.placeholder}>Поставь 1–3 цели на неделю</p>
+          adding !== 'goal' && <p className={styles.placeholder}>Поставь 1–3 цели на неделю</p>
         )}
-        {ready(goalsWeek) ? (
-          <AddItem label="Добавить цель" onAdd={(title) => planner.addGoal(goalsWeek, title)} />
-        ) : (
-          <Skeleton width={160} height={40} />
+        {adding === 'goal' && (
+          <AddItemField
+            label="Добавить цель"
+            onAdd={(title) => planner.addGoal(goalsWeek, title)}
+            onClose={() => setAdding(undefined)}
+          />
         )}
       </Section>
 
       <Section
         title={dayTitle(tasksDate, 'Задачи на сегодня', 'Задачи на')}
-        action={
+        action={sectionActions(
           <CalendarPicker
             aria-label="День задач"
             mode="day"
@@ -158,8 +193,10 @@ export function Home() {
             label={formatDayShort(parseISO(tasksDate))}
             today={today}
             onChange={(date) => setPickedTaskDate(date === today ? null : date)}
-          />
-        }
+          />,
+          'Добавить задачу',
+          'task',
+        )}
       >
         {!ready(tasksWeek) ? (
           <ListSkeleton rows={3} />
@@ -171,18 +208,20 @@ export function Home() {
             onDelete={planner.deleteTask}
           />
         ) : (
-          <p className={styles.placeholder}>Задач пока нет</p>
+          adding !== 'task' && <p className={styles.placeholder}>Задач пока нет</p>
         )}
-        {ready(tasksWeek) ? (
-          <AddItem label="Добавить задачу" onAdd={(title) => planner.addTask(tasksDate, title)} />
-        ) : (
-          <Skeleton width={160} height={40} />
+        {adding === 'task' && (
+          <AddItemField
+            label="Добавить задачу"
+            onAdd={(title) => planner.addTask(tasksDate, title)}
+            onClose={() => setAdding(undefined)}
+          />
         )}
       </Section>
 
       <Section
         title={dayTitle(habitsDate, 'Привычки сегодня', 'Привычки за')}
-        action={
+        action={sectionActions(
           <CalendarPicker
             aria-label="День привычек"
             mode="day"
@@ -193,8 +232,10 @@ export function Home() {
             today={today}
             // Отмечать привычки наперёд нельзя: будущий день возвращает к сегодняшнему.
             onChange={(date) => setPickedHabitDate(date >= today ? null : date)}
-          />
-        }
+          />,
+          'Добавить привычку',
+          'habit',
+        )}
       >
         {!habitsReady ? (
           <ListSkeleton rows={3} />
@@ -221,24 +262,15 @@ export function Home() {
         ) : (
           <p className={styles.placeholder}>Привычек пока нет</p>
         )}
-        {habitsReady ? (
-          <div>
-            <Button variant="secondary" icon={<Plus aria-hidden />} onClick={() => setAddingHabit(true)}>
-              Добавить привычку
-            </Button>
-          </div>
-        ) : (
-          <Skeleton width={160} height={40} />
-        )}
       </Section>
 
-      {addingHabit && (
+      {adding === 'habit' && (
         <HabitModal
-          onClose={() => setAddingHabit(false)}
+          onClose={() => setAdding(undefined)}
           onSave={(title) => {
             habitsStore.addHabit(title)
             toast({ message: 'Привычка добавлена' })
-            setAddingHabit(false)
+            setAdding(undefined)
           }}
         />
       )}

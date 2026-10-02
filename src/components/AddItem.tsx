@@ -17,24 +17,7 @@ export function AddItem({ label, onAdd, onClick }: Props) {
   const [editing, setEditing] = useState(false)
 
   if (editing && onAdd) {
-    return (
-      <div className={styles.field}>
-        <Plus aria-hidden />
-        <InlineInput
-          aria-label={label}
-          placeholder={label}
-          onEnter={(title) => {
-            onAdd(title)
-            return true
-          }}
-          onBlur={(title) => {
-            if (title) onAdd(title)
-            setEditing(false)
-          }}
-          onEscape={() => setEditing(false)}
-        />
-      </div>
-    )
+    return <AddItemField label={label} onAdd={onAdd} onClose={() => setEditing(false)} />
   }
 
   return (
@@ -46,6 +29,40 @@ export function AddItem({ label, onAdd, onClick }: Props) {
       >
         {label}
       </Button>
+    </div>
+  )
+}
+
+type FieldProps = {
+  /** Подпись и плейсхолдер поля: «Добавить цель». */
+  label: string
+  onAdd: (title: string) => void
+  /** Поле пора убрать: ввод закончен или отменён. */
+  onClose: () => void
+}
+
+/**
+ * Само инлайн-поле добавления, без кнопки. Enter добавляет элемент и оставляет поле открытым
+ * для следующего, уход из поля сохраняет набранное и закрывает его, Escape отменяет.
+ * Отдельно используется там, где добавление запускает кнопка в заголовке секции (Главная).
+ */
+export function AddItemField({ label, onAdd, onClose }: FieldProps) {
+  return (
+    <div className={styles.field}>
+      <Plus aria-hidden />
+      <InlineInput
+        aria-label={label}
+        placeholder={label}
+        onEnter={(title) => {
+          onAdd(title)
+          return true
+        }}
+        onBlur={(title) => {
+          if (title) onAdd(title)
+          onClose()
+        }}
+        onEscape={onClose}
+      />
     </div>
   )
 }

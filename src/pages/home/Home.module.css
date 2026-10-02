@@ -1,18 +1,37 @@
-/* Шапка: серое приветствие и крупная строка с сегодняшним днём. До содержимого 24px. */
+/* Шапка: приветствие и строка с сегодняшним днём, одним и тем же стилем. До содержимого 24px. */
 .header {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
   margin-bottom: var(--space-sm);
 }
 
-.greeting,
 .title {
   margin: 0;
 }
 
-.greeting {
-  color: var(--text-tertiary);
+/* Двоеточие в часах гаснет на полсекунды каждую секунду. */
+.colon {
+  animation: tick 1s steps(1) infinite;
+}
+
+@keyframes tick {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .colon {
+    animation: none;
+  }
+}
+
+/* Справа в заголовке секции: выбор даты и кнопка добавления. */
+.actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
 .stats {
@@ -76,5 +95,12 @@
 
   .stats {
     gap: var(--space-sm);
+  }
+}
+
+/* Телефон: кнопка с неделей длинная, поэтому поля у неё уже, иначе плюс вылезает за край блока. */
+@media (max-width: 640px) {
+  .actions > div > button {
+    padding: 0 var(--space-sm);
   }
 }

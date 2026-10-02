@@ -33,9 +33,9 @@ export function formatAgo(date: Date, now: Date): string {
   return formatDistanceStrict(date, now, { locale: ru, addSuffix: true })
 }
 
-/** «вторник · 15 сентября · 14:37»: строка в шапке Главной. */
-export function formatNow(date: Date): string {
-  return fmt(date, 'EEEE · d MMMM · HH:mm')
+/** «вторник · 15 сентября»: день в шапке Главной. Время рядом показывают отдельные часы. */
+export function formatWeekdayAndDay(date: Date): string {
+  return fmt(date, 'EEEE · d MMMM')
 }
 
 /** «15.09» */
