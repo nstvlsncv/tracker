@@ -7,7 +7,9 @@ import { ToastProvider } from './components/Toast'
 import { PlannerProvider } from './data/PlannerProvider'
 import { supabaseApi } from './data/supabaseApi'
 import { AppShell } from './layout/AppShell'
+import { AppSkeleton } from './layout/AppSkeleton'
 import { Login } from './pages/auth/Login'
+import { LoginSkeleton } from './pages/auth/LoginSkeleton'
 import { ComingSoon } from './pages/ComingSoon'
 import { DevPreview } from './pages/DevPreview'
 import { Profile } from './pages/Profile'
@@ -47,9 +49,11 @@ export default function App() {
                   </Route>
                 </Route>
               </Route>
-              {/* Только в режиме разработки: витрина компонентов и экраны на демо-данных. */}
+              {/* Только в режиме разработки: витрина компонентов, экраны на демо-данных и заглушки загрузки. */}
               {import.meta.env.DEV && <Route path="/dev" element={<Showcase />} />}
               {import.meta.env.DEV && <Route path="/dev/app/*" element={<DevPreview />} />}
+            {import.meta.env.DEV && <Route path="/dev/skeleton/app" element={<AppSkeleton />} />}
+            {import.meta.env.DEV && <Route path="/dev/skeleton/login" element={<LoginSkeleton />} />}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>

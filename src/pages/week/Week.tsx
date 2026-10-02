@@ -146,28 +146,30 @@ export function Week() {
             ) : (
               <p className={styles.placeholder}>Поставь 1–3 цели на неделю</p>
             )}
-            {ready && (
+            {ready ? (
               <AddItem label="Добавить цель" onAdd={(title) => planner.addGoal(weekStart, title)} />
+            ) : (
+              <Skeleton width={160} height={40} />
             )}
           </Section>
 
           <div className={styles.stats}>
-            <StatCard value={ready ? stats.total : '—'} label="всего задач" />
-            <StatCard value={ready ? stats.done : '—'} label="выполнено" />
-            <StatCard value={ready ? stats.remaining : '—'} label="осталось" />
+            <StatCard loading={!ready} value={stats.total} label="всего задач" />
+            <StatCard loading={!ready} value={stats.done} label="выполнено" />
+            <StatCard loading={!ready} value={stats.remaining} label="осталось" />
             <StatCard
-              value={ready && stats.averageProgress !== null ? `${stats.averageProgress}%` : '—'}
+              loading={!ready}
+              value={stats.averageProgress !== null ? `${stats.averageProgress}%` : '—'}
               label="ср. прогресс"
             />
             <StatCard
+              loading={!ready}
               value={
-                ready && stats.productiveDay
-                  ? formatWeekdayShort(parseISO(stats.productiveDay))
-                  : '—'
+                stats.productiveDay ? formatWeekdayShort(parseISO(stats.productiveDay)) : '—'
               }
               label="лучший день"
             />
-            <StatCard value={ready ? stats.goalsDone : '—'} label="вып. целей" />
+            <StatCard loading={!ready} value={stats.goalsDone} label="вып. целей" />
           </div>
 
           <div ref={daysRef} className={styles.days}>
@@ -187,6 +189,7 @@ export function Week() {
                     <Skeleton width={150} height={150} round />
                   </div>
                   <ListSkeleton rows={2} />
+                  <Skeleton width={180} height={40} />
                 </div>
               )
             })}

@@ -23,17 +23,17 @@ export function DayCard({ date, tasks, isToday }: Props) {
 
   return (
     <article
-      className={styles.card}
+      className={cx(styles.card, isToday && styles.today)}
       aria-label={formatDayMonth(day)}
       aria-current={isToday ? 'date' : undefined}
       data-date={date}
     >
       <header className={`t-heading-5 ${styles.header}`}>
         <span>{formatWeekdayShort(day)}</span>
-        <span className={cx(styles.number, isToday && styles.today)}>{day.getDate()}</span>
+        <span className={styles.number}>{day.getDate()}</span>
       </header>
       <div className={styles.donut}>
-        {/* В макете у дня без задач стоит 0%, а не прочерк. */}
+        {/* У дня без задач стоит 0%, а не прочерк. */}
         <Donut value={progress(tasks) ?? 0} size="xl" />
       </div>
       {tasks.length > 0 ? (

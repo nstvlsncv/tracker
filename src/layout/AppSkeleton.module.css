@@ -1,0 +1,49 @@
+.logo {
+  padding: var(--space-sm) 0;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  min-height: 48px;
+  margin-bottom: var(--space-sm);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+/* На планшете от меню остаётся узкая полоса, на телефоне нижняя панель: заглушки пунктов там не нужны. */
+@media (max-width: 1024px) {
+  .sidebar > * {
+    display: none;
+  }
+
+  .sidebar {
+    min-width: 64px;
+  }
+}
+
+@media (max-width: 640px) {
+  .sidebar {
+    min-height: 64px;
+  }
+
+  .section {
+    padding: var(--space-md);
+  }
+}

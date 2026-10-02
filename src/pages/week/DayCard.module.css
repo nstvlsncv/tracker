@@ -20,8 +20,27 @@
   color: var(--text-disabled);
 }
 
+/*
+ * Сегодняшний день: акценты наоборот, чёрная карточка и белый текст.
+ * Внутри карточки семантические токены переназначены, поэтому чекбоксы, донат, строки
+ * и кнопка сами перекрашиваются под тёмный фон, без отдельных стилей в каждом компоненте.
+ */
 .today {
-  color: var(--text-primary);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+
+  --text-primary: var(--text-inverse);
+  --accent-default: var(--text-inverse);
+  --accent-foreground: var(--bg-inverse);
+  --accent-subtle: var(--accent-hover);
+  --bg-secondary: var(--accent-hover);
+  --bg-tertiary: var(--accent-pressed);
+  --bg-surface: transparent;
+  --effects-focus-ring: var(--text-inverse);
+}
+
+.today .number {
+  color: var(--text-inverse);
 }
 
 .donut {
