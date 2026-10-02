@@ -14,6 +14,7 @@ import { LoginSkeleton } from './pages/auth/LoginSkeleton'
 import { DevPreview } from './pages/DevPreview'
 import { Habits } from './pages/habits/Habits'
 import { Home } from './pages/home/Home'
+import { OgImage } from './pages/OgImage'
 import { Profile } from './pages/Profile'
 import { Showcase } from './pages/Showcase'
 import { Week } from './pages/week/Week'
@@ -55,6 +56,7 @@ export default function App() {
               </Route>
               {/* Только в режиме разработки: витрина компонентов, экраны на демо-данных и заглушки загрузки. */}
               {import.meta.env.DEV && <Route path="/dev" element={<Showcase />} />}
+              {import.meta.env.DEV && <Route path="/dev/og" element={<OgImage />} />}
               {import.meta.env.DEV && <Route path="/dev/app/*" element={<DevPreview />} />}
             {import.meta.env.DEV && <Route path="/dev/skeleton/app" element={<AppSkeleton />} />}
             {import.meta.env.DEV && <Route path="/dev/skeleton/login" element={<LoginSkeleton />} />}
