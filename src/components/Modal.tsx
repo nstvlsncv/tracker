@@ -1,5 +1,5 @@
 import { X } from '@phosphor-icons/react'
-import { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef } from 'react'
 import type { ReactNode, TouchEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { IconButton } from './IconButton'
@@ -23,6 +23,8 @@ const DRAG_START_PX = 8
 /** На сколько нужно утянуть шторку вниз, чтобы она закрылась. */
 const DRAG_CLOSE_PX = 100
 const SHEET_SETTLE_MS = 200
+/** Сколько длится исчезновение модалки. То же число стоит в Modal.module.css. */
+const CLOSE_MS = 180
 
 const FOCUSABLE = 'a[href], button:not(:disabled), input:not(:disabled), [tabindex]:not([tabindex="-1"])'
 
@@ -80,6 +82,27 @@ export function Modal({ open, title, onClose, children, footer, footerStart }: P
     }
   }, [open])
 
+  // --- Плавное исчезновение ---
+  // Модалку убирают из страницы сразу, как только она не нужна, поэтому «уходит» не она сама,
+  // а её неживая копия: копия остаётся на долю секунды, растворяется и удаляется.
+  const overlayRef = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    const overlay = overlayRef.current
+    if (!open || !overlay) return
+    return () => {
+      queueMicrotask(() => {
+        // Оригинал ещё в странице: это не закрытие, а повторный прогон эффектов в режиме разработки.
+        if (overlay.isConnected) return
+        const ghost = overlay.cloneNode(true) as HTMLElement
+        ghost.classList.add(styles.closing)
+        ghost.setAttribute('aria-hidden', 'true')
+        ghost.inert = true
+        document.body.appendChild(ghost)
+        setTimeout(() => ghost.remove(), CLOSE_MS)
+      })
+    }
+  }, [open])
+
   // --- Шторка на телефоне закрывается свайпом вниз ---
   const drag = useRef<{ startY: number; offset: number } | null>(null)
 
@@ -119,6 +142,7 @@ export function Modal({ open, title, onClose, children, footer, footerStart }: P
 
   return createPortal(
     <div
+      ref={overlayRef}
       className={styles.overlay}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose()

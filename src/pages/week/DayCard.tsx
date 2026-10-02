@@ -39,7 +39,7 @@ export function DayCard({ date, tasks, isToday }: Props) {
       {tasks.length > 0 ? (
         <ItemList items={tasks} onToggle={toggleTask} onRename={renameTask} onDelete={deleteTask} />
       ) : (
-        <p className={styles.empty}>Задач пока нет</p>
+        <p className={styles.empty}>Пока свободно</p>
       )}
       <div>
         <AddItem label="Добавить задачу" onAdd={(title) => addTask(date, title)} />

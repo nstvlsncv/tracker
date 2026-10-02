@@ -152,7 +152,7 @@ export function Home() {
             onDelete={planner.deleteTask}
           />
         ) : (
-          adding !== 'task' && <p className={styles.placeholder}>Задач пока нет</p>
+          adding !== 'task' && <p className={styles.placeholder}>На сегодня пока свободно</p>
         )}
         {adding === 'task' && (
           <AddItemField
@@ -190,7 +190,7 @@ export function Home() {
             })}
           </ul>
         ) : (
-          <p className={styles.placeholder}>Привычек пока нет</p>
+          <p className={styles.placeholder}>Начни с одной привычки, остальные подтянутся</p>
         )}
       </Section>
 

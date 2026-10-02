@@ -2,6 +2,7 @@ import { CaretDown, CaretUp, PencilSimple } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
 import { useId } from 'react'
 import { Checkbox } from '../../components/Checkbox'
+import { Collapse } from '../../components/Collapse'
 import { IconButton } from '../../components/IconButton'
 import { StatCard } from '../../components/StatCard'
 import type { Habit } from '../../data/types'
@@ -71,7 +72,7 @@ export function HabitCard({ habit, checks, today, open, onOpenChange, onToggle, 
         <Caret className={styles.caret} aria-hidden />
       </div>
 
-      {open && (
+      <Collapse open={open}>
         <div id={detailsId} className={styles.details}>
           <div className={styles.stats}>
             <StatCard variant="surface" value={current} label="текущая серия" />
@@ -81,7 +82,7 @@ export function HabitCard({ habit, checks, today, open, onOpenChange, onToggle, 
           </div>
           <HabitHistory habitId={habit.id} checks={checks} today={today} since={since} onToggle={onToggle} />
         </div>
-      )}
+      </Collapse>
     </article>
   )
 }

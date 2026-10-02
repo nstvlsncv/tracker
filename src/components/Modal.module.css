@@ -84,10 +84,36 @@
   }
 }
 
+/* Исчезновение: копия закрытой модалки растворяется, карточка чуть опускается. */
+.closing {
+  pointer-events: none;
+  animation: fade-out 180ms ease-in forwards;
+}
+
+.closing .dialog {
+  animation: sink 180ms ease-in forwards;
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes sink {
+  to {
+    transform: translateY(8px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .overlay,
   .dialog {
     animation: none;
+  }
+
+  .closing {
+    display: none;
   }
 }
 
@@ -177,6 +203,19 @@
     padding-top: var(--space-sm);
     padding-bottom: var(--space-sm);
     white-space: normal;
+  }
+}
+
+/* На телефоне закрытая шторка уезжает вниз. */
+@media (max-width: 640px) {
+  .closing .dialog {
+    animation: sheet-out 180ms ease-in forwards;
+  }
+}
+
+@keyframes sheet-out {
+  to {
+    transform: translateY(100%);
   }
 }
 

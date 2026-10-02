@@ -96,7 +96,8 @@ export function AppShell({ basePath = '' }: Props) {
           </button>
         </div>
       </aside>
-      <main className={styles.main}>
+      {/* key: при смене раздела область создаётся заново и плавно проявляется. */}
+      <main key={section} className={styles.main}>
         <Outlet />
       </main>
       {leaving && <SignOutModal onClose={() => setLeaving(false)} />}
