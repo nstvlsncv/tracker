@@ -1,0 +1,35 @@
+.donut {
+  position: relative;
+  flex: none;
+}
+
+.donut svg {
+  display: block;
+}
+
+.donut circle {
+  fill: none;
+}
+
+.track {
+  stroke: var(--bg-tertiary);
+}
+
+.fill {
+  stroke: var(--accent-default);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 300ms ease-out;
+}
+
+.label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+}
+
+.muted {
+  color: var(--text-tertiary);
+}

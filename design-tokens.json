@@ -1,0 +1,173 @@
+{
+  "core": {
+    "Neutral": {
+      "100": { "value": "#FAFAFA", "type": "color" },
+      "200": { "value": "#F2F2F2", "type": "color" },
+      "300": { "value": "#E5E5E5", "type": "color" },
+      "400": { "value": "#CCCCCC", "type": "color" },
+      "500": { "value": "#A3A3A3", "type": "color" },
+      "600": { "value": "#737373", "type": "color" },
+      "700": { "value": "#525252", "type": "color" },
+      "800": { "value": "#333333", "type": "color" },
+      "900": { "value": "#171717", "type": "color" }
+    },
+    "Green": {
+      "100": { "value": "#EAF8E1", "type": "color" },
+      "600": { "value": "#43A63C", "type": "color" }
+    },
+    "Orange": {
+      "100": { "value": "#FFF0D6", "type": "color" },
+      "600": { "value": "#F28A1A", "type": "color" }
+    },
+    "Red": {
+      "100": { "value": "#FDE8E5", "type": "color" },
+      "600": { "value": "#E5483F", "type": "color" }
+    },
+    "Base": {
+      "black": { "value": "#000000", "type": "color" },
+      "white": { "value": "#FFFFFF", "type": "color" }
+    },
+    "Radius": {
+      "100": { "value": 4, "type": "number" },
+      "200": { "value": 8, "type": "number" },
+      "300": { "value": 12, "type": "number" },
+      "400": { "value": 16, "type": "number" },
+      "500": { "value": 24, "type": "number" },
+      "600": { "value": 32, "type": "number" },
+      "full": { "value": 9999, "type": "number" }
+    },
+    "Space": {
+      "100": { "value": 4, "type": "number" },
+      "200": { "value": 8, "type": "number" },
+      "300": { "value": 12, "type": "number" },
+      "400": { "value": 16, "type": "number" },
+      "500": { "value": 24, "type": "number" },
+      "600": { "value": 32, "type": "number" },
+      "700": { "value": 40, "type": "number" },
+      "800": { "value": 64, "type": "number" }
+    },
+    "FontFamily": {
+      "base": { "value": "Unbounded", "type": "string", "note": "Used for ALL text per product decision, including body/UI text at small sizes. Display/geometric face — verify readability at 12-14px during implementation; no italic exists." }
+    },
+    "FontWeight": {
+      "regular": { "value": 400, "type": "number" },
+      "medium": { "value": 500, "type": "number" },
+      "semibold": { "value": 600, "type": "number" },
+      "bold": { "value": 700, "type": "number" }
+    },
+    "FontSize": {
+      "100": { "value": 12, "type": "number" },
+      "200": { "value": 14, "type": "number" },
+      "300": { "value": 16, "type": "number" },
+      "400": { "value": 18, "type": "number" },
+      "500": { "value": 20, "type": "number" },
+      "600": { "value": 24, "type": "number" },
+      "700": { "value": 28, "type": "number" },
+      "800": { "value": 32, "type": "number" },
+      "900": { "value": 40, "type": "number" }
+    },
+    "LineHeight": {
+      "100": { "value": 16, "type": "number", "note": "pairs with FontSize 100 (12px)" },
+      "200": { "value": 20, "type": "number", "note": "pairs with FontSize 200 (14px)" },
+      "300": { "value": 24, "type": "number", "note": "pairs with FontSize 300 (16px)" },
+      "400": { "value": 24, "type": "number", "note": "pairs with FontSize 400 (18px)" },
+      "500": { "value": 26, "type": "number", "note": "pairs with FontSize 500 (20px)" },
+      "600": { "value": 30, "type": "number", "note": "pairs with FontSize 600 (24px)" },
+      "700": { "value": 34, "type": "number", "note": "pairs with FontSize 700 (28px)" },
+      "800": { "value": 38, "type": "number", "note": "pairs with FontSize 800 (32px)" },
+      "900": { "value": 46, "type": "number", "note": "pairs with FontSize 900 (40px)" }
+    }
+  },
+  "semantic": {
+    "bg": {
+      "primary": { "value": "{core.Neutral.100}", "type": "color" },
+      "secondary": { "value": "{core.Neutral.200}", "type": "color" },
+      "tertiary": { "value": "{core.Neutral.300}", "type": "color" },
+      "surface": { "value": "{core.Base.white}", "type": "color", "note": "Added during implementation: semantic alias for the surfaces SPEC.md calls Base/white (nested cards, inputs, modals, secondary buttons)." },
+      "inverse": { "value": "{core.Neutral.900}", "type": "color" }
+    },
+    "border": {
+      "subtle": { "value": "{core.Neutral.300}", "type": "color" },
+      "default": { "value": "{core.Neutral.400}", "type": "color" },
+      "strong": { "value": "{core.Neutral.600}", "type": "color" }
+    },
+    "text": {
+      "primary": { "value": "{core.Neutral.900}", "type": "color" },
+      "secondary": { "value": "{core.Neutral.700}", "type": "color" },
+      "tertiary": { "value": "{core.Neutral.600}", "type": "color" },
+      "disabled": { "value": "{core.Neutral.500}", "type": "color" },
+      "placeholder": { "value": "{core.Neutral.500}", "type": "color" },
+      "inverse": { "value": "{core.Neutral.100}", "type": "color" }
+    },
+    "accent": {
+      "default": { "value": "{core.Neutral.900}", "type": "color" },
+      "hover": { "value": "{core.Neutral.800}", "type": "color" },
+      "pressed": { "value": "{core.Neutral.700}", "type": "color" },
+      "subtle": { "value": "{core.Neutral.200}", "type": "color" },
+      "disabled": { "value": "{core.Neutral.300}", "type": "color" },
+      "foreground": { "value": "{core.Neutral.100}", "type": "color" }
+    },
+    "status": {
+      "success": {
+        "bg": { "value": "{core.Green.100}", "type": "color" },
+        "text": { "value": "{core.Green.600}", "type": "color" },
+        "border": { "value": "{core.Green.600}", "type": "color" },
+        "icon": { "value": "{core.Green.600}", "type": "color" }
+      },
+      "warning": {
+        "bg": { "value": "{core.Orange.100}", "type": "color" },
+        "text": { "value": "{core.Orange.600}", "type": "color" },
+        "border": { "value": "{core.Orange.600}", "type": "color" },
+        "icon": { "value": "{core.Orange.600}", "type": "color" }
+      },
+      "danger": {
+        "bg": { "value": "{core.Red.100}", "type": "color" },
+        "text": { "value": "{core.Red.600}", "type": "color" },
+        "border": { "value": "{core.Red.600}", "type": "color" },
+        "icon": { "value": "{core.Red.600}", "type": "color" },
+        "foreground": { "value": "{core.Base.white}", "type": "color", "note": "Added during implementation: text and icons on a danger-coloured fill (Danger / Main button)." }
+      }
+    },
+    "habit": {
+      "streak-accent": { "value": "{core.Green.600}", "type": "color", "note": "Deliberate, sole exception to the monochrome rule: habit streak numbers/icons use green to signal a game-like mechanic. Not used anywhere else in the product." }
+    },
+    "effects": {
+      "focus-ring": { "value": "{core.Neutral.900}", "type": "color" },
+      "overlay": { "value": "rgba(23, 23, 23, 0.5)", "type": "color" },
+      "shadow-sm": { "value": "rgba(23, 23, 23, 0.08)", "type": "color" },
+      "shadow-md": { "value": "rgba(23, 23, 23, 0.14)", "type": "color" },
+      "shadow-lg": { "value": "rgba(23, 23, 23, 0.22)", "type": "color" }
+    },
+    "radius": {
+      "xs": { "value": "{core.Radius.100}", "type": "number" },
+      "sm": { "value": "{core.Radius.200}", "type": "number" },
+      "md": { "value": "{core.Radius.300}", "type": "number" },
+      "lg": { "value": "{core.Radius.400}", "type": "number" },
+      "xl": { "value": "{core.Radius.500}", "type": "number" },
+      "2xl": { "value": "{core.Radius.600}", "type": "number" },
+      "full": { "value": "{core.Radius.full}", "type": "number" }
+    },
+    "space": {
+      "xs": { "value": "{core.Space.100}", "type": "number" },
+      "sm": { "value": "{core.Space.200}", "type": "number" },
+      "md": { "value": "{core.Space.400}", "type": "number" },
+      "lg": { "value": "{core.Space.500}", "type": "number" },
+      "xl": { "value": "{core.Space.700}", "type": "number" },
+      "2xl": { "value": "{core.Space.800}", "type": "number" }
+    },
+    "typography": {
+      "heading-1": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.semibold}", "fontSize": "{core.FontSize.800}", "lineHeight": "{core.LineHeight.800}" },
+      "heading-2": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.semibold}", "fontSize": "{core.FontSize.700}", "lineHeight": "{core.LineHeight.700}" },
+      "heading-3": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.semibold}", "fontSize": "{core.FontSize.600}", "lineHeight": "{core.LineHeight.600}" },
+      "heading-4": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.medium}", "fontSize": "{core.FontSize.500}", "lineHeight": "{core.LineHeight.500}" },
+      "heading-5": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.semibold}", "fontSize": "{core.FontSize.300}", "lineHeight": "{core.LineHeight.300}" },
+      "body-lg": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.regular}", "fontSize": "{core.FontSize.300}", "lineHeight": "{core.LineHeight.300}" },
+      "body-md": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.regular}", "fontSize": "{core.FontSize.200}", "lineHeight": "{core.LineHeight.200}" },
+      "body-sm": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.regular}", "fontSize": "{core.FontSize.100}", "lineHeight": "{core.LineHeight.100}" },
+      "button": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.medium}", "fontSize": "{core.FontSize.200}", "lineHeight": "{core.LineHeight.200}" },
+      "caption": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.medium}", "fontSize": "{core.FontSize.100}", "lineHeight": "{core.LineHeight.100}" },
+      "number-lg": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.semibold}", "fontSize": "{core.FontSize.600}", "lineHeight": "{core.LineHeight.600}" },
+      "number-sm": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.medium}", "fontSize": "{core.FontSize.100}", "lineHeight": "{core.LineHeight.100}" }
+    }
+  }
+}

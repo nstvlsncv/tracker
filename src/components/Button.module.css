@@ -1,0 +1,185 @@
+/* Общие стили Button и IconButton. */
+
+.button {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast),
+    transform var(--transition-press);
+}
+
+.content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.button svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+/* --- Размеры --- */
+
+.sm {
+  height: 32px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-sm);
+}
+
+.sm svg {
+  width: 16px;
+  height: 16px;
+}
+
+.md {
+  height: 40px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-md);
+}
+
+.lg {
+  height: 48px;
+  padding: 0 var(--space-lg);
+  border-radius: var(--radius-lg);
+}
+
+.iconOnly {
+  aspect-ratio: 1;
+  padding: 0;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+/* --- Pressed: кнопка вдавливается --- */
+
+.button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* --- Accent / Main --- */
+
+.accentMain {
+  background: var(--accent-default);
+  color: var(--accent-foreground);
+}
+
+.accentMain:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.accentMain:active:not(:disabled) {
+  background: var(--accent-pressed);
+}
+
+/* --- Accent / Secondary --- */
+
+.accentSecondary {
+  background: var(--accent-subtle);
+  color: var(--text-primary);
+}
+
+.accentSecondary:hover:not(:disabled),
+.accentSecondary:active:not(:disabled) {
+  background: var(--bg-tertiary);
+}
+
+/* --- Accent / Ghost --- */
+
+.accentGhost {
+  color: var(--text-primary);
+}
+
+.accentGhost:hover:not(:disabled) {
+  background: var(--accent-subtle);
+}
+
+.accentGhost:active:not(:disabled) {
+  background: var(--bg-tertiary);
+}
+
+/* --- Danger / Main --- */
+
+.dangerMain {
+  background: var(--status-danger-text);
+  color: var(--status-danger-foreground);
+}
+
+.dangerMain:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.dangerMain:active:not(:disabled) {
+  opacity: 0.8;
+}
+
+/* --- Danger / Ghost --- */
+
+.dangerGhost {
+  color: var(--status-danger-text);
+}
+
+.dangerGhost:hover:not(:disabled),
+.dangerGhost:active:not(:disabled) {
+  background: var(--status-danger-bg);
+}
+
+/* --- Disabled (у Pending свой вид, хотя кнопка тоже не нажимается) --- */
+
+.accentMain:disabled:not(.pending),
+.dangerMain:disabled:not(.pending) {
+  background: var(--accent-disabled);
+  color: var(--text-disabled);
+}
+
+.accentSecondary:disabled:not(.pending),
+.accentGhost:disabled:not(.pending),
+.dangerGhost:disabled:not(.pending) {
+  color: var(--text-disabled);
+}
+
+/* --- Pending --- */
+
+.pending {
+  cursor: progress;
+}
+
+.pending .content {
+  visibility: hidden;
+}
+
+.spinner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--radius-full);
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button:active:not(:disabled) {
+    transform: none;
+  }
+
+  .spinner {
+    animation-duration: 2s;
+  }
+}

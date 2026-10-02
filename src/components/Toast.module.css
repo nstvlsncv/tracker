@@ -1,0 +1,56 @@
+/* Тосты появляются сверху по центру экрана, на 48px ниже верхнего края. */
+.region {
+  position: fixed;
+  top: 48px;
+  right: 0;
+  left: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  max-width: 400px;
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  background: var(--bg-inverse);
+  box-shadow: var(--shadow-toast);
+  color: var(--text-inverse);
+  pointer-events: auto;
+  animation: drop 200ms ease-out;
+}
+
+.action {
+  flex: none;
+  border-radius: var(--radius-xs);
+  color: var(--text-inverse);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.action:hover {
+  color: var(--text-disabled);
+}
+
+.action:focus-visible {
+  outline-color: var(--text-inverse);
+}
+
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}

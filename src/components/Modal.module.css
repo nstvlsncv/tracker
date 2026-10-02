@@ -1,0 +1,95 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  /* Модалка стоит на 120px ниже верхнего края экрана. */
+  padding: 120px var(--space-2xl) var(--space-xl);
+  overflow-y: auto;
+  background: var(--effects-overlay);
+  animation: fade 150ms ease-out;
+}
+
+.dialog {
+  position: relative;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--space-lg);
+  width: 440px;
+  max-width: 100%;
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-modal);
+  outline: none;
+  animation: rise 150ms ease-out;
+}
+
+/* Крестик за пределами карточки, справа сверху. */
+.close {
+  position: absolute;
+  top: 0;
+  left: calc(100% + var(--space-sm));
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+}
+
+.close:hover:not(:disabled),
+.close:active:not(:disabled) {
+  background: var(--bg-secondary);
+}
+
+.close:focus-visible {
+  outline-color: var(--bg-surface);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  color: var(--text-secondary);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+/* Unbounded широкий: три кнопки помещаются в 440px, только если ghost-кнопка слева
+   занимает меньше места. Её текст при этом встаёт вровень с краем контента. */
+.start > button {
+  margin-left: calc(-1 * var(--space-sm));
+  padding: 0 var(--space-sm);
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-left: auto;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .dialog {
+    animation: none;
+  }
+}

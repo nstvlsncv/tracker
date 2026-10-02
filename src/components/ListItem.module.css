@@ -1,0 +1,43 @@
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: 48px;
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.item:hover,
+.item:focus-within {
+  background: var(--bg-secondary);
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+button.title {
+  cursor: text;
+}
+
+.done .title {
+  color: var(--text-disabled);
+  text-decoration: line-through;
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.item:hover .actions,
+.item:focus-within .actions {
+  opacity: 1;
+}

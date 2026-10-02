@@ -1,0 +1,94 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.label {
+  color: var(--text-secondary);
+}
+
+.control {
+  position: relative;
+  display: flex;
+}
+
+.input {
+  width: 100%;
+  height: 48px;
+  padding: 0 var(--space-md);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+}
+
+.input::placeholder {
+  color: var(--text-placeholder);
+}
+
+.input:hover:not(:disabled) {
+  border-color: var(--border-default);
+}
+
+.input:focus {
+  border-color: var(--accent-default);
+}
+
+.input:disabled {
+  background: var(--bg-secondary);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.error,
+.error:hover:not(:disabled),
+.error:focus {
+  border-color: var(--status-danger-border);
+  background: var(--status-danger-bg);
+}
+
+.withToggle {
+  padding-right: var(--space-xl);
+}
+
+.toggle {
+  position: absolute;
+  top: 0;
+  right: var(--space-sm);
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: auto 0;
+  border-radius: var(--radius-full);
+  color: var(--text-tertiary);
+}
+
+.toggle:hover:not(:disabled) {
+  color: var(--text-primary);
+}
+
+.toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.message {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  color: var(--status-danger-text);
+}
+
+.message svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
