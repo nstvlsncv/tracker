@@ -100,12 +100,50 @@
   }
 }
 
-/* Телефон: кнопки друг под другом, главное действие сверху, длинные подписи переносятся. */
+/* Телефон: модалка становится шторкой, которая выезжает снизу и занимает всю ширину. */
 @media (max-width: 640px) {
-  .dialog {
-    padding: var(--space-md);
+  .overlay {
+    align-items: flex-end;
+    padding: 0;
+    overflow: hidden;
   }
 
+  .dialog {
+    width: 100%;
+    /* Выше экрана шторка не бывает: длинное содержимое прокручивается внутри неё. */
+    max-height: calc(100dvh - var(--space-xl));
+    padding: var(--space-lg) var(--space-md) calc(var(--space-md) + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    animation: sheet 250ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  /* Полоска-ручка сверху, как у системных шторок. */
+  .dialog::before {
+    content: '';
+    position: absolute;
+    top: var(--space-sm);
+    left: 50%;
+    width: 36px;
+    height: 4px;
+    border-radius: var(--radius-full);
+    background: var(--border-default);
+    transform: translateX(-50%);
+  }
+
+  /* Крестик внутри шторки, в правом верхнем углу. */
+  .close {
+    top: var(--space-md);
+    right: var(--space-md);
+    left: auto;
+    background: var(--bg-secondary);
+  }
+
+  .dialog > h2 {
+    padding-right: var(--space-xl);
+  }
+
+  /* Кнопки друг под другом, главное действие сверху, длинные подписи переносятся. */
   .actions {
     flex-direction: column-reverse;
     width: 100%;
@@ -114,9 +152,21 @@
   .actions > button {
     width: 100%;
     height: auto;
-    min-height: 40px;
+    min-height: 48px;
     padding-top: var(--space-sm);
     padding-bottom: var(--space-sm);
     white-space: normal;
+  }
+}
+
+@keyframes sheet {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .dialog {
+    animation: none;
   }
 }

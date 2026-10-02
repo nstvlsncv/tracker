@@ -21,6 +21,7 @@ const FOCUSABLE = 'a[href], button:not(:disabled), input:not(:disabled), [tabind
 /**
  * Карточка 650px по центру, на 120px ниже верхнего края. Крестик вынесен за карточку,
  * справа сверху. Внутреннего скролла нет: если контент не помещается, скроллится подложка.
+ * На телефоне вместо карточки шторка, которая выезжает снизу.
  */
 export function Modal({ open, title, onClose, children, footer, footerStart }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -35,7 +36,11 @@ export function Modal({ open, title, onClose, children, footer, footerStart }: P
     if (!open || !dialog) return
 
     const previous = document.activeElement
-    ;(dialog.querySelector<HTMLElement>('input:not(:disabled)') ?? dialog).focus()
+    // На компьютере фокус сразу встаёт в первое поле. На телефоне нет: там это выдвинуло бы
+    // клавиатуру поверх шторки и закрыло всё, что под полем.
+    const touch = window.matchMedia('(pointer: coarse)').matches
+    const field = touch ? null : dialog.querySelector<HTMLElement>('input:not(:disabled)')
+    ;(field ?? dialog).focus()
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
