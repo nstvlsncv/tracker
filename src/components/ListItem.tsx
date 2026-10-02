@@ -2,7 +2,6 @@ import { ArrowBendUpRight, Trash } from '@phosphor-icons/react'
 import { useEffect, useRef, useState } from 'react'
 import type { TouchEvent } from 'react'
 import { cx } from '../lib/cx'
-import { moveTarget } from '../lib/taskMove'
 import { Checkbox } from './Checkbox'
 import { IconButton } from './IconButton'
 import { InlineInput } from './InlineInput'
@@ -30,7 +29,6 @@ const REVEAL_PX = 72
 const LOCK_PX = 8
 /** Какую долю ширины строки нужно протянуть, чтобы действие сработало сразу, без нажатия на кнопку. */
 const FULL_SWIPE = 0.6
-const SETTLE_MS = 200
 
 // offset: сдвиг строки. Больше нуля: строку увели влево (открывается удаление справа).
 // Меньше нуля: увели вправо (открывается перенос слева).
@@ -40,8 +38,8 @@ type Gesture = { x: number; y: number; base: number; offset: number; axis: 'x' |
  * Строка задачи или цели. Клик по строке (кроме чекбокса и кнопок) включает переименование.
  * На компьютере при наведении появляются кнопки: перенос (у задач, открывает меню с днями)
  * и корзина. На сенсорных экранах, как в iOS: свайп влево открывает удаление, свайп вправо
- * перенос; короткий свайп показывает кнопку (у переноса она открывает то же меню шторкой),
- * длинный выполняет действие сразу.
+ * перенос. Короткий свайп показывает кнопку, длинный действует сразу: влево удаляет,
+ * вправо открывает то же меню с днями шторкой (как и нажатие на кнопку переноса).
  */
 export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Props) {
   const [editing, setEditing] = useState(false)
@@ -52,8 +50,6 @@ export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Pr
   const swiped = useRef(false)
   // Открыто ли меню переноса и где: под кнопкой (компьютер) или шторкой (сенсорный экран).
   const [moveMenu, setMoveMenu] = useState<DOMRect | 'sheet' | null>(null)
-  // Быстрый перенос длинным свайпом: с прошедшего дня на сегодня, иначе на следующий день.
-  const quick = move && moveTarget(move.date, move.today)
 
   const save = (next: string) => {
     if (next && next !== title) onRename(next)
@@ -124,9 +120,9 @@ export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Pr
       close()
       onDelete()
     } else if (move && offset < -width * FULL_SWIPE) {
-      // Далеко вправо: задача переносится сразу, без меню.
-      setOffset(-width)
-      setTimeout(() => quick && move.onPick(quick.date), SETTLE_MS)
+      // Далеко вправо: строка возвращается на место, открывается выбор дня.
+      close()
+      setMoveMenu('sheet')
     } else if (offset > REVEAL_PX / 2) {
       setOpen('delete')
       setOffset(REVEAL_PX)

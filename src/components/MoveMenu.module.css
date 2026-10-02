@@ -11,7 +11,7 @@
   animation: appear 120ms ease-out;
 }
 
-/* С календарём список шире: в узком день трудно разглядеть и попасть по нему. */
+/* Вложенный список с календарём: шире основного, чтобы день было легко разглядеть и нажать. */
 .calendar {
   width: 450px;
   max-width: calc(100vw - 2 * var(--space-sm));
@@ -43,6 +43,11 @@
   .option:hover {
     background: var(--bg-secondary);
   }
+}
+
+/* Пункт, от которого сейчас открыт вложенный календарь. */
+.optionOpen {
+  background: var(--bg-secondary);
 }
 
 .option:focus-visible {
