@@ -89,9 +89,7 @@ export function Habits() {
       )}
 
       {store.status === 'ready' && habits.length === 0 && (
-        <p className={styles.placeholder}>
-          Начни с одной привычки: маленькие шаги каждый день приводят далеко
-        </p>
+        <p className={styles.placeholder}>Начни с одной привычки, остальные подтянутся</p>
       )}
 
       {store.status === 'ready' &&
