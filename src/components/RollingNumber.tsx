@@ -7,14 +7,19 @@ type Props = {
 }
 
 const DIGITS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+// Ячейки барабана: пустая, потом цифры. С пустой стартуют старшие разряды, чтобы число
+// появлялось из «0», а не из «000».
+const CELLS = ['', ...DIGITS]
 
 /**
  * Число-счётчик: каждая цифра это барабан от 0 до 9, который проворачивается до нужной.
- * При появлении барабаны крутятся от нуля, при смене значения от прежней цифры.
+ * При появлении число вырастает из нуля: единицы крутятся от 0, старшие разряды выезжают
+ * из пустоты. При смене значения барабаны крутятся от прежней цифры.
  */
 export function RollingNumber({ value }: Props) {
   const ready = useAfterMount()
   const text = String(value)
+  const lastDigit = [...text].findLastIndex((char) => DIGITS.includes(char))
 
   return (
     <span className={styles.number}>
@@ -24,13 +29,14 @@ export function RollingNumber({ value }: Props) {
           // Ключ считается от правого края: единицы остаются единицами, когда число растёт.
           const key = text.length - index
           if (!DIGITS.includes(char)) return <span key={key}>{char}</span>
-          const shown = ready ? Number(char) : 0
+          const isUnits = index === lastDigit
+          const cell = ready ? Number(char) + 1 : isUnits ? 1 : 0
           return (
             <span key={key} className={styles.digit}>
               {/* Невидимая цифра держит ширину, поверх неё ездит барабан. */}
               <span className={styles.sizer}>{char}</span>
-              <span className={styles.drum} style={{ transform: `translateY(-${shown * 10}%)` }}>
-                {DIGITS.map((digit) => (
+              <span className={styles.drum} style={{ transform: `translateY(-${(cell * 100) / CELLS.length}%)` }}>
+                {CELLS.map((digit) => (
                   <span key={digit}>{digit}</span>
                 ))}
               </span>

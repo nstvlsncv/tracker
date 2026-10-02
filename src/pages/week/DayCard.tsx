@@ -41,7 +41,7 @@ export function DayCard({ date, tasks, isToday }: Props) {
       ) : (
         <p className={styles.empty}>Задач пока нет</p>
       )}
-      <div className={styles.add}>
+      <div>
         <AddItem label="Добавить задачу" onAdd={(title) => addTask(date, title)} />
       </div>
     </article>

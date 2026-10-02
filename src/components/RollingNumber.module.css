@@ -7,7 +7,9 @@
   position: relative;
   display: inline-block;
   height: 1lh;
-  overflow: hidden;
+  /* Обрезаем только по вертикали: широкая цифра в узком окошке (на месте «1») видна целиком. */
+  overflow-x: visible;
+  overflow-y: clip;
   vertical-align: top;
 }
 
