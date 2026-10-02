@@ -6,8 +6,6 @@
   display: flex;
   align-items: center;
   gap: var(--space-md);
-  /* Ширину задаёт Sonner: одинаковая у всех тостов, чтобы стопка была ровной. */
-  width: var(--width);
   padding: var(--space-md);
   border-radius: var(--radius-lg);
   background: var(--bg-inverse);
@@ -36,4 +34,24 @@
 
 .action:focus-visible {
   outline-color: var(--text-inverse);
+}
+
+/*
+ * Ширина тоста по его содержимому, сам он стоит по центру. Селектор усилен нарочно:
+ * иначе Sonner на телефоне растягивает тост на всю ширину экрана.
+ */
+:global([data-sonner-toaster]) .toast.toast {
+  right: 0;
+  left: 0;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+/* На телефоне область тостов у Sonner сдвинута вправо на свой отступ: возвращаем центр на место. */
+@media (max-width: 600px) {
+  :global([data-sonner-toaster]) .toast.toast {
+    right: calc(var(--mobile-offset-left) + var(--mobile-offset-right));
+    max-width: calc(100% - var(--mobile-offset-left) - var(--mobile-offset-right));
+  }
 }
