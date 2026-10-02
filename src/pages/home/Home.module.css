@@ -26,14 +26,6 @@
   }
 }
 
-/* Справа в заголовке секции: выбор даты и кнопка добавления. */
-.actions {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
 .stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -80,10 +72,7 @@
   color: var(--text-tertiary);
 }
 
-/*
- * Телефон: тот же экран, что на компьютере, только мельче. Строки шапки набраны размером,
- * при котором каждая умещается в одну строку, а четыре показателя остаются в одном ряду.
- */
+/* Телефон: строки шапки мельче, показатели в два столбца, как статистика на Неделе. */
 @media (max-width: 640px) {
   .title {
     font-size: var(--typography-heading-4-font-size);
@@ -91,28 +80,7 @@
   }
 
   .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-sm);
-  }
-
-  .stats > div {
-    padding: var(--space-md) var(--space-xs);
-    border-radius: var(--radius-lg);
-  }
-
-  .stats > div > span:first-child {
-    font-size: var(--typography-heading-5-font-size);
-    line-height: var(--typography-heading-5-line-height);
-  }
-
-  .stats > div > span:last-child {
-    font-size: var(--typography-tab-font-size);
-    line-height: var(--typography-tab-line-height);
-  }
-}
-
-/* Телефон: кнопка с неделей длинная, поэтому поля у неё уже, иначе плюс вылезает за край блока. */
-@media (max-width: 640px) {
-  .actions > div > button {
-    padding: 0 var(--space-sm);
   }
 }
