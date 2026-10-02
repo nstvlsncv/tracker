@@ -1,8 +1,8 @@
 import { ArrowsClockwise, CalendarDots, House, SignOut, User } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { NavLink, Outlet } from 'react-router'
-import { useAuth } from '../auth/useAuth'
 import { cx } from '../lib/cx'
+import { SignOutModal } from './SignOutModal'
 import styles from './AppShell.module.css'
 
 type Props = {
@@ -23,7 +23,7 @@ const NAV = [
  * узкой полосой с иконками), а на телефоне превращается в нижнюю панель, как в iOS.
  */
 export function AppShell({ basePath = '' }: Props) {
-  const { signOut } = useAuth()
+  const [leaving, setLeaving] = useState(false)
   // Какой пункт нажали последним и в который раз. Счётчик идёт в key иконки: при каждом
   // нажатии она создаётся заново, и анимация проигрывается снова, даже на уже открытом разделе.
   const [tap, setTap] = useState<{ to: string | null; count: number }>({ to: null, count: 0 })
@@ -52,7 +52,7 @@ export function AppShell({ basePath = '' }: Props) {
         </nav>
         {/* На телефоне этой кнопки в меню нет: выход там на экране Профиля. */}
         <div className={styles.bottom}>
-          <button type="button" className={cx('t-button', styles.item, styles.logout)} onClick={signOut}>
+          <button type="button" className={cx('t-button', styles.item, styles.logout)} onClick={() => setLeaving(true)}>
             <SignOut aria-hidden />
             <span className={styles.label}>Выйти</span>
           </button>
@@ -61,6 +61,7 @@ export function AppShell({ basePath = '' }: Props) {
       <main className={styles.main}>
         <Outlet />
       </main>
+      {leaving && <SignOutModal onClose={() => setLeaving(false)} />}
     </div>
   )
 }

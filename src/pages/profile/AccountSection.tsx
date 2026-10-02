@@ -7,15 +7,17 @@ import { Input } from '../../components/Input'
 import { Modal } from '../../components/Modal'
 import { Section } from '../../components/Section'
 import { useToast } from '../../components/useToast'
+import { SignOutModal } from '../../layout/SignOutModal'
 import { NAME_MAX_LENGTH } from '../../lib/constants'
 import { failureMessage, useAccount } from './useAccount'
 import styles from './profile.module.css'
 
 /** Блок «Аккаунт»: имя, фамилия и логин. Имя и фамилия меняются в модалке, логин в ней только показан. */
 export function AccountSection() {
-  const { profile, signOut } = useAuth()
+  const { profile } = useAuth()
   const account = useAccount()
   const [editing, setEditing] = useState(false)
+  const [leaving, setLeaving] = useState(false)
 
   return (
     <>
@@ -30,12 +32,13 @@ export function AccountSection() {
             Изменить
           </Button>
           {/* Только на телефоне: в нижней панели кнопки выхода нет. */}
-          <Button tone="danger" className={styles.logout} icon={<SignOut aria-hidden />} onClick={signOut}>
+          <Button tone="danger" className={styles.logout} icon={<SignOut aria-hidden />} onClick={() => setLeaving(true)}>
             Выйти
           </Button>
         </div>
       </Section>
       {editing && <EditAccountModal onClose={() => setEditing(false)} />}
+      {leaving && <SignOutModal onClose={() => setLeaving(false)} />}
     </>
   )
 }

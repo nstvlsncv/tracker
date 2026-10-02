@@ -3,6 +3,7 @@ import { parseISO } from 'date-fns'
 import { useCallback, useEffect, useState } from 'react'
 import type { AccountSession } from '../../auth/account'
 import { Button } from '../../components/Button'
+import { ConfirmModal } from '../../components/ConfirmModal'
 import { Section } from '../../components/Section'
 import { Skeleton } from '../../components/Skeleton'
 import { useToast } from '../../components/useToast'
@@ -19,8 +20,8 @@ export function SessionsSection() {
   const toast = useToast()
   // undefined: загружаются. 'error': загрузить не удалось.
   const [sessions, setSessions] = useState<AccountSession[] | 'error'>()
-  // Что сейчас завершается: id сессии или 'others'.
-  const [ending, setEnding] = useState<string>()
+  // Что просят завершить (ждёт подтверждения в модалке): сессия или 'others'.
+  const [asking, setAsking] = useState<AccountSession | 'others'>()
   // Время открытия экрана: от него считается «2 часа назад».
   const [now] = useState(() => new Date())
 
@@ -30,17 +31,15 @@ export function SessionsSection() {
 
   useEffect(load, [load])
 
-  const end = async (target: string) => {
-    setEnding(target)
+  const end = async (target: AccountSession | 'others') => {
     try {
       if (target === 'others') await account.endOtherSessions()
-      else await account.endSession(target)
+      else await account.endSession(target.id)
       toast({ message: target === 'others' ? 'Другие сессии завершены' : 'Сессия завершена' })
       setSessions(await account.listSessions())
     } catch (reason) {
       toast({ message: failureMessage(reason) })
     }
-    setEnding(undefined)
   }
 
   if (sessions === 'error') {
@@ -92,13 +91,7 @@ export function SessionsSection() {
               {session.current ? (
                 <span className={`t-caption ${styles.badge}`}>Текущая</span>
               ) : (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  pending={ending === session.id}
-                  disabled={Boolean(ending)}
-                  onClick={() => end(session.id)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => setAsking(session)}>
                   Завершить
                 </Button>
               )}
@@ -108,15 +101,30 @@ export function SessionsSection() {
       </ul>
       {others.length > 1 && (
         <div className={styles.wide}>
-          <Button
-            variant="secondary"
-            pending={ending === 'others'}
-            disabled={Boolean(ending)}
-            onClick={() => end('others')}
-          >
+          <Button variant="secondary" onClick={() => setAsking('others')}>
             Завершить все другие сессии
           </Button>
         </div>
+      )}
+      {asking === 'others' && (
+        <ConfirmModal
+          title="Завершить все другие сессии?"
+          confirmLabel="Завершить"
+          onConfirm={() => end('others')}
+          onClose={() => setAsking(undefined)}
+        >
+          Вход останется только на этом устройстве. На остальных придётся войти заново.
+        </ConfirmModal>
+      )}
+      {asking && asking !== 'others' && (
+        <ConfirmModal
+          title="Завершить сессию?"
+          confirmLabel="Завершить"
+          onConfirm={() => end(asking)}
+          onClose={() => setAsking(undefined)}
+        >
+          На устройстве «{describeUserAgent(asking.userAgent).label}» придётся войти заново.
+        </ConfirmModal>
       )}
     </Section>
   )

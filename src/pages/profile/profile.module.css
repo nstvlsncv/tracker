@@ -183,6 +183,15 @@
 }
 
 @media (max-width: 640px) {
+  /* Кнопки блока «Аккаунт» друг под другом и во всю ширину: сверху «Изменить», ниже «Выйти». */
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions > button {
+    width: 100%;
+  }
+
   .actions .logout {
     display: inline-flex;
   }
