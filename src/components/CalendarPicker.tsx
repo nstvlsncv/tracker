@@ -88,6 +88,7 @@ export function CalendarPicker({
       </button>
       {open && (
         <div
+          data-popover
           className={cx(styles.popover, align === 'end' ? styles.end : styles.start)}
           role="dialog"
           {...rest}

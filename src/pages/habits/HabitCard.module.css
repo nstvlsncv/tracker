@@ -105,7 +105,6 @@
   }
 
   .head {
-    gap: var(--space-sm);
     padding: var(--space-md);
   }
 

@@ -21,21 +21,37 @@
   gap: var(--space-sm);
 }
 
-/* Телефон: заголовок меньше, кнопки во всю ширину друг под другом. */
+/* Телефон: заголовок меньше, кнопки закреплены внизу экрана над нижней панелью. */
 @media (max-width: 640px) {
   .title h1 {
     font-size: var(--typography-heading-3-font-size);
     line-height: var(--typography-heading-3-line-height);
   }
 
-  /* Главная кнопка (в разметке последняя) встаёт сверху. */
+  /* Без подложки: только сами кнопки. Друг под другом, главная (в разметке последняя) сверху.
+     64px: высота нижней панели, то же число стоит в AppShell.module.css. */
   .actions {
+    position: fixed;
+    right: var(--space-md);
+    bottom: calc(64px + var(--space-sm) + env(safe-area-inset-bottom));
+    left: var(--space-md);
+    z-index: 30;
     flex-direction: column-reverse;
-    width: 100%;
   }
 
   .actions > *,
   .actions > * > button {
     width: 100%;
+  }
+
+  /* Календарь выбора недели открывается вверх: под кнопкой места уже нет. */
+  .actions [data-popover] {
+    top: auto;
+    bottom: calc(100% + var(--space-sm));
+  }
+
+  /* Пока открыта клавиатура, закреплённые кнопки не должны висеть над ней. */
+  :global(body:has(input:focus)) .actions {
+    visibility: hidden;
   }
 }

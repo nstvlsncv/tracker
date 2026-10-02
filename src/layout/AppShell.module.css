@@ -187,8 +187,11 @@
 @media (max-width: 640px) {
   .shell {
     display: block;
-    /* Место под нижнюю панель: её высота плюс отступ. */
-    padding-bottom: calc(64px + var(--space-lg) + env(safe-area-inset-bottom));
+    /* Место под нижнюю панель (её высота плюс отступ) и под кнопки экрана, закреплённые
+       над ней (их высоту сообщает PageHeader). */
+    padding-bottom: calc(
+      64px + var(--space-lg) + env(safe-area-inset-bottom) + var(--page-actions-height, 0px)
+    );
   }
 
   /* Пока открыто поле ввода, под содержимым появляется запас высоты: без него нижние
