@@ -15,7 +15,6 @@ import { useHabits } from '../../data/useHabits'
 import { usePlanner } from '../../data/usePlanner'
 import { cx } from '../../lib/cx'
 import {
-  formatDayMonth,
   formatDayShort,
   formatWeekdayAndDay,
   formatWeekRangeShort,
@@ -32,7 +31,8 @@ const NO_CHECKS: ReadonlySet<string> = new Set()
 
 /**
  * Главная: где я сегодня и что осталось сделать. Сверху приветствие и показатели дня,
- * ниже цели недели, задачи и привычки. Данные те же, что на Неделе и в Привычках:
+ * ниже цели недели, задачи и привычки. На телефоне и на компьютере экран один и тот же:
+ * тот же состав и порядок, меняются только размеры. Данные те же, что на Неделе и в Привычках:
  * отметка здесь сразу видна там, и наоборот.
  */
 export function Home() {
@@ -79,9 +79,6 @@ export function Home() {
     (a, b) => Number(checksOf(a.id).has(habitsDate)) - Number(checksOf(b.id).has(habitsDate)),
   )
 
-  const dayTitle = (date: string, todayTitle: string, otherTitle: string) =>
-    date === today ? todayTitle : `${otherTitle} ${formatDayMonth(parseISO(date))}`
-
   const day = formatWeekdayAndDay(now)
   const hours = String(now.getHours()).padStart(2, '0')
   const minutes = String(now.getMinutes()).padStart(2, '0')
@@ -107,9 +104,9 @@ export function Home() {
           {greeting(now.getHours())}
           {profile?.name ? `, ${profile.name}` : ''}!
         </p>
-        <h1 className={`t-heading-1 ${styles.title}`} aria-label={`Сегодня ${day} · ${hours}:${minutes}`}>
+        <h1 className={`t-heading-1 ${styles.title}`} aria-label={`${day} · ${hours}:${minutes}`}>
           <span aria-hidden>
-            Сегодня {day} · {hours}
+            {day} · {hours}
             {/* Двоеточие мигает раз в секунду, как на настоящих часах. */}
             <span className={styles.colon}>:</span>
             {minutes}
@@ -123,27 +120,27 @@ export function Home() {
           loading={!ready(currentWeek)}
           // День без задач показывает 0%, как на Неделе.
           value={`${progress(todayTasks) ?? 0}%`}
-          label="прогресс дня"
+          label="прогресс"
         />
         <StatCard
           loading={!ready(currentWeek)}
           value={`${countDone(weekGoals)}/${weekGoals.length}`}
-          label="цели недели"
+          label="цели"
         />
         <StatCard
           loading={!ready(currentWeek)}
           value={`${countDone(todayTasks)}/${todayTasks.length}`}
-          label="задачи дня"
+          label="задачи"
         />
         <StatCard
           loading={!habitsReady}
           value={`${habitsDoneToday}/${habitsStore.habits.length}`}
-          label="привычки дня"
+          label="привычки"
         />
       </div>
 
       <Section
-        title="Цели недели"
+        title="Цели"
         action={sectionActions(
           <CalendarPicker
             aria-label="Неделя целей"
@@ -183,7 +180,7 @@ export function Home() {
       </Section>
 
       <Section
-        title={dayTitle(tasksDate, 'Задачи на сегодня', 'Задачи на')}
+        title="Задачи"
         action={sectionActions(
           <CalendarPicker
             aria-label="День задач"
@@ -222,7 +219,7 @@ export function Home() {
       </Section>
 
       <Section
-        title={dayTitle(habitsDate, 'Привычки сегодня', 'Привычки за')}
+        title="Привычки"
         action={sectionActions(
           <CalendarPicker
             aria-label="День привычек"

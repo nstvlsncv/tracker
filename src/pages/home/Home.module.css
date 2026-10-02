@@ -80,16 +80,33 @@
   color: var(--text-tertiary);
 }
 
-/* Телефон: показатели в два столбца, как статистика на Неделе. */
+/*
+ * Телефон: тот же экран, что на компьютере, только мельче. Строки шапки набраны размером,
+ * при котором каждая умещается в одну строку, а четыре показателя остаются в одном ряду.
+ */
 @media (max-width: 640px) {
   .title {
-    font-size: var(--typography-heading-3-font-size);
-    line-height: var(--typography-heading-3-line-height);
+    font-size: var(--typography-heading-4-font-size);
+    line-height: var(--typography-heading-4-line-height);
   }
 
   .stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-sm);
+  }
+
+  .stats > div {
+    padding: var(--space-md) var(--space-xs);
+    border-radius: var(--radius-lg);
+  }
+
+  .stats > div > span:first-child {
+    font-size: var(--typography-heading-5-font-size);
+    line-height: var(--typography-heading-5-line-height);
+  }
+
+  .stats > div > span:last-child {
+    font-size: var(--typography-tab-font-size);
+    line-height: var(--typography-tab-line-height);
   }
 }
 
