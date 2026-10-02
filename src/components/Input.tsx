@@ -1,4 +1,4 @@
-import { Eye, EyeSlash, WarningCircle } from '@phosphor-icons/react'
+import { Eye, EyeClosed, WarningCircle } from '@phosphor-icons/react'
 import { useId, useState } from 'react'
 import type { InputHTMLAttributes, Ref } from 'react'
 import { cx } from '../lib/cx'
@@ -30,6 +30,8 @@ export function Input({
 }: Props) {
   const id = useId()
   const [revealed, setRevealed] = useState(false)
+  // Глаз моргает только после нажатия, не при появлении поля.
+  const [blinked, setBlinked] = useState(false)
   const isPassword = type === 'password'
   const hasError = Boolean(error) || invalid
 
@@ -56,9 +58,18 @@ export function Input({
             aria-label={revealed ? 'Скрыть пароль' : 'Показать пароль'}
             aria-pressed={revealed}
             disabled={rest.disabled}
-            onClick={() => setRevealed((value) => !value)}
+            onClick={() => {
+              setRevealed((value) => !value)
+              setBlinked(true)
+            }}
           >
-            {revealed ? <EyeSlash aria-hidden /> : <Eye aria-hidden />}
+            {/* Открытый глаз: пароль виден. Закрытый с ресничками: скрыт. Смена иконки
+                пересоздаёт её (key), и она коротко «моргает». */}
+            {revealed ? (
+              <Eye key="open" className={cx(blinked && styles.blink)} aria-hidden />
+            ) : (
+              <EyeClosed key="closed" className={cx(blinked && styles.blink)} aria-hidden />
+            )}
           </button>
         )}
       </div>

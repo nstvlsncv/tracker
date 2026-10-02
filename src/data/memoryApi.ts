@@ -67,6 +67,8 @@ export function createMemoryApi(): PlannerApi {
     ...run(habits[2], 0, 12),
     ...run(habits[2], 30, 32),
     ...run(habits[2], 110, 5),
+    // Отметки больше года назад: у этой привычки появляется выбор года в истории.
+    ...run(habits[2], 400, 20),
     ...run(habits[3], 0, 27),
     ...run(habits[4], 0, 1),
     ...run(habits[5], 40, 9),

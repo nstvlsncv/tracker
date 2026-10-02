@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { habitHistory } from './habitHistory'
+import { habitHistory, historyYears } from './habitHistory'
 
-describe('habitHistory', () => {
+describe('habitHistory: последние 12 месяцев', () => {
   // 2 октября 2026 года это пятница.
   const weeks = habitHistory('2026-10-02')
 
@@ -33,5 +33,29 @@ describe('habitHistory', () => {
   it('месяц, который начнётся позже на этой неделе, ещё не подписан', () => {
     // Среда 30 сентября: 1 октября на этой же неделе, но ещё не наступило.
     expect(habitHistory('2026-09-30')[52].month).toBeNull()
+  })
+})
+
+describe('habitHistory: календарный год', () => {
+  it('прошлый год целиком: с недели 1 января до недели 31 декабря', () => {
+    const weeks = habitHistory('2026-10-02', 2025)
+    // 1 января 2025 это среда: понедельник и вторник первого столбца пустые.
+    expect(weeks[0].start).toBe('2024-12-30')
+    expect(weeks[0].days.slice(0, 3)).toEqual([null, null, '2025-01-01'])
+    expect(weeks[0].month).toBe('Янв')
+    // 31 декабря 2025 это среда: дальше уже другой год.
+    expect(weeks.at(-1)?.days.slice(2, 4)).toEqual(['2025-12-31', null])
+  })
+
+  it('текущий год обрывается на текущей неделе', () => {
+    const weeks = habitHistory('2026-10-02', 2026)
+    expect(weeks.at(-1)?.start).toBe('2026-09-28')
+  })
+})
+
+describe('historyYears', () => {
+  it('с года начала по текущий, новые сверху', () => {
+    expect(historyYears('2024-05-10', '2026-10-02')).toEqual([2026, 2025, 2024])
+    expect(historyYears('2026-01-01', '2026-10-02')).toEqual([2026])
   })
 })

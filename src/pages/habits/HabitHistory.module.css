@@ -1,4 +1,7 @@
 .card {
+  /* Размер точки: на сенсорных экранах крупнее, чтобы удобно попадать пальцем. */
+  --dot: 20px;
+
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
@@ -7,12 +10,20 @@
   background: var(--bg-surface);
 }
 
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  min-height: 32px;
+}
+
 .title {
   margin: 0;
   color: var(--text-secondary);
 }
 
-/* Сетка прокручивается по горизонтали, подписи дней недели стоят справа и остаются на месте. */
+/* Сетка прокручивается по горизонтали, подписи дней недели стоят слева и справа и остаются на месте. */
 .body {
   display: flex;
   gap: var(--space-sm);
@@ -43,7 +54,7 @@
 
 /* Строка названий месяцев. Название шире столбца и выступает вправо, не раздвигая сетку. */
 .month {
-  width: 16px;
+  width: var(--dot);
   height: 20px;
   overflow: visible;
   color: var(--text-tertiary);
@@ -54,8 +65,8 @@
 .dot,
 .blank {
   flex: none;
-  width: 16px;
-  height: 16px;
+  width: var(--dot);
+  height: var(--dot);
   border-radius: var(--radius-full);
 }
 
@@ -90,7 +101,14 @@
 }
 
 .weekday {
-  height: 16px;
+  display: flex;
+  align-items: center;
+  height: var(--dot);
   color: var(--text-tertiary);
-  line-height: 16px;
+}
+
+@media (pointer: coarse), (max-width: 640px) {
+  .card {
+    --dot: 28px;
+  }
 }

@@ -1,10 +1,12 @@
 import { CaretDown, CaretUp, Fire, PencilSimple } from '@phosphor-icons/react'
+import { parseISO } from 'date-fns'
 import { useId } from 'react'
 import { Checkbox } from '../../components/Checkbox'
 import { IconButton } from '../../components/IconButton'
 import { StatCard } from '../../components/StatCard'
 import type { Habit } from '../../data/types'
 import { cx } from '../../lib/cx'
+import { toISODate } from '../../lib/dates'
 import { bestStreak, currentStreak, formatDays, totalChecks } from '../../lib/metrics'
 import { HabitHistory } from './HabitHistory'
 import styles from './HabitCard.module.css'
@@ -29,6 +31,8 @@ export function HabitCard({ habit, checks, today, open, onOpenChange, onToggle, 
   const current = currentStreak(checks, today)
   const best = bestStreak(checks)
   const Caret = open ? CaretUp : CaretDown
+  // С какого дня может быть история: создание привычки или более ранняя отметка задним числом.
+  const since = [...checks, toISODate(parseISO(habit.createdAt))].sort()[0]
 
   return (
     <article className={styles.card}>
@@ -78,7 +82,7 @@ export function HabitCard({ habit, checks, today, open, onOpenChange, onToggle, 
             <StatCard variant="surface" value={totalChecks(checks)} label="всего выполнено" />
             <StatCard variant="surface" value="Каждый день" label="цель" />
           </div>
-          <HabitHistory checks={checks} today={today} onToggle={onToggle} />
+          <HabitHistory checks={checks} today={today} since={since} onToggle={onToggle} />
         </div>
       )}
     </article>
