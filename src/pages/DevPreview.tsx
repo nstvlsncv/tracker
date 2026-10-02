@@ -8,8 +8,8 @@ import { createMemoryApi } from '../data/memoryApi'
 import { HabitsProvider } from '../data/HabitsProvider'
 import { PlannerProvider } from '../data/PlannerProvider'
 import { AppShell } from '../layout/AppShell'
-import { ComingSoon } from './ComingSoon'
 import { Habits } from './habits/Habits'
+import { Home } from './home/Home'
 import { Profile } from './Profile'
 import { Week } from './week/Week'
 
@@ -54,7 +54,7 @@ export function DevPreview() {
         <HabitsProvider api={api}>
           <Routes>
             <Route element={<AppShell basePath={BASE} />}>
-              <Route index element={<ComingSoon title="Главная" />} />
+              <Route index element={<Home />} />
               <Route path="week/:isoWeek?" element={<Week />} />
               <Route path="habits" element={<Habits />} />
               <Route path="profile" element={<Profile />} />

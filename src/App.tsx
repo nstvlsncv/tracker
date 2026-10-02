@@ -11,9 +11,9 @@ import { AppShell } from './layout/AppShell'
 import { AppSkeleton } from './layout/AppSkeleton'
 import { Login } from './pages/auth/Login'
 import { LoginSkeleton } from './pages/auth/LoginSkeleton'
-import { ComingSoon } from './pages/ComingSoon'
 import { DevPreview } from './pages/DevPreview'
 import { Habits } from './pages/habits/Habits'
+import { Home } from './pages/home/Home'
 import { Profile } from './pages/Profile'
 import { Showcase } from './pages/Showcase'
 import { Week } from './pages/week/Week'
@@ -46,7 +46,7 @@ export default function App() {
               <Route element={<ProtectedRoute />}>
                 <Route element={<Planner />}>
                   <Route element={<AppShell />}>
-                    <Route path="/" element={<ComingSoon title="Главная" />} />
+                    <Route path="/" element={<Home />} />
                     <Route path="/week/:isoWeek?" element={<Week />} />
                     <Route path="/habits" element={<Habits />} />
                     <Route path="/profile" element={<Profile />} />

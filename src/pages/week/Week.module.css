@@ -52,18 +52,6 @@
   padding: var(--space-sm) 0;
 }
 
-.listSkeleton {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.rowSkeleton {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-}
-
 /* Телефон: статистика в два столбца. */
 @media (max-width: 640px) {
   .stats {

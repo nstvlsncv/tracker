@@ -1,0 +1,80 @@
+/* Шапка: серое приветствие и крупная строка с сегодняшним днём. До содержимого 24px. */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
+}
+
+.greeting,
+.title {
+  margin: 0;
+}
+
+.greeting {
+  color: var(--text-tertiary);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+/* Подсказки на месте пустых списков: цветом плейсхолдера. */
+.placeholder {
+  margin: 0;
+  color: var(--text-placeholder);
+}
+
+/* Привычки: строки выглядят как строки задач, справа текущая серия. */
+.habits {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.habit {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: 40px;
+  padding: var(--space-xs) 0;
+}
+
+.habitTitle {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--text-primary);
+}
+
+.done {
+  color: var(--text-disabled);
+  text-decoration: line-through;
+}
+
+.streak {
+  flex: none;
+  color: var(--text-tertiary);
+}
+
+/* В узком окне четыре показателя встают в два ряда по два. */
+@media (max-width: 900px) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .title {
+    font-size: var(--typography-heading-3-font-size);
+    line-height: var(--typography-heading-3-line-height);
+  }
+
+  .stats {
+    gap: var(--space-sm);
+  }
+}

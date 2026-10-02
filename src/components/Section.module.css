@@ -8,6 +8,8 @@
 }
 
 .header {
+  /* Точка отсчёта для календаря из кнопки справа: на телефоне он шириной со всю шапку. */
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;

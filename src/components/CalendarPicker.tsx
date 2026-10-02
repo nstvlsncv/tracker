@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { cx } from '../lib/cx'
 import { buttonClassName } from './buttonStyles'
+import type { ButtonSize } from './buttonStyles'
 import { Calendar } from './Calendar'
 import styles from './CalendarPicker.module.css'
 
@@ -18,6 +19,8 @@ type Props = {
   /** Понедельники недель, в которых есть данные: в календаре они помечены точкой. */
   markedWeeks?: string[]
   variant?: 'main' | 'secondary'
+  /** sm 32px (внутри секций), lg 48px (в шапке экрана). */
+  size?: ButtonSize
   /** К какому краю кнопки прижат календарь. */
   align?: 'start' | 'end'
   /** Что выбирает кнопка: для скринридера. */
@@ -38,6 +41,7 @@ export function CalendarPicker({
   today,
   markedWeeks,
   variant = 'secondary',
+  size = 'lg',
   align = 'start',
   footer,
   ...rest
@@ -75,7 +79,7 @@ export function CalendarPicker({
       <button
         ref={triggerRef}
         type="button"
-        className={buttonClassName({ variant, size: 'lg' })}
+        className={buttonClassName({ variant, size })}
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}

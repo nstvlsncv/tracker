@@ -20,6 +20,15 @@
   color: var(--text-inverse);
 }
 
+.highlight {
+  background: var(--highlight-default);
+  color: var(--highlight-foreground);
+}
+
+.highlight .label {
+  color: var(--highlight-foreground);
+}
+
 .surface {
   padding: var(--space-md);
   border-radius: var(--radius-lg);

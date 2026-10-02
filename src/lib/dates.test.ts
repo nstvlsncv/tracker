@@ -4,6 +4,7 @@ import {
   formatDateNumeric,
   formatDayMonth,
   formatDayShort,
+  formatNow,
   formatWeekdayShort,
   formatWeekRange,
   formatWeekRangeShort,
@@ -36,6 +37,7 @@ describe('форматы дат', () => {
     expect(formatDayMonth(new Date(2026, 8, 15))).toBe('15 сентября')
     expect(formatDateNumeric(new Date(2026, 9, 2, 9, 5))).toBe('02.10.2026')
     expect(formatDayShort(new Date(2026, 8, 5))).toBe('05.09')
+    expect(formatNow(new Date(2026, 8, 15, 14, 37))).toBe('вторник · 15 сентября · 14:37')
   })
 
   it('диапазон недели внутри месяца', () => {

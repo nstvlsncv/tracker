@@ -9,9 +9,10 @@ type Props = {
   label: string
   /**
    * muted: серая карточка на белой странице (статистика недели, KPI на Главной).
-   * inverse: чёрная, главный акцент ряда. surface: белая, внутри серой секции.
+   * inverse: чёрная. surface: белая, внутри серой секции.
+   * highlight: лаймовая, главный показатель ряда.
    */
-  variant?: 'muted' | 'inverse' | 'surface'
+  variant?: 'muted' | 'inverse' | 'surface' | 'highlight'
   /** Данные ещё загружаются: вместо значения серая заглушка. */
   loading?: boolean
 }

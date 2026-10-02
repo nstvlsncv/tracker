@@ -6,6 +6,7 @@ import { AddItem } from '../../components/AddItem'
 import { Button } from '../../components/Button'
 import { CalendarPicker } from '../../components/CalendarPicker'
 import { ItemList } from '../../components/ItemList'
+import { ListSkeleton } from '../../components/ListSkeleton'
 import { Section } from '../../components/Section'
 import { Skeleton } from '../../components/Skeleton'
 import { StatCard } from '../../components/StatCard'
@@ -209,18 +210,5 @@ export function Week() {
         </>
       )}
     </>
-  )
-}
-
-function ListSkeleton({ rows }: { rows: number }) {
-  return (
-    <div className={styles.listSkeleton}>
-      {Array.from({ length: rows }, (_, index) => (
-        <div key={index} className={styles.rowSkeleton}>
-          <Skeleton width={32} height={32} round />
-          <Skeleton width={`${60 - index * 12}%`} />
-        </div>
-      ))}
-    </div>
   )
 }
