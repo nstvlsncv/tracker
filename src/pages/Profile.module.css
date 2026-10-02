@@ -26,30 +26,9 @@
   color: var(--text-primary);
 }
 
-.notes {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
+.text {
   margin: 0;
-  padding: 0;
-  list-style: none;
   color: var(--text-tertiary);
-}
-
-.notes li {
-  display: flex;
-  gap: var(--space-sm);
-}
-
-/* Вместо стандартного маркера круглая точка 4×4 цветом текста, по центру первой строки пункта. */
-.notes li::before {
-  content: '';
-  flex: none;
-  width: 4px;
-  height: 4px;
-  margin-top: calc((1lh - 4px) / 2);
-  border-radius: var(--radius-full);
-  background: currentColor;
 }
 
 /* На планшете и компьютере выход есть в боковом меню, здесь он только для телефона. */

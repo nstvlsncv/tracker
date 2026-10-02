@@ -43,13 +43,9 @@ export function Profile() {
           {CHANGELOG.map((release) => (
             <li key={release.version} className={styles.release}>
               <h3 className={styles.title}>
-                Версия {release.version} · {release.title} · {formatDateNumeric(parseISO(release.date))}
+                Версия {release.version} · {formatDateNumeric(parseISO(release.date))}
               </h3>
-              <ul className={styles.notes}>
-                {release.notes.map((note) => (
-                  <li key={note}>{note}</li>
-                ))}
-              </ul>
+              <p className={styles.text}>{release.text}</p>
             </li>
           ))}
         </ol>
