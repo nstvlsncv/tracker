@@ -54,7 +54,7 @@
       "800": { "value": 64, "type": "number" }
     },
     "FontFamily": {
-      "base": { "value": "Inter", "type": "string", "note": "Used for ALL text, including numbers. Replaced Unbounded." }
+      "base": { "value": "Unbounded", "type": "string", "note": "Used for ALL text per product decision, including body/UI text at small sizes. Display/geometric face — verify readability at 12-14px during implementation; no italic exists." }
     },
     "FontWeight": {
       "regular": { "value": 400, "type": "number" },
