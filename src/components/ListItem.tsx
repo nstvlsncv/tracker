@@ -55,6 +55,7 @@ export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
             onClick={() => setEditing(true)}
           />
           <IconButton
+            tone="danger"
             variant="ghost"
             size="sm"
             icon={<IconTrash aria-hidden />}

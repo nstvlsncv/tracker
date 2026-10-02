@@ -1,6 +1,6 @@
 import { IconPlus } from '@tabler/icons-react'
 import { parseISO } from 'date-fns'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router'
 import { AddItem } from '../../components/AddItem'
 import { Button } from '../../components/Button'
@@ -9,8 +9,11 @@ import { ItemList } from '../../components/ItemList'
 import { Section } from '../../components/Section'
 import { Skeleton } from '../../components/Skeleton'
 import { StatCard } from '../../components/StatCard'
+import { useToast } from '../../components/useToast'
 import { usePlanner } from '../../data/usePlanner'
+import { PageHeader } from '../../layout/PageHeader'
 import {
+  formatDayMonth,
   formatWeekdayShort,
   formatWeekRange,
   parseWeekParam,
@@ -20,6 +23,8 @@ import {
 import { shiftDate, weekAnalytics } from '../../lib/metrics'
 import { NETWORK_ERROR_MESSAGE } from '../../lib/supabase'
 import { useToday } from '../../lib/useToday'
+import { AddTaskModal } from './AddTaskModal'
+import { AddWeekModal } from './AddWeekModal'
 import { DayCard } from './DayCard'
 import styles from './Week.module.css'
 
@@ -31,6 +36,8 @@ export function Week() {
   const planner = usePlanner()
   const { loadWeek } = planner
   const daysRef = useRef<HTMLDivElement>(null)
+  const toast = useToast()
+  const [modal, setModal] = useState<'week' | 'task' | null>(null)
 
   const today = useToday()
   const currentWeek = weekStartISO(today)
@@ -55,8 +62,8 @@ export function Week() {
   const tasks = planner.tasks.filter((task) => weekStartISO(task.date) === weekStart)
   const goals = planner.goals.filter((goal) => goal.weekStart === weekStart)
 
-  // В списке: недели с данными, текущая и та, что открыта сейчас.
-  const weeks = [...new Set([...planner.weeksWithData, currentWeek, weekStart])].sort()
+  // В списке: недели с данными, добавленные вручную, текущая и та, что открыта сейчас.
+  const weeks = [...new Set([...planner.knownWeeks, currentWeek, weekStart])].sort()
   const thisYear = today.slice(0, 4)
   const options = weeks.map((week) => ({
     value: week,
@@ -66,24 +73,69 @@ export function Week() {
   const goToWeek = (week: string) =>
     navigate(isoWeek ? `../${toWeekParam(week)}` : toWeekParam(week), { relative: 'path' })
 
-  // TODO(open): «Добавить неделю» открывает неделю, следующую за последней в списке.
-  // Отдельной записи о неделе в базе нет: пустая неделя пропадёт из списка, если уйти с неё.
-  const addWeek = () => goToWeek(shiftDate(weeks[weeks.length - 1], 7))
+  const addWeek = (week: string) => {
+    planner.addWeek(week)
+    setModal(null)
+    goToWeek(week)
+  }
+
+  const addTask = (date: string, title: string) => {
+    planner.addTask(date, title)
+    setModal(null)
+    const week = weekStartISO(date)
+    toast({
+      message: `Задача добавлена на ${formatDayMonth(parseISO(date))}`,
+      // Если задача попала в другую неделю, из тоста можно сразу перейти к ней.
+      action: week === weekStart ? undefined : { label: 'Открыть', onClick: () => goToWeek(week) },
+    })
+  }
 
   const stats = weekAnalytics(tasks, goals, weekStart, today)
   const ready = status === 'ready'
 
   return (
     <>
-      <header className={styles.header}>
-        <h1 className="t-heading-1">Неделя</h1>
-        <div className={styles.controls}>
-          <Dropdown aria-label="Неделя" options={options} value={weekStart} onChange={goToWeek} />
-          <Button size="lg" icon={<IconPlus aria-hidden />} onClick={addWeek}>
-            Добавить неделю
-          </Button>
-        </div>
-      </header>
+      <PageHeader
+        title="Неделя"
+        aside={
+          <Dropdown
+            aria-label="Неделя"
+            variant="ghost"
+            align="start"
+            options={options}
+            value={weekStart}
+            onChange={goToWeek}
+          />
+        }
+        actions={
+          <>
+            <Button
+              variant="secondary"
+              size="lg"
+              icon={<IconPlus aria-hidden />}
+              onClick={() => setModal('task')}
+            >
+              Добавить задачу
+            </Button>
+            <Button size="lg" icon={<IconPlus aria-hidden />} onClick={() => setModal('week')}>
+              Добавить неделю
+            </Button>
+          </>
+        }
+      />
+
+      {modal === 'week' && (
+        <AddWeekModal
+          // По умолчанию выбрана неделя, следующая за последней в списке.
+          initialWeek={shiftDate(weeks[weeks.length - 1], 7)}
+          today={today}
+          onClose={() => setModal(null)}
+          onAdd={addWeek}
+        />
+      )}
+      {modal === 'task' && (
+        <AddTaskModal today={today} onClose={() => setModal(null)} onAdd={addTask} />
+      )}
 
       {status === 'error' ? (
         <Section title="Не получилось загрузить неделю">
@@ -107,7 +159,7 @@ export function Week() {
                 onDelete={planner.deleteGoal}
               />
             ) : (
-              <p className={styles.hint}>Поставь 1–3 цели на неделю</p>
+              <p className={styles.placeholder}>Поставь 1–3 цели на неделю</p>
             )}
             {ready && (
               <AddItem label="Добавить цель" onAdd={(title) => planner.addGoal(weekStart, title)} />

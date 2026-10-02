@@ -20,7 +20,6 @@
 .list {
   position: absolute;
   top: calc(100% + var(--space-sm));
-  right: 0;
   z-index: 50;
   display: flex;
   flex-direction: column;
@@ -33,6 +32,14 @@
   border-radius: var(--radius-lg);
   background: var(--bg-surface);
   box-shadow: var(--shadow-popover);
+}
+
+.start {
+  left: 0;
+}
+
+.end {
+  right: 0;
 }
 
 .option {

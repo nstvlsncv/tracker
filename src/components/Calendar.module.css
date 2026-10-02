@@ -1,0 +1,99 @@
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title::first-letter {
+  text-transform: uppercase;
+}
+
+.weekdays,
+.row,
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.weekdays {
+  color: var(--text-placeholder);
+  text-align: center;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border-radius: var(--radius-md);
+}
+
+.outside {
+  color: var(--text-placeholder);
+}
+
+/* Сегодня: число жирнее и точка под ним. */
+.today {
+  position: relative;
+  font-weight: var(--typography-heading-5-font-weight);
+}
+
+.today::after {
+  content: '';
+  position: absolute;
+  bottom: 5px;
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+}
+
+.day,
+.week {
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.week {
+  width: 100%;
+  border-radius: var(--radius-md);
+  color: inherit;
+}
+
+.day:hover,
+.week:hover {
+  background: var(--bg-tertiary);
+}
+
+.selected,
+.selected:hover {
+  background: var(--accent-default);
+  color: var(--accent-foreground);
+}
+
+.selected .outside,
+.selected.outside {
+  color: var(--text-disabled);
+}
+
+.day:focus-visible,
+.week:focus-visible {
+  outline-offset: 1px;
+}

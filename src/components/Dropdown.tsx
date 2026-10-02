@@ -14,6 +14,9 @@ type Props<T extends string> = {
   /** Что выбирает список: для скринридера. */
   'aria-label': string
   size?: ButtonSize
+  variant?: 'secondary' | 'ghost'
+  /** К какому краю кнопки прижато меню. */
+  align?: 'start' | 'end'
 }
 
 /** Выпадающий список: серая кнопка с текущим значением и меню под ней. */
@@ -22,6 +25,8 @@ export function Dropdown<T extends string>({
   value,
   onChange,
   size = 'lg',
+  variant = 'secondary',
+  align = 'end',
   ...rest
 }: Props<T>) {
   const [open, setOpen] = useState(false)
@@ -80,7 +85,7 @@ export function Dropdown<T extends string>({
       <button
         ref={triggerRef}
         type="button"
-        className={buttonClassName({ variant: 'secondary', size })}
+        className={buttonClassName({ variant, size })}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
@@ -93,7 +98,13 @@ export function Dropdown<T extends string>({
         </span>
       </button>
       {open && (
-        <div ref={listRef} id={listId} role="listbox" className={styles.list} {...rest}>
+        <div
+          ref={listRef}
+          id={listId}
+          role="listbox"
+          className={cx(styles.list, align === 'start' ? styles.start : styles.end)}
+          {...rest}
+        >
           {options.map((option) => (
             <button
               key={option.value}

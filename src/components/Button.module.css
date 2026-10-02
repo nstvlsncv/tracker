@@ -129,9 +129,15 @@
   color: var(--status-danger-text);
 }
 
-.dangerGhost:hover:not(:disabled),
+.dangerGhost:hover:not(:disabled) {
+  background: var(--status-danger-text);
+  color: var(--status-danger-foreground);
+}
+
 .dangerGhost:active:not(:disabled) {
-  background: var(--status-danger-bg);
+  background: var(--status-danger-text);
+  color: var(--status-danger-foreground);
+  opacity: 0.8;
 }
 
 /* --- Disabled (у Pending свой вид, хотя кнопка тоже не нажимается) --- */

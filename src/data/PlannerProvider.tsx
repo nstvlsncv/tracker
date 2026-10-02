@@ -26,6 +26,9 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
   const [goals, setGoals] = useState<Goal[]>([])
   const [weekStatus, setWeekStatus] = useState<Record<string, WeekStatus | undefined>>({})
   const [storedWeeks, setStoredWeeks] = useState<string[]>([])
+  // TODO(open): отдельной записи о неделе в базе нет, поэтому добавленная пустая неделя
+  // помнится только до перезагрузки. Как только в ней появится задача или цель, она останется.
+  const [addedWeeks, setAddedWeeks] = useState<string[]>([])
 
   // Актуальные значения для обработчиков, которые не должны пересоздаваться на каждое изменение.
   const latest = useRef({ tasks, goals, weekStatus })
@@ -126,14 +129,16 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
       tasks,
       goals,
       weekStatus,
-      weeksWithData: [
+      knownWeeks: [
         ...new Set([
           ...storedWeeks,
+          ...addedWeeks,
           ...tasks.map((task) => weekStartISO(task.date)),
           ...goals.map((goal) => goal.weekStart),
         ]),
       ],
       loadWeek,
+      addWeek: (weekStart) => setAddedWeeks((current) => [...current, weekStart]),
 
       addTask: (date, title) => insertTask({ ...base(), date, title }),
       toggleTask: (id, isDone) => patchTask(id, { isDone, doneAt: isDone ? now() : null }),
@@ -165,7 +170,7 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
         })
       },
     }
-  }, [api, tasks, goals, weekStatus, storedWeeks, loadWeek, save, toast])
+  }, [api, tasks, goals, weekStatus, storedWeeks, addedWeeks, loadWeek, save, toast])
 
   return <PlannerContext.Provider value={value}>{children}</PlannerContext.Provider>
 }
