@@ -43,7 +43,7 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
-    if (!password) return
+    if (!password) return setError('Введи пароль, чтобы удалить аккаунт')
     setBusy(true)
     try {
       const result = await account.deleteAccount(password)
@@ -70,7 +70,7 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
           <Button variant="secondary" onClick={onClose}>
             Отмена
           </Button>
-          <Button tone="danger" type="submit" form={formId} pending={busy} disabled={!password}>
+          <Button tone="danger" type="submit" form={formId} pending={busy}>
             Удалить
           </Button>
         </>
