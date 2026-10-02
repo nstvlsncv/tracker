@@ -16,7 +16,7 @@
 }
 
 .fill {
-  stroke: var(--accent-default);
+  stroke: var(--highlight-default);
   stroke-linecap: round;
   /* Та же длительность и кривая, что у цифр счётчика (RollingNumber): они идут вместе. */
   transition: stroke-dashoffset 800ms cubic-bezier(0.22, 1, 0.36, 1);

@@ -18,7 +18,7 @@
   position: absolute;
   inset: -1.5px;
   border-radius: inherit;
-  background: var(--accent-default);
+  background: var(--highlight-default);
   opacity: 0;
   transform: scale(0.4);
   transition:
@@ -35,7 +35,7 @@
 
 .check {
   fill: none;
-  stroke: var(--accent-foreground);
+  stroke: var(--highlight-foreground);
   stroke-width: 2.5;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -53,7 +53,7 @@
 }
 
 .checked {
-  border-color: var(--accent-default);
+  border-color: var(--highlight-default);
 }
 
 .checked::before {
@@ -71,7 +71,7 @@
 }
 
 .checked:hover:not(:disabled) {
-  border-color: var(--accent-default);
+  border-color: var(--highlight-default);
 }
 
 .checkbox:disabled {

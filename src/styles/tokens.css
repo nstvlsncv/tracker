@@ -18,6 +18,7 @@
   --core-green-100: #EAF8E1;
   --core-green-600: #43A63C;
   --core-green-900: #16301A;
+  --core-lime-500: #C6F432;
   --core-orange-100: #FFF0D6;
   --core-orange-600: #F28A1A;
   --core-orange-900: #3A2608;
@@ -100,6 +101,8 @@
   --status-danger-border: var(--core-red-600);
   --status-danger-icon: var(--core-red-600);
   --status-danger-foreground: var(--core-base-white);
+  --highlight-default: var(--core-lime-500);
+  --highlight-foreground: var(--core-neutral-900);
   --habit-streak-accent: var(--core-green-600);
   --effects-focus-ring: var(--core-neutral-900);
   --effects-overlay: rgba(23, 23, 23, 0.5);
@@ -209,6 +212,8 @@
   --status-danger-border: var(--core-red-600);
   --status-danger-icon: var(--core-red-600);
   --status-danger-foreground: var(--core-base-white);
+  --highlight-default: var(--core-lime-500);
+  --highlight-foreground: var(--core-neutral-900);
   --habit-streak-accent: var(--core-green-600);
   --effects-focus-ring: var(--core-neutral-100);
   --effects-overlay: rgba(0, 0, 0, 0.6);

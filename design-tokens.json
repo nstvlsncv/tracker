@@ -20,6 +20,9 @@
       "600": { "value": "#43A63C", "type": "color" },
       "900": { "value": "#16301A", "type": "color", "note": "Added for the dark theme: success background." }
     },
+    "Lime": {
+      "500": { "value": "#C6F432", "type": "color", "note": "The one juicy colour of the product. Marks achievement only: progress fill and checked checkboxes." }
+    },
     "Orange": {
       "100": { "value": "#FFF0D6", "type": "color" },
       "600": { "value": "#F28A1A", "type": "color" },
@@ -135,6 +138,10 @@
         "foreground": { "value": "{core.Base.white}", "type": "color", "note": "Added during implementation: text and icons on a danger-coloured fill (Danger / Main button)." }
       }
     },
+    "highlight": {
+      "default": { "value": "{core.Lime.500}", "type": "color", "note": "Achievement colour: donut fill, checked checkbox. Never for buttons, navigation or text." },
+      "foreground": { "value": "{core.Neutral.900}", "type": "color", "note": "Marks drawn on top of highlight (the check mark). Dark in both themes: lime is always light." }
+    },
     "habit": {
       "streak-accent": { "value": "{core.Green.600}", "type": "color", "note": "Deliberate, sole exception to the monochrome rule: habit streak numbers/icons use green to signal a game-like mechanic. Not used anywhere else in the product." }
     },
@@ -240,6 +247,10 @@
         "icon": { "value": "{core.Red.600}", "type": "color" },
         "foreground": { "value": "{core.Base.white}", "type": "color" }
       }
+    },
+    "highlight": {
+      "default": { "value": "{core.Lime.500}", "type": "color" },
+      "foreground": { "value": "{core.Neutral.900}", "type": "color" }
     },
     "habit": {
       "streak-accent": { "value": "{core.Green.600}", "type": "color" }
