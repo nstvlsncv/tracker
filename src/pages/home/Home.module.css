@@ -80,13 +80,7 @@
   color: var(--text-tertiary);
 }
 
-/* В узком окне четыре показателя встают в два ряда по два. */
-@media (max-width: 900px) {
-  .stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
+/* Телефон: показатели в два столбца, как статистика на Неделе. */
 @media (max-width: 640px) {
   .title {
     font-size: var(--typography-heading-3-font-size);
@@ -94,6 +88,7 @@
   }
 
   .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-sm);
   }
 }

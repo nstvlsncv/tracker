@@ -18,7 +18,7 @@ type Props = {
   today: string
   /** Понедельники недель, в которых есть данные: в календаре они помечены точкой. */
   markedWeeks?: string[]
-  variant?: 'main' | 'secondary'
+  variant?: 'main' | 'secondary' | 'ghost'
   /** sm 32px (внутри секций), lg 48px (в шапке экрана). */
   size?: ButtonSize
   /** К какому краю кнопки прижат календарь. */

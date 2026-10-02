@@ -105,7 +105,7 @@ export function Home() {
       <header className={styles.header}>
         <p className={`t-heading-1 ${styles.title}`}>
           {greeting(now.getHours())}
-          {profile?.name ? `, ${profile.name}` : ''}
+          {profile?.name ? `, ${profile.name}` : ''}!
         </p>
         <h1 className={`t-heading-1 ${styles.title}`} aria-label={`Сегодня ${day} · ${hours}:${minutes}`}>
           <span aria-hidden>
@@ -133,12 +133,12 @@ export function Home() {
         <StatCard
           loading={!ready(currentWeek)}
           value={`${countDone(todayTasks)}/${todayTasks.length}`}
-          label="задачи сегодня"
+          label="задачи дня"
         />
         <StatCard
           loading={!habitsReady}
           value={`${habitsDoneToday}/${habitsStore.habits.length}`}
-          label="привычки сегодня"
+          label="привычки дня"
         />
       </div>
 
@@ -149,6 +149,7 @@ export function Home() {
             aria-label="Неделя целей"
             mode="week"
             size="sm"
+            variant="ghost"
             align="end"
             value={goalsWeek}
             label={formatWeekRangeShort(parseISO(goalsWeek))}
@@ -188,6 +189,7 @@ export function Home() {
             aria-label="День задач"
             mode="day"
             size="sm"
+            variant="ghost"
             align="end"
             value={tasksDate}
             label={formatDayShort(parseISO(tasksDate))}
@@ -226,6 +228,7 @@ export function Home() {
             aria-label="День привычек"
             mode="day"
             size="sm"
+            variant="ghost"
             align="end"
             value={habitsDate}
             label={formatDayShort(parseISO(habitsDate))}
