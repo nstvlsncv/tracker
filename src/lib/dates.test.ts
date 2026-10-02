@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  formatDateNumeric,
   formatDayMonth,
   formatDayShort,
   formatWeekdayShort,
@@ -23,6 +24,7 @@ describe('weekStartOf', () => {
 describe('форматы дат', () => {
   it('день и месяц', () => {
     expect(formatDayMonth(new Date(2026, 8, 15))).toBe('15 сентября')
+    expect(formatDateNumeric(new Date(2026, 9, 2))).toBe('02.10.2026')
     expect(formatDayShort(new Date(2026, 8, 5))).toBe('05.09')
   })
 

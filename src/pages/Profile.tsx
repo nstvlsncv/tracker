@@ -1,9 +1,11 @@
 import { Moon, SignOut, Sun } from '@phosphor-icons/react'
+import { parseISO } from 'date-fns'
 import { useAuth } from '../auth/useAuth'
 import { Button } from '../components/Button'
 import { Section } from '../components/Section'
 import { Segmented } from '../components/Segmented'
 import { CHANGELOG } from '../data/changelog'
+import { formatDateNumeric } from '../lib/dates'
 import { setTheme, useTheme } from '../lib/theme'
 import { PageHeader } from '../layout/PageHeader'
 import styles from './Profile.module.css'
@@ -41,7 +43,7 @@ export function Profile() {
           {CHANGELOG.map((release) => (
             <li key={release.version} className={styles.release}>
               <h3 className={styles.title}>
-                Версия {release.version} · {release.title}
+                Версия {release.version} · {release.title} · {formatDateNumeric(parseISO(release.date))}
               </h3>
               <ul className={styles.notes}>
                 {release.notes.map((note) => (

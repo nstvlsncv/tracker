@@ -1,7 +1,7 @@
 .releases {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-md);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -27,7 +27,7 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--text-secondary);
+  color: var(--text-tertiary);
 }
 
 .notes li {
@@ -35,15 +35,15 @@
   gap: var(--space-sm);
 }
 
-/* Вместо стандартного маркера круглая точка 8×8, по центру первой строки пункта. */
+/* Вместо стандартного маркера круглая точка 4×4 цветом текста, по центру первой строки пункта. */
 .notes li::before {
   content: '';
   flex: none;
-  width: 8px;
-  height: 8px;
-  margin-top: calc((1lh - 8px) / 2);
+  width: 4px;
+  height: 4px;
+  margin-top: calc((1lh - 4px) / 2);
   border-radius: var(--radius-full);
-  background: var(--text-primary);
+  background: currentColor;
 }
 
 /* На планшете и компьютере выход есть в боковом меню, здесь он только для телефона. */
