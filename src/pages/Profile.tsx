@@ -1,5 +1,6 @@
 import { Moon, SignOut, Sun } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
+import { useState } from 'react'
 import { useAuth } from '../auth/useAuth'
 import { Button } from '../components/Button'
 import { Section } from '../components/Section'
@@ -15,6 +16,8 @@ import styles from './Profile.module.css'
 export function Profile() {
   const { signOut } = useAuth()
   const theme = useTheme()
+  // В истории версий сразу видна только последняя, остальные открываются кнопкой.
+  const [showAll, setShowAll] = useState(false)
 
   return (
     <>
@@ -40,7 +43,7 @@ export function Profile() {
 
       <Section title="История версий">
         <ol className={styles.releases}>
-          {CHANGELOG.map((release) => (
+          {(showAll ? CHANGELOG : CHANGELOG.slice(0, 1)).map((release) => (
             <li key={release.version} className={styles.release}>
               <h3 className={styles.title}>
                 Версия {release.version} · {formatDateNumeric(parseISO(release.date))}
@@ -49,6 +52,13 @@ export function Profile() {
             </li>
           ))}
         </ol>
+        {CHANGELOG.length > 1 && (
+          <div>
+            <Button variant="secondary" aria-expanded={showAll} onClick={() => setShowAll(!showAll)}>
+              {showAll ? 'Скрыть' : 'Показать ещё'}
+            </Button>
+          </div>
+        )}
       </Section>
 
       <div className={styles.logout}>
