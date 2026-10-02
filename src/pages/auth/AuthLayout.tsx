@@ -11,7 +11,7 @@ type Props = {
 
 const AUTHOR_URL = 'https://t.me/nst_vlsncv'
 
-/** Каркас экрана входа: без сайдбара, логотип и карточка 380px на 120px ниже верхнего края. */
+/** Каркас экрана входа: без сайдбара, логотип и карточка 450px на 120px ниже верхнего края. */
 export function AuthLayout({ title, subtitle, children }: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
 
