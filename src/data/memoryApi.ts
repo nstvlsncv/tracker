@@ -1,7 +1,7 @@
 import { toISODate, weekStartISO } from '../lib/dates'
 import { newId } from '../lib/id'
 import { shiftDate } from '../lib/metrics'
-import type { Goal, PlannerApi, Task } from './types'
+import type { Goal, Habit, HabitCheck, PlannerApi, Task } from './types'
 
 /**
  * Хранилище в памяти с демо-данными. Используется только в режиме разработки
@@ -38,6 +38,38 @@ export function createMemoryApi(): PlannerApi {
     goal('Реализовать Pet-проект «Трекер»'),
     goal('Сделать резюме'),
     goal('Прочитать 2 главы книги «Задача трёх тел» (2 часть)', true),
+  ]
+
+  const today = toISODate(new Date())
+  const habit = (title: string, archived = false): Habit => ({
+    id: newId(),
+    title,
+    frequency: 'daily',
+    archivedAt: archived ? new Date().toISOString() : null,
+    createdAt: new Date(Date.UTC(2026, 0, 1, 0, 0, stamp++)).toISOString(),
+  })
+  let habits: Habit[] = [
+    habit('Витамины вечером'),
+    habit('Портфолио'),
+    habit('Чтение 20 минут'),
+    habit('Витамины утром'),
+    habit('Зарядка 30 минут'),
+    habit('Холодный душ', true),
+  ]
+  /** Отметки подряд: `length` дней, последний из них `daysAgo` дней назад. */
+  const run = (target: Habit, daysAgo: number, length: number): HabitCheck[] =>
+    Array.from({ length }, (_, index) => ({
+      habitId: target.id,
+      date: shiftDate(today, -daysAgo - index),
+    }))
+  let checks: HabitCheck[] = [
+    ...run(habits[1], 1, 3),
+    ...run(habits[2], 0, 12),
+    ...run(habits[2], 30, 32),
+    ...run(habits[2], 110, 5),
+    ...run(habits[3], 0, 27),
+    ...run(habits[4], 0, 1),
+    ...run(habits[5], 40, 9),
   ]
 
   // Небольшая задержка, чтобы было видно состояние загрузки.
@@ -77,6 +109,24 @@ export function createMemoryApi(): PlannerApi {
     },
     async deleteGoal(id) {
       goals = goals.filter((item) => item.id !== id)
+    },
+    async loadHabits() {
+      await wait()
+      return { habits, checks }
+    },
+    async insertHabit(item) {
+      habits = [...habits, item]
+    },
+    async updateHabit(id, patch) {
+      habits = habits.map((item) => (item.id === id ? { ...item, ...patch } : item))
+    },
+    async deleteHabit(id) {
+      habits = habits.filter((item) => item.id !== id)
+      checks = checks.filter((check) => check.habitId !== id)
+    },
+    async setHabitCheck(habitId, date, done) {
+      checks = checks.filter((check) => check.habitId !== habitId || check.date !== date)
+      if (done) checks = [...checks, { habitId, date }]
     },
   }
 }

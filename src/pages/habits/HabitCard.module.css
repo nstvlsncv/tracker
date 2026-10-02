@@ -1,0 +1,115 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  cursor: pointer;
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.title {
+  overflow-wrap: anywhere;
+  text-align: left;
+  color: var(--text-primary);
+}
+
+.done {
+  color: var(--text-disabled);
+  text-decoration: line-through;
+}
+
+.streak {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-xs);
+  color: var(--text-tertiary);
+}
+
+.streak span {
+  white-space: nowrap;
+}
+
+.streak svg {
+  width: 16px;
+  height: 16px;
+  margin-left: var(--space-xs);
+  vertical-align: -2px;
+}
+
+/* Привычка выполнена сегодня: серия и огонёк зелёные. */
+.onStreak {
+  color: var(--habit-streak-accent);
+}
+
+.caret {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0 var(--space-sm);
+  color: var(--text-primary);
+}
+
+/* Раскрытая часть отделена от шапки тонкой линией. */
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin: 0 var(--space-lg);
+  padding: var(--space-lg) 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+@media (max-width: 800px) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  /* В узкой карточке строка серий течёт как обычный текст, огонёк остаётся после последнего слова. */
+  .streak {
+    display: block;
+  }
+
+  .streak span {
+    white-space: normal;
+  }
+
+  .head {
+    gap: var(--space-sm);
+    padding: var(--space-md);
+  }
+
+  .caret {
+    margin: 0;
+  }
+
+  .details {
+    margin: 0 var(--space-md);
+    padding: var(--space-md) 0;
+  }
+
+  .stats {
+    gap: var(--space-sm);
+  }
+}

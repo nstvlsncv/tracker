@@ -1,0 +1,86 @@
+import { CaretDown, CaretUp, Fire, PencilSimple } from '@phosphor-icons/react'
+import { useId } from 'react'
+import { Checkbox } from '../../components/Checkbox'
+import { IconButton } from '../../components/IconButton'
+import { StatCard } from '../../components/StatCard'
+import type { Habit } from '../../data/types'
+import { cx } from '../../lib/cx'
+import { bestStreak, currentStreak, formatDays, totalChecks } from '../../lib/metrics'
+import { HabitHistory } from './HabitHistory'
+import styles from './HabitCard.module.css'
+
+type Props = {
+  habit: Habit
+  checks: ReadonlySet<string>
+  today: string
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onToggle: (date: string, done: boolean) => void
+  onEdit: () => void
+}
+
+/**
+ * Карточка привычки. Свёрнутая: отметка за сегодня, название и серии. Нажатие на карточку
+ * (кроме чекбокса) раскрывает её на месте: показатели и история за год.
+ */
+export function HabitCard({ habit, checks, today, open, onOpenChange, onToggle, onEdit }: Props) {
+  const detailsId = useId()
+  const doneToday = checks.has(today)
+  const current = currentStreak(checks, today)
+  const best = bestStreak(checks)
+  const Caret = open ? CaretUp : CaretDown
+
+  return (
+    <article className={styles.card}>
+      <div className={styles.head} onClick={() => onOpenChange(!open)}>
+        <Checkbox
+          checked={doneToday}
+          onChange={(done) => onToggle(today, done)}
+          aria-label={doneToday ? `Снять отметку за сегодня: ${habit.title}` : `Отметить за сегодня: ${habit.title}`}
+        />
+        <div className={styles.text}>
+          {/* Кнопка, а не просто текст: так карточку можно раскрыть и с клавиатуры. */}
+          <button
+            type="button"
+            className={cx('t-heading-5', styles.title, doneToday && styles.done)}
+            aria-expanded={open}
+            aria-controls={detailsId}
+          >
+            {habit.title}
+          </button>
+          <span className={cx('t-body-md', styles.streak, doneToday && styles.onStreak)}>
+            {/* Две неразрывные части: на компьютере строка переносится только между ними. */}
+            <span>текущая серия {formatDays(current)} ·</span>{' '}
+            <span>
+              лучшая {formatDays(best)} <Fire aria-hidden />
+            </span>
+          </span>
+        </div>
+        {open && (
+          <IconButton
+            variant="secondary"
+            icon={<PencilSimple aria-hidden />}
+            aria-label={`Редактировать: ${habit.title}`}
+            onClick={(event) => {
+              event.stopPropagation()
+              onEdit()
+            }}
+          />
+        )}
+        <Caret className={styles.caret} aria-hidden />
+      </div>
+
+      {open && (
+        <div id={detailsId} className={styles.details}>
+          <div className={styles.stats}>
+            <StatCard variant="surface" value={current} label="текущая серия" />
+            <StatCard variant="surface" value={best} label="лучшая серия" />
+            <StatCard variant="surface" value={totalChecks(checks)} label="всего выполнено" />
+            <StatCard variant="surface" value="Каждый день" label="цель" />
+          </div>
+          <HabitHistory checks={checks} today={today} onToggle={onToggle} />
+        </div>
+      )}
+    </article>
+  )
+}

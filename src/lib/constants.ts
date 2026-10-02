@@ -1,6 +1,8 @@
 // Допущения из SPEC.md, вынесены сюда, чтобы их было легко поменять.
 
 export const ITEM_TITLE_MAX_LENGTH = 200
+/** Название привычки: то же ограничение стоит в базе. */
+export const HABIT_TITLE_MAX_LENGTH = 60
 /** Имя и фамилия в профиле: то же ограничение стоит в базе. */
 export const NAME_MAX_LENGTH = 100
 

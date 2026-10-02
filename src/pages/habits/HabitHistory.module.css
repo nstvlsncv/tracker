@@ -1,0 +1,96 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+}
+
+.title {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+/* Сетка прокручивается по горизонтали, подписи дней недели стоят справа и остаются на месте. */
+.body {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.scroll {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: var(--space-sm);
+  overflow-x: auto;
+}
+
+.grid {
+  display: flex;
+  gap: var(--space-xs);
+  width: max-content;
+  /* Сетка прижата к правому краю: когда блок шире неё, сегодняшний день стоит у подписей. */
+  margin-left: auto;
+}
+
+.week,
+.weekdays {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* Строка названий месяцев. Название шире столбца и выступает вправо, не раздвигая сетку. */
+.month {
+  width: 16px;
+  height: 20px;
+  overflow: visible;
+  color: var(--text-tertiary);
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.dot,
+.blank {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+}
+
+.dot {
+  background: var(--bg-secondary);
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-press);
+}
+
+.dot:active {
+  transform: scale(0.8);
+}
+
+@media (hover: hover) {
+  .dot:hover {
+    background: var(--bg-tertiary);
+  }
+
+  .done:hover {
+    background: var(--highlight-default);
+  }
+}
+
+/* Выполненный день: лайм, как у всего сделанного. */
+.done {
+  background: var(--highlight-default);
+}
+
+.today {
+  box-shadow: inset 0 0 0 1.5px var(--accent-default);
+}
+
+.weekday {
+  height: 16px;
+  color: var(--text-tertiary);
+  line-height: 16px;
+}

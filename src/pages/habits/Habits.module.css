@@ -1,0 +1,77 @@
+/* Заглушка карточки привычки на время загрузки. */
+.skeleton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.skeletonText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+/* Пустой экран и ошибка загрузки. */
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.empty h2,
+.emptyText {
+  margin: 0;
+}
+
+.emptyText {
+  color: var(--text-placeholder);
+}
+
+/* Архив: строки через тонкую линию, как сессии в Профиле. */
+.archive {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.archived {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm) var(--space-md);
+}
+
+.archived + .archived {
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.archivedTitle {
+  flex: 1;
+  min-width: 160px;
+  overflow-wrap: anywhere;
+  color: var(--text-primary);
+}
+
+.archivedActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+@media (max-width: 640px) {
+  .skeleton,
+  .empty {
+    padding: var(--space-md);
+  }
+}

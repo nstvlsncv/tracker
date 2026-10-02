@@ -23,7 +23,7 @@ export function StatCard({ value, label, variant = 'muted', loading }: Props) {
       <span className={variant === 'surface' ? 't-heading-5' : 't-heading-2'}>
         {loading ? (
           <Skeleton width={56} height="1em" />
-        ) : typeof value === 'number' || typeof value === 'string' ? (
+        ) : typeof value === 'number' || (typeof value === 'string' && /\d/.test(value)) ? (
           // Числа появляются как счётчик: цифры проворачиваются от нуля.
           <RollingNumber value={value} />
         ) : (

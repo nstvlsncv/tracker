@@ -5,9 +5,11 @@ import { AuthContext } from '../auth/useAuth'
 import type { AuthContextValue, Profile as ProfileData } from '../auth/useAuth'
 import { useToast } from '../components/useToast'
 import { createMemoryApi } from '../data/memoryApi'
+import { HabitsProvider } from '../data/HabitsProvider'
 import { PlannerProvider } from '../data/PlannerProvider'
 import { AppShell } from '../layout/AppShell'
 import { ComingSoon } from './ComingSoon'
+import { Habits } from './habits/Habits'
 import { Profile } from './Profile'
 import { Week } from './week/Week'
 
@@ -49,14 +51,16 @@ export function DevPreview() {
   return (
     <AuthContext.Provider value={auth}>
       <PlannerProvider api={api}>
-        <Routes>
-          <Route element={<AppShell basePath={BASE} />}>
-            <Route index element={<ComingSoon title="Главная" />} />
-            <Route path="week/:isoWeek?" element={<Week />} />
-            <Route path="habits" element={<ComingSoon title="Привычки" />} />
-            <Route path="profile" element={<Profile />} />
-          </Route>
-        </Routes>
+        <HabitsProvider api={api}>
+          <Routes>
+            <Route element={<AppShell basePath={BASE} />}>
+              <Route index element={<ComingSoon title="Главная" />} />
+              <Route path="week/:isoWeek?" element={<Week />} />
+              <Route path="habits" element={<Habits />} />
+              <Route path="profile" element={<Profile />} />
+            </Route>
+          </Routes>
+        </HabitsProvider>
       </PlannerProvider>
     </AuthContext.Provider>
   )

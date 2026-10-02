@@ -4,6 +4,7 @@ import { AuthProvider } from './auth/AuthProvider'
 import { GuestRoute, ProtectedRoute } from './auth/guards'
 import { useAuth } from './auth/useAuth'
 import { ToastProvider } from './components/Toast'
+import { HabitsProvider } from './data/HabitsProvider'
 import { PlannerProvider } from './data/PlannerProvider'
 import { supabaseApi } from './data/supabaseApi'
 import { AppShell } from './layout/AppShell'
@@ -12,6 +13,7 @@ import { Login } from './pages/auth/Login'
 import { LoginSkeleton } from './pages/auth/LoginSkeleton'
 import { ComingSoon } from './pages/ComingSoon'
 import { DevPreview } from './pages/DevPreview'
+import { Habits } from './pages/habits/Habits'
 import { Profile } from './pages/Profile'
 import { Showcase } from './pages/Showcase'
 import { Week } from './pages/week/Week'
@@ -24,7 +26,9 @@ function Planner() {
   const { profile } = useAuth()
   return (
     <PlannerProvider key={profile?.id} api={supabaseApi}>
-      <Outlet />
+      <HabitsProvider api={supabaseApi}>
+        <Outlet />
+      </HabitsProvider>
     </PlannerProvider>
   )
 }
@@ -44,7 +48,7 @@ export default function App() {
                   <Route element={<AppShell />}>
                     <Route path="/" element={<ComingSoon title="Главная" />} />
                     <Route path="/week/:isoWeek?" element={<Week />} />
-                    <Route path="/habits" element={<ComingSoon title="Привычки" />} />
+                    <Route path="/habits" element={<Habits />} />
                     <Route path="/profile" element={<Profile />} />
                   </Route>
                 </Route>

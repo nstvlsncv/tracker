@@ -1,7 +1,7 @@
 import { weekStartISO } from '../lib/dates'
 import { shiftDate } from '../lib/metrics'
 import { supabase } from '../lib/supabase'
-import type { Goal, ItemPatch, PlannerApi, Task } from './types'
+import type { Goal, Habit, HabitCheck, ItemPatch, PlannerApi, Task } from './types'
 
 type TaskRow = {
   id: string
@@ -40,11 +40,50 @@ const toRowPatch = (patch: ItemPatch) => ({
   ...(patch.doneAt !== undefined && { done_at: patch.doneAt }),
 })
 
+type HabitRow = {
+  id: string
+  title: string
+  frequency: string
+  archived_at: string | null
+  created_at: string
+}
+
+const HABIT_COLUMNS = 'id, title, frequency, archived_at, created_at'
+
+const toHabit = (row: HabitRow): Habit => ({
+  id: row.id,
+  title: row.title,
+  frequency: row.frequency,
+  archivedAt: row.archived_at,
+  createdAt: row.created_at,
+})
+
+/** Supabase отдаёт не больше 1000 строк за запрос. */
+const PAGE_SIZE = 1000
+
 /** Запросы Supabase возвращают ошибку значением. Здесь она превращается в исключение. */
 async function unwrap<T>(request: PromiseLike<{ data: T; error: unknown }>): Promise<T> {
   const { data, error } = await request
   if (error) throw error
   return data
+}
+
+/** Читает таблицу целиком, страница за страницей: отметок привычек за год больше тысячи. */
+async function loadAllChecks(): Promise<HabitCheck[]> {
+  const checks: HabitCheck[] = []
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const page =
+      (await unwrap(
+        supabase
+          .from('habit_checks')
+          .select('habit_id, date')
+          .order('date')
+          .order('habit_id')
+          .range(from, from + PAGE_SIZE - 1),
+      )) ?? []
+    for (const row of page) checks.push({ habitId: row.habit_id, date: row.date })
+    if (page.length < PAGE_SIZE) return checks
+  }
 }
 
 // user_id в строки не передаётся: база сама подставляет текущего пользователя,
@@ -117,5 +156,50 @@ export const supabaseApi: PlannerApi = {
 
   async deleteGoal(id) {
     await unwrap(supabase.from('goals').delete().eq('id', id))
+  },
+
+  async loadHabits() {
+    const [habits, checks] = await Promise.all([
+      unwrap(supabase.from('habits').select(HABIT_COLUMNS)),
+      loadAllChecks(),
+    ])
+    return { habits: (habits ?? []).map(toHabit), checks }
+  },
+
+  async insertHabit(habit) {
+    await unwrap(
+      supabase.from('habits').insert({
+        id: habit.id,
+        title: habit.title,
+        frequency: habit.frequency,
+        archived_at: habit.archivedAt,
+        created_at: habit.createdAt,
+      }),
+    )
+  },
+
+  async updateHabit(id, patch) {
+    await unwrap(
+      supabase
+        .from('habits')
+        .update({
+          ...(patch.title !== undefined && { title: patch.title }),
+          ...(patch.archivedAt !== undefined && { archived_at: patch.archivedAt }),
+        })
+        .eq('id', id),
+    )
+  },
+
+  async deleteHabit(id) {
+    // Отметки удаляются базой вместе с привычкой.
+    await unwrap(supabase.from('habits').delete().eq('id', id))
+  },
+
+  async setHabitCheck(habitId, date, done) {
+    await unwrap(
+      done
+        ? supabase.from('habit_checks').upsert({ habit_id: habitId, date })
+        : supabase.from('habit_checks').delete().eq('habit_id', habitId).eq('date', date),
+    )
   },
 }
