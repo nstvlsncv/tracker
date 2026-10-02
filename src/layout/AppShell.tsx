@@ -9,12 +9,13 @@ type Props = {
   basePath?: string
 }
 
+// motion: как иконка оживает, когда раздел выбирают (как в нижнем меню Телеграма).
 const NAV = [
-  { to: '', label: 'Главная', icon: House, end: true },
-  { to: 'week', label: 'Неделя', icon: CalendarDots, end: false },
-  { to: 'habits', label: 'Привычки', icon: ArrowsClockwise, end: false },
-  { to: 'profile', label: 'Профиль', icon: User, end: false },
-]
+  { to: '', label: 'Главная', icon: House, end: true, motion: 'bounce' },
+  { to: 'week', label: 'Неделя', icon: CalendarDots, end: false, motion: 'flip' },
+  { to: 'habits', label: 'Привычки', icon: ArrowsClockwise, end: false, motion: 'spin' },
+  { to: 'profile', label: 'Профиль', icon: User, end: false, motion: 'nod' },
+] as const
 
 /**
  * Каркас экранов после входа: меню и содержимое экрана. Меню стоит слева (на планшете
@@ -28,20 +29,15 @@ export function AppShell({ basePath = '' }: Props) {
       <aside className={styles.sidebar}>
         <div className={`t-heading-3 ${styles.logo}`}>Трекер</div>
         <nav className={styles.nav} aria-label="Разделы">
-          {NAV.map(({ to, label, icon: Icon, end }) => (
+          {NAV.map(({ to, label, icon: Icon, end, motion }) => (
             <NavLink
               key={to}
               to={`${basePath}/${to}`}
               end={end}
               className={({ isActive }) => cx('t-button', styles.item, isActive && styles.active)}
             >
-              {({ isActive }) => (
-                <>
-                  {/* У активного раздела иконка залитая, у остальных контурная. */}
-                  <Icon weight={isActive ? 'fill' : undefined} aria-hidden />
-                  <span className={styles.label}>{label}</span>
-                </>
-              )}
+              <Icon className={styles[motion]} aria-hidden />
+              <span className={styles.label}>{label}</span>
             </NavLink>
           ))}
         </nav>

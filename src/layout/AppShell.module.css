@@ -85,6 +85,67 @@
   min-width: 0;
 }
 
+/* ---------- Иконки разделов: сами не меняются, но коротко оживают при выборе ---------- */
+
+.active .bounce {
+  animation: bounce 450ms ease-out;
+}
+
+.active .flip {
+  animation: flip 450ms ease-out;
+}
+
+.active .spin {
+  animation: spin 500ms ease-out;
+}
+
+.active .nod {
+  animation: nod 450ms ease-out;
+}
+
+/* Домик подпрыгивает. */
+@keyframes bounce {
+  30% {
+    transform: translateY(-4px) scale(1.08);
+  }
+  60% {
+    transform: translateY(1px) scale(0.96);
+  }
+}
+
+/* Календарь перелистывается. */
+@keyframes flip {
+  40% {
+    transform: perspective(60px) rotateX(-55deg);
+  }
+  75% {
+    transform: perspective(60px) rotateX(12deg);
+  }
+}
+
+/* Стрелки делают оборот. */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Человечек кивает. */
+@keyframes nod {
+  30% {
+    transform: rotate(-14deg) scale(1.06);
+  }
+  65% {
+    transform: rotate(8deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .active svg {
+    animation: none;
+  }
+}
+
 /* ---------- Планшет: меню сжимается в узкую полосу с иконками ---------- */
 @media (max-width: 1024px) {
   .shell {
@@ -122,6 +183,12 @@
     padding-bottom: calc(64px + var(--space-lg) + env(safe-area-inset-bottom));
   }
 
+  /* Пока открыто поле ввода, под содержимым появляется запас высоты: без него нижние
+     блоки нельзя прокрутить выше клавиатуры, и поле осталось бы под ней. */
+  .shell:has(input:focus) {
+    padding-bottom: 55vh;
+  }
+
   /* Полупрозрачная панель во всю ширину с размытием того, что под ней. */
   .sidebar {
     position: fixed;
@@ -146,7 +213,7 @@
     gap: 0;
   }
 
-  /* Иконка сверху, подпись под ней. Активный раздел выделен цветом и залитой иконкой, без плашки. */
+  /* Иконка сверху, подпись под ней. Активный раздел выделен цветом, без плашки. */
   .item {
     flex-direction: column;
     gap: var(--space-xs);

@@ -16,6 +16,8 @@ type Props = {
 
 /** Насколько должна вырасти видимая часть экрана, чтобы считать, что клавиатуру убрали. */
 const KEYBOARD_MIN_HEIGHT = 120
+/** Сколько ждать, пока выедет клавиатура телефона, прежде чем прокручивать к полю. */
+const KEYBOARD_DELAY_MS = 350
 
 const isTouch = () => window.matchMedia('(pointer: coarse)').matches
 
@@ -45,27 +47,22 @@ export function InlineInput({
   })
 
   // Поле должно быть на виду. На компьютере страница двигается, только если поля не видно.
-  // На телефоне поле ставится в середину видимой части экрана: нижнюю часть занимает
-  // клавиатура, и браузер про неё при обычной прокрутке не знает.
+  // На телефоне поле ставится в середину экрана: нижнюю половину занимает клавиатура.
   const reveal = () => {
-    const input = inputRef.current
-    if (!input) return
-    const viewport = window.visualViewport
-    if (!viewport || !isTouch()) {
-      input.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' })
-      return
-    }
-    // Сначала обычная прокрутка: она же докручивает по горизонтали карточки дней.
-    input.scrollIntoView({ block: 'nearest', inline: 'nearest' })
-    const rect = input.getBoundingClientRect()
-    const middle = viewport.offsetTop + viewport.height / 2
-    window.scrollBy({ top: rect.top + rect.height / 2 - middle })
+    inputRef.current?.scrollIntoView({
+      block: isTouch() ? 'center' : 'nearest',
+      inline: 'nearest',
+      behavior: 'smooth',
+    })
   }
 
   useEffect(() => {
-    reveal()
+    // Один раз и с задержкой: к этому моменту клавиатура телефона уже выехала.
+    // Прокрутка на каждое изменение экрана заставляла страницу дёргаться.
+    const timer = setTimeout(reveal, isTouch() ? KEYBOARD_DELAY_MS : 0)
+
     const viewport = window.visualViewport
-    if (!viewport) return
+    if (!viewport) return () => clearTimeout(timer)
     let height = viewport.height
     const onResize = () => {
       const grew = viewport.height - height
@@ -73,11 +70,12 @@ export function InlineInput({
       // Видимая часть экрана заметно выросла: клавиатуру убрали. На телефоне это значит
       // «готово»: сохраняем введённое и закрываем поле.
       if (grew > KEYBOARD_MIN_HEIGHT && isTouch()) commitRef.current()
-      // Иначе клавиатура выезжает: ставим поле на видное место заново.
-      else reveal()
     }
     viewport.addEventListener('resize', onResize)
-    return () => viewport.removeEventListener('resize', onResize)
+    return () => {
+      clearTimeout(timer)
+      viewport.removeEventListener('resize', onResize)
+    }
   }, [])
 
   return (
