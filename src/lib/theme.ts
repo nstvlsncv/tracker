@@ -18,13 +18,15 @@ const pageColor = () =>
 
 /**
  * Цвет панелей самого браузера на телефоне (строка состояния, адресная строка).
- * Браузер берёт его из мета-тега theme-color и из фона корня страницы, поэтому
- * обновляются оба. Без аргумента ставится цвет страницы в текущей теме.
+ * Браузер берёт его из мета-тега theme-color и из фона body и корня страницы, поэтому
+ * обновляются все три. Без аргумента панели следуют цвету страницы в текущей теме.
  */
 function setBrowserColor(color?: string) {
   const root = document.documentElement
-  // Свой цвет на корне держится только на время анимации, потом корень снова следует теме.
-  root.style.backgroundColor = color ?? ''
+  // --chrome-bg перекрывает фон html и body (см. global.css). Цвет самой страницы рисует #root,
+  // так что на вид страницы это не влияет, только на то, что видит браузер.
+  if (color) root.style.setProperty('--chrome-bg', color)
+  else root.style.removeProperty('--chrome-bg')
   document
     .querySelector('meta[name="theme-color"]')
     ?.setAttribute('content', color ?? pageColor())
@@ -67,8 +69,9 @@ export function setTheme(theme: Theme, origin?: { x: number; y: number }) {
   const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y))
 
   // Панели браузера не входят в снимок страницы и перекрасились бы мгновенно, раньше круга.
-  // Поэтому их цвет пока остаётся прежним и меняется в тот момент, когда круг доходит
-  // до верхнего края экрана.
+  // Поэтому их цвет пока остаётся прежним. У верхней и нижней панели цвет общий, развести их
+  // нельзя, так что он меняется посередине: между моментом, когда круг доходит до верхнего
+  // края экрана, и моментом, когда он доходит до нижнего.
   setBrowserColor(pageColor())
   const transition = document.startViewTransition(() => applyTheme(theme))
   transition.ready.then(
@@ -82,7 +85,9 @@ export function setTheme(theme: Theme, origin?: { x: number; y: number }) {
           pseudoElement: '::view-transition-new(root)',
         },
       )
-      colorTimer = window.setTimeout(setBrowserColor, REVEAL_MS * timeAtProgress(y / radius))
+      const top = timeAtProgress(y / radius)
+      const bottom = timeAtProgress(Math.min(1, (innerHeight - y) / radius))
+      colorTimer = window.setTimeout(setBrowserColor, (REVEAL_MS * (top + bottom)) / 2)
     },
     // Браузер может пропустить переход (например, вкладка в фоне): круга не будет.
     () => {},

@@ -17,23 +17,30 @@
 }
 
 html {
-  /* Фон корня: его же браузер телефона берёт для своих панелей. */
-  background: var(--bg-surface);
+  /* --chrome-bg задаётся только на время смены темы (см. src/lib/theme.ts). */
+  background: var(--chrome-bg, var(--bg-surface));
   /* Телефоны подсвечивают элемент серым прямоугольником при тапе. У нас своя анимация нажатия. */
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  /* Не ниже экрана и растёт вместе с содержимым: фон страницы закрывает всё, что видно. */
   min-height: 100dvh;
   margin: 0;
-  background: var(--bg-surface);
+  /* По фону body браузер телефона красит свои панели (строку состояния, адресную строку).
+     Сам цвет страницы рисует #root, поэтому фон body можно придержать на время анимации темы. */
+  background: var(--chrome-bg, var(--bg-surface));
   color: var(--text-primary);
   font-family: var(--typography-body-md-font-family);
   font-weight: var(--typography-body-md-font-weight);
   font-size: var(--typography-body-md-font-size);
   line-height: var(--typography-body-md-line-height);
   -webkit-font-smoothing: antialiased;
+}
+
+/* Цвет страницы. Не ниже экрана и растёт вместе с содержимым. */
+#root {
+  min-height: 100dvh;
+  background: var(--bg-surface);
 }
 
 h1,
