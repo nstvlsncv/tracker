@@ -74,18 +74,18 @@ export function Home() {
   return (
     <>
       <header className={styles.header}>
-        <p className={`t-heading-1 ${styles.title}`}>
+        <h1 className={`t-heading-1 ${styles.title}`}>
           {greeting(now.getHours())}
           {profile?.name ? `, ${profile.name}` : ''}!
-        </p>
-        <h1 className={`t-heading-1 ${styles.title}`} aria-label={`${day} · ${hours}:${minutes}`}>
+        </h1>
+        <p className={`t-body-lg ${styles.date}`} aria-label={`${day} · ${hours}:${minutes}`}>
           <span aria-hidden>
             {day} · {hours}
             {/* Двоеточие мигает раз в секунду, как на настоящих часах. */}
             <span className={styles.colon}>:</span>
             {minutes}
           </span>
-        </h1>
+        </p>
       </header>
 
       <div className={styles.stats}>

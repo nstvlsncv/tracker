@@ -1,12 +1,19 @@
-/* Шапка: приветствие и строка с сегодняшним днём, одним и тем же стилем. До содержимого 24px. */
+/* Шапка: приветствие заголовком, как названия остальных экранов, под ним серая строка
+   с сегодняшним днём и временем. До содержимого 24px. */
 .header {
   display: flex;
   flex-direction: column;
+  gap: var(--space-xs);
   margin-bottom: var(--space-sm);
 }
 
-.title {
+.title,
+.date {
   margin: 0;
+}
+
+.date {
+  color: var(--text-tertiary);
 }
 
 /* Двоеточие в часах гаснет на полсекунды каждую секунду. */
@@ -72,11 +79,12 @@
   color: var(--text-tertiary);
 }
 
-/* Телефон: строки шапки мельче, показатели в два столбца, как статистика на Неделе. */
+/* Телефон: заголовок того же размера, что на остальных экранах, показатели в два столбца,
+   как статистика на Неделе. */
 @media (max-width: 640px) {
   .title {
-    font-size: var(--typography-heading-4-font-size);
-    line-height: var(--typography-heading-4-line-height);
+    font-size: var(--typography-heading-3-font-size);
+    line-height: var(--typography-heading-3-line-height);
   }
 
   .stats {
