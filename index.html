@@ -5,6 +5,13 @@
     <!-- Чёрный круг на проде, серый в локальной версии: %MODE% подставляет Vite (production / development). -->
     <link rel="icon" type="image/svg+xml" href="/favicon-%MODE%.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <!-- Тема ставится до первой отрисовки, чтобы страница не мигала светлой перед тёмной. -->
+    <script>
+      try {
+        if (localStorage.getItem('tracker.theme') === 'dark') document.documentElement.dataset.theme = 'dark'
+      } catch (e) {}
+    </script>
     <title>Трекер</title>
     <meta name="description" content="Личный трекер недель, задач, целей и привычек" />
 

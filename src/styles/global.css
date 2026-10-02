@@ -22,6 +22,11 @@ body,
   height: 100%;
 }
 
+html {
+  /* Телефоны подсвечивают элемент серым прямоугольником при тапе. У нас своя анимация нажатия. */
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   margin: 0;
   background: var(--bg-surface);

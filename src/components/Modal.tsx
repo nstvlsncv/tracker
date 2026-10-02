@@ -1,6 +1,6 @@
 import { X } from '@phosphor-icons/react'
 import { useEffect, useId, useRef } from 'react'
-import type { ReactNode } from 'react'
+import type { ReactNode, TouchEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { IconButton } from './IconButton'
 import styles from './Modal.module.css'
@@ -16,12 +16,20 @@ type Props = {
   footerStart?: ReactNode
 }
 
+/** Когда модалка показывается шторкой снизу. */
+const SHEET_QUERY = '(max-width: 640px)'
+/** С какого сдвига палец считается тянущим шторку, а не тапающим по ней. */
+const DRAG_START_PX = 8
+/** На сколько нужно утянуть шторку вниз, чтобы она закрылась. */
+const DRAG_CLOSE_PX = 100
+const SHEET_SETTLE_MS = 200
+
 const FOCUSABLE = 'a[href], button:not(:disabled), input:not(:disabled), [tabindex]:not([tabindex="-1"])'
 
 /**
  * Карточка 650px по центру, на 120px ниже верхнего края. Крестик вынесен за карточку,
  * справа сверху. Внутреннего скролла нет: если контент не помещается, скроллится подложка.
- * На телефоне вместо карточки шторка, которая выезжает снизу.
+ * На телефоне вместо карточки шторка: выезжает снизу и закрывается свайпом вниз.
  */
 export function Modal({ open, title, onClose, children, footer, footerStart }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -72,6 +80,41 @@ export function Modal({ open, title, onClose, children, footer, footerStart }: P
     }
   }, [open])
 
+  // --- Шторка на телефоне закрывается свайпом вниз ---
+  const drag = useRef<{ startY: number; offset: number } | null>(null)
+
+  const onTouchStart = (event: TouchEvent<HTMLDivElement>) => {
+    const dialog = dialogRef.current
+    // Только для шторки и только когда её содержимое не прокручено: иначе жест нужен прокрутке.
+    if (!dialog || !window.matchMedia(SHEET_QUERY).matches || dialog.scrollTop > 0) return
+    drag.current = { startY: event.touches[0].clientY, offset: 0 }
+  }
+
+  const onTouchMove = (event: TouchEvent<HTMLDivElement>) => {
+    const dialog = dialogRef.current
+    if (!dialog || !drag.current) return
+    const offset = event.touches[0].clientY - drag.current.startY
+    // Небольшое движение считаем обычным тапом, движение вверх не тянет шторку.
+    drag.current.offset = offset > DRAG_START_PX ? offset : 0
+    dialog.style.transition = 'none'
+    dialog.style.transform = drag.current.offset ? `translateY(${drag.current.offset}px)` : ''
+  }
+
+  const onTouchEnd = () => {
+    const dialog = dialogRef.current
+    if (!dialog || !drag.current) return
+    const { offset } = drag.current
+    drag.current = null
+    dialog.style.transition = `transform ${SHEET_SETTLE_MS}ms ease-out`
+    if (offset > DRAG_CLOSE_PX) {
+      // Утянули достаточно далеко: шторка уезжает вниз и закрывается.
+      dialog.style.transform = 'translateY(100%)'
+      setTimeout(() => onCloseRef.current(), SHEET_SETTLE_MS)
+    } else {
+      dialog.style.transform = ''
+    }
+  }
+
   if (!open) return null
 
   return createPortal(
@@ -88,6 +131,10 @@ export function Modal({ open, title, onClose, children, footer, footerStart }: P
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchEnd}
       >
         <h2 id={titleId} className="t-heading-4">
           {title}

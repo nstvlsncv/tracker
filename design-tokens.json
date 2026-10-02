@@ -9,19 +9,24 @@
       "600": { "value": "#737373", "type": "color" },
       "700": { "value": "#525252", "type": "color" },
       "800": { "value": "#333333", "type": "color" },
-      "900": { "value": "#171717", "type": "color" }
+      "850": { "value": "#262626", "type": "color", "note": "Added for the dark theme: raised surfaces and subtle borders." },
+      "900": { "value": "#171717", "type": "color" },
+      "950": { "value": "#0D0D0D", "type": "color", "note": "Added for the dark theme: page background." }
     },
     "Green": {
       "100": { "value": "#EAF8E1", "type": "color" },
-      "600": { "value": "#43A63C", "type": "color" }
+      "600": { "value": "#43A63C", "type": "color" },
+      "900": { "value": "#16301A", "type": "color", "note": "Added for the dark theme: success background." }
     },
     "Orange": {
       "100": { "value": "#FFF0D6", "type": "color" },
-      "600": { "value": "#F28A1A", "type": "color" }
+      "600": { "value": "#F28A1A", "type": "color" },
+      "900": { "value": "#3A2608", "type": "color", "note": "Added for the dark theme: warning background." }
     },
     "Red": {
       "100": { "value": "#FDE8E5", "type": "color" },
-      "600": { "value": "#E5483F", "type": "color" }
+      "600": { "value": "#E5483F", "type": "color" },
+      "900": { "value": "#3A1512", "type": "color", "note": "Added for the dark theme: danger background." }
     },
     "Base": {
       "black": { "value": "#000000", "type": "color" },
@@ -168,6 +173,68 @@
       "caption": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.medium}", "fontSize": "{core.FontSize.100}", "lineHeight": "{core.LineHeight.100}" },
       "number-lg": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.semibold}", "fontSize": "{core.FontSize.600}", "lineHeight": "{core.LineHeight.600}" },
       "number-sm": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.medium}", "fontSize": "{core.FontSize.100}", "lineHeight": "{core.LineHeight.100}" }
+    }
+  },
+  "semantic-dark": {
+    "note": "Dark theme. Same keys as the colour groups of `semantic`; everything not listed here (radius, space, typography) is shared with the light theme. Applied when <html> has data-theme=\"dark\".",
+    "bg": {
+      "primary": { "value": "{core.Neutral.900}", "type": "color" },
+      "secondary": { "value": "{core.Neutral.850}", "type": "color" },
+      "tertiary": { "value": "{core.Neutral.800}", "type": "color" },
+      "surface": { "value": "{core.Neutral.950}", "type": "color" },
+      "inverse": { "value": "{core.Neutral.100}", "type": "color" }
+    },
+    "border": {
+      "subtle": { "value": "{core.Neutral.850}", "type": "color" },
+      "default": { "value": "{core.Neutral.700}", "type": "color" },
+      "strong": { "value": "{core.Neutral.500}", "type": "color" }
+    },
+    "text": {
+      "primary": { "value": "{core.Neutral.100}", "type": "color" },
+      "secondary": { "value": "{core.Neutral.400}", "type": "color" },
+      "tertiary": { "value": "{core.Neutral.500}", "type": "color" },
+      "disabled": { "value": "{core.Neutral.600}", "type": "color" },
+      "placeholder": { "value": "{core.Neutral.600}", "type": "color" },
+      "inverse": { "value": "{core.Neutral.900}", "type": "color" }
+    },
+    "accent": {
+      "default": { "value": "{core.Neutral.100}", "type": "color" },
+      "hover": { "value": "{core.Neutral.300}", "type": "color" },
+      "pressed": { "value": "{core.Neutral.400}", "type": "color" },
+      "subtle": { "value": "{core.Neutral.850}", "type": "color" },
+      "disabled": { "value": "{core.Neutral.800}", "type": "color" },
+      "foreground": { "value": "{core.Neutral.900}", "type": "color" }
+    },
+    "status": {
+      "success": {
+        "bg": { "value": "{core.Green.900}", "type": "color" },
+        "text": { "value": "{core.Green.600}", "type": "color" },
+        "border": { "value": "{core.Green.600}", "type": "color" },
+        "icon": { "value": "{core.Green.600}", "type": "color" }
+      },
+      "warning": {
+        "bg": { "value": "{core.Orange.900}", "type": "color" },
+        "text": { "value": "{core.Orange.600}", "type": "color" },
+        "border": { "value": "{core.Orange.600}", "type": "color" },
+        "icon": { "value": "{core.Orange.600}", "type": "color" }
+      },
+      "danger": {
+        "bg": { "value": "{core.Red.900}", "type": "color" },
+        "text": { "value": "{core.Red.600}", "type": "color" },
+        "border": { "value": "{core.Red.600}", "type": "color" },
+        "icon": { "value": "{core.Red.600}", "type": "color" },
+        "foreground": { "value": "{core.Base.white}", "type": "color" }
+      }
+    },
+    "habit": {
+      "streak-accent": { "value": "{core.Green.600}", "type": "color" }
+    },
+    "effects": {
+      "focus-ring": { "value": "{core.Neutral.100}", "type": "color" },
+      "overlay": { "value": "rgba(0, 0, 0, 0.6)", "type": "color" },
+      "shadow-sm": { "value": "rgba(0, 0, 0, 0.4)", "type": "color" },
+      "shadow-md": { "value": "rgba(0, 0, 0, 0.5)", "type": "color" },
+      "shadow-lg": { "value": "rgba(0, 0, 0, 0.6)", "type": "color" }
     }
   }
 }

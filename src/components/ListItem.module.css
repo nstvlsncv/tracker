@@ -12,10 +12,16 @@
   transition: background-color var(--transition-fast);
 }
 
-.item:hover,
 .item:focus-within,
 .editing {
   background: var(--bg-secondary);
+}
+
+/* Подсветка строки при наведении только там, где есть курсор. */
+@media (hover: hover) {
+  .item:hover {
+    background: var(--bg-secondary);
+  }
 }
 
 .title {

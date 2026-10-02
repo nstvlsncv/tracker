@@ -44,18 +44,19 @@ for (const [group, items] of Object.entries(tokens.core)) {
 }
 
 const semantic = []
+const dark = []
 const typography = []
-function walk(node, path) {
+function walk(node, path, out) {
   if ('value' in node) {
     const value = isRef(node.value) ? refToVar(node.value) : node.value
-    semantic.push(`  ${varName(path)}: ${value};`)
+    out.push(`  ${varName(path)}: ${value};`)
     return
   }
-  for (const [key, child] of Object.entries(node)) walk(child, [...path, key])
+  for (const [key, child] of Object.entries(node)) walk(child, [...path, key], out)
 }
 for (const [group, node] of Object.entries(tokens.semantic)) {
   if (group !== 'typography') {
-    walk(node, [group])
+    walk(node, [group], semantic)
     continue
   }
   for (const [style, props] of Object.entries(node)) {
@@ -68,14 +69,26 @@ for (const [group, node] of Object.entries(tokens.semantic)) {
   }
 }
 
+// Тёмная тема: те же имена переменных, что у semantic, но другие значения.
+for (const [group, node] of Object.entries(tokens['semantic-dark'] ?? {})) {
+  if (typeof node === 'object') walk(node, [group], dark)
+}
+
 const css = `/* Сгенерировано из design-tokens.json (npm run tokens). Не редактировать вручную. */
 
 :root {
   /* core: примитивы, в компонентах напрямую не используются */
 ${core.join('\n')}
 
-  /* semantic */
+  /* semantic: светлая тема (по умолчанию) */
+  color-scheme: light;
 ${semantic.join('\n')}
+}
+
+/* semantic-dark: тёмная тема, включается атрибутом data-theme="dark" на <html> */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+${dark.join('\n')}
 }
 
 /* Текстовые стили из semantic.typography */
@@ -84,4 +97,6 @@ ${typography.join('\n\n')}
 
 mkdirSync(dirname(outFile), { recursive: true })
 writeFileSync(outFile, css)
-console.log(`tokens.css: ${core.length} core, ${semantic.length} semantic, ${typography.length} text styles`)
+console.log(
+  `tokens.css: ${core.length} core, ${semantic.length} semantic, ${dark.length} dark, ${typography.length} text styles`,
+)

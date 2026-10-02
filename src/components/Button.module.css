@@ -74,12 +74,48 @@
   color: var(--accent-foreground);
 }
 
-.accentMain:hover:not(:disabled) {
-  background: var(--accent-hover);
-}
+/* Наведение и нажатие меняют фон только там, где есть курсор. На сенсорных экранах
+   (телефон, планшет) фон не меняется: остаётся только анимация нажатия. */
+@media (hover: hover) {
+  .accentMain:hover:not(:disabled) {
+    background: var(--accent-hover);
+  }
 
-.accentMain:active:not(:disabled) {
-  background: var(--accent-pressed);
+  .accentMain:active:not(:disabled) {
+    background: var(--accent-pressed);
+  }
+
+  .accentSecondary:hover:not(:disabled),
+  .accentSecondary:active:not(:disabled) {
+    background: var(--bg-tertiary);
+  }
+
+  .accentGhost:hover:not(:disabled) {
+    background: var(--accent-subtle);
+  }
+
+  .accentGhost:active:not(:disabled) {
+    background: var(--bg-tertiary);
+  }
+
+  .dangerMain:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  .dangerMain:active:not(:disabled) {
+    opacity: 0.8;
+  }
+
+  .dangerGhost:hover:not(:disabled) {
+    background: var(--status-danger-text);
+    color: var(--status-danger-foreground);
+  }
+
+  .dangerGhost:active:not(:disabled) {
+    background: var(--status-danger-text);
+    color: var(--status-danger-foreground);
+    opacity: 0.8;
+  }
 }
 
 /* --- Accent / Secondary --- */
@@ -89,23 +125,10 @@
   color: var(--text-primary);
 }
 
-.accentSecondary:hover:not(:disabled),
-.accentSecondary:active:not(:disabled) {
-  background: var(--bg-tertiary);
-}
-
 /* --- Accent / Ghost --- */
 
 .accentGhost {
   color: var(--text-primary);
-}
-
-.accentGhost:hover:not(:disabled) {
-  background: var(--accent-subtle);
-}
-
-.accentGhost:active:not(:disabled) {
-  background: var(--bg-tertiary);
 }
 
 /* --- Danger / Main --- */
@@ -115,29 +138,10 @@
   color: var(--status-danger-foreground);
 }
 
-.dangerMain:hover:not(:disabled) {
-  opacity: 0.9;
-}
-
-.dangerMain:active:not(:disabled) {
-  opacity: 0.8;
-}
-
 /* --- Danger / Ghost --- */
 
 .dangerGhost {
   color: var(--status-danger-text);
-}
-
-.dangerGhost:hover:not(:disabled) {
-  background: var(--status-danger-text);
-  color: var(--status-danger-foreground);
-}
-
-.dangerGhost:active:not(:disabled) {
-  background: var(--status-danger-text);
-  color: var(--status-danger-foreground);
-  opacity: 0.8;
 }
 
 /* --- Disabled (у Pending свой вид, хотя кнопка тоже не нажимается) --- */

@@ -1,0 +1,51 @@
+.group {
+  display: inline-flex;
+  gap: var(--space-xs);
+  padding: var(--space-xs);
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+}
+
+.option {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  height: 40px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-press);
+}
+
+.option svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+.option:active {
+  transform: scale(0.96);
+}
+
+.selected {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+@media (hover: hover) {
+  .option:hover {
+    color: var(--text-primary);
+  }
+}
+
+@media (max-width: 640px) {
+  .group {
+    display: flex;
+  }
+}

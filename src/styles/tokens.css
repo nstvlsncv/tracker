@@ -10,13 +10,18 @@
   --core-neutral-600: #737373;
   --core-neutral-700: #525252;
   --core-neutral-800: #333333;
+  --core-neutral-850: #262626;
   --core-neutral-900: #171717;
+  --core-neutral-950: #0D0D0D;
   --core-green-100: #EAF8E1;
   --core-green-600: #43A63C;
+  --core-green-900: #16301A;
   --core-orange-100: #FFF0D6;
   --core-orange-600: #F28A1A;
+  --core-orange-900: #3A2608;
   --core-red-100: #FDE8E5;
   --core-red-600: #E5483F;
+  --core-red-900: #3A1512;
   --core-base-black: #000000;
   --core-base-white: #FFFFFF;
   --core-radius-100: 4px;
@@ -58,7 +63,8 @@
   --core-line-height-800: 38px;
   --core-line-height-900: 46px;
 
-  /* semantic */
+  /* semantic: светлая тема (по умолчанию) */
+  color-scheme: light;
   --bg-primary: var(--core-neutral-100);
   --bg-secondary: var(--core-neutral-200);
   --bg-tertiary: var(--core-neutral-300);
@@ -159,6 +165,50 @@
   --typography-number-sm-font-weight: var(--core-font-weight-medium);
   --typography-number-sm-font-size: var(--core-font-size-100);
   --typography-number-sm-line-height: var(--core-line-height-100);
+}
+
+/* semantic-dark: тёмная тема, включается атрибутом data-theme="dark" на <html> */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg-primary: var(--core-neutral-900);
+  --bg-secondary: var(--core-neutral-850);
+  --bg-tertiary: var(--core-neutral-800);
+  --bg-surface: var(--core-neutral-950);
+  --bg-inverse: var(--core-neutral-100);
+  --border-subtle: var(--core-neutral-850);
+  --border-default: var(--core-neutral-700);
+  --border-strong: var(--core-neutral-500);
+  --text-primary: var(--core-neutral-100);
+  --text-secondary: var(--core-neutral-400);
+  --text-tertiary: var(--core-neutral-500);
+  --text-disabled: var(--core-neutral-600);
+  --text-placeholder: var(--core-neutral-600);
+  --text-inverse: var(--core-neutral-900);
+  --accent-default: var(--core-neutral-100);
+  --accent-hover: var(--core-neutral-300);
+  --accent-pressed: var(--core-neutral-400);
+  --accent-subtle: var(--core-neutral-850);
+  --accent-disabled: var(--core-neutral-800);
+  --accent-foreground: var(--core-neutral-900);
+  --status-success-bg: var(--core-green-900);
+  --status-success-text: var(--core-green-600);
+  --status-success-border: var(--core-green-600);
+  --status-success-icon: var(--core-green-600);
+  --status-warning-bg: var(--core-orange-900);
+  --status-warning-text: var(--core-orange-600);
+  --status-warning-border: var(--core-orange-600);
+  --status-warning-icon: var(--core-orange-600);
+  --status-danger-bg: var(--core-red-900);
+  --status-danger-text: var(--core-red-600);
+  --status-danger-border: var(--core-red-600);
+  --status-danger-icon: var(--core-red-600);
+  --status-danger-foreground: var(--core-base-white);
+  --habit-streak-accent: var(--core-green-600);
+  --effects-focus-ring: var(--core-neutral-100);
+  --effects-overlay: rgba(0, 0, 0, 0.6);
+  --effects-shadow-sm: rgba(0, 0, 0, 0.4);
+  --effects-shadow-md: rgba(0, 0, 0, 0.5);
+  --effects-shadow-lg: rgba(0, 0, 0, 0.6);
 }
 
 /* Текстовые стили из semantic.typography */

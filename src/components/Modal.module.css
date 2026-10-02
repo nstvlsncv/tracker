@@ -37,9 +37,13 @@
   background: var(--bg-surface);
 }
 
-.close:hover:not(:disabled),
-.close:active:not(:disabled) {
-  background: var(--bg-secondary);
+/* Наведение и нажатие меняют фон только там, где есть курсор. На сенсорных экранах
+   (телефон, планшет) фон не меняется: остаётся только анимация нажатия. */
+@media (hover: hover) {
+  .close:hover:not(:disabled),
+  .close:active:not(:disabled) {
+    background: var(--bg-secondary);
+  }
 }
 
 .close:focus-visible {
@@ -109,13 +113,20 @@
   }
 
   .dialog {
+    /* Шторка приклеена к нижнему краю экрана сама по себе, а не через выравнивание подложки. */
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
     width: 100%;
+    overscroll-behavior: contain;
     /* Выше экрана шторка не бывает: длинное содержимое прокручивается внутри неё. */
     max-height: calc(100dvh - var(--space-xl));
     padding: var(--space-lg) var(--space-md) calc(var(--space-md) + env(safe-area-inset-bottom));
     overflow-y: auto;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    animation: sheet 250ms cubic-bezier(0.32, 0.72, 0, 1);
+    /* Без удержания конечного кадра: иначе анимация перекрывала бы сдвиг шторки пальцем. */
+    animation: sheet 300ms cubic-bezier(0.32, 0.72, 0, 1);
   }
 
   /* Полоска-ручка сверху, как у системных шторок. */
@@ -159,9 +170,13 @@
   }
 }
 
+/* Выезжает из-под нижнего края экрана. */
 @keyframes sheet {
   from {
     transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
   }
 }
 

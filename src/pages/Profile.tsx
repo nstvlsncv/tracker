@@ -1,21 +1,38 @@
-import { SignOut } from '@phosphor-icons/react'
+import { Moon, SignOut, Sun } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
 import { useAuth } from '../auth/useAuth'
 import { Button } from '../components/Button'
 import { Section } from '../components/Section'
+import { Segmented } from '../components/Segmented'
 import { CHANGELOG } from '../data/changelog'
 import { formatDayMonth } from '../lib/dates'
+import { setTheme, useTheme } from '../lib/theme'
 import { PageHeader } from '../layout/PageHeader'
 import styles from './Profile.module.css'
 
 // Сам экран Профиля (имя, пароль, сессии) появится на одном из следующих шагов.
-// Пока здесь история версий и выход для телефона: в нижней панели его нет.
+// Пока здесь тема оформления, история версий и выход для телефона: в нижней панели его нет.
 export function Profile() {
   const { signOut } = useAuth()
+  const theme = useTheme()
 
   return (
     <>
       <PageHeader title="Профиль" />
+
+      <Section title="Оформление">
+        <div>
+          <Segmented
+            aria-label="Тема оформления"
+            value={theme}
+            onChange={setTheme}
+            options={[
+              { value: 'light', label: 'Светлая', icon: <Sun aria-hidden /> },
+              { value: 'dark', label: 'Тёмная', icon: <Moon aria-hidden /> },
+            ]}
+          />
+        </div>
+      </Section>
 
       <Section title="История версий">
         <ol className={styles.releases}>
