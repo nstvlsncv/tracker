@@ -15,7 +15,19 @@
   min-width: 0;
 }
 
-/* Пустой экран и ошибка загрузки. */
+/* Привычек ещё нет: одна фраза цветом плейсхолдера по центру свободного места экрана. */
+.placeholder {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: var(--space-lg);
+  color: var(--text-placeholder);
+  text-align: center;
+}
+
+/* Ошибка загрузки. */
 .empty {
   display: flex;
   flex-direction: column;
@@ -25,7 +37,6 @@
   background: var(--bg-primary);
 }
 
-.empty h2,
 .emptyText {
   margin: 0;
 }

@@ -89,10 +89,9 @@ export function Habits() {
       )}
 
       {store.status === 'ready' && habits.length === 0 && (
-        <div className={styles.empty}>
-          <h2 className="t-heading-4">Начни с одной привычки</h2>
-          <p className={styles.emptyText}>Маленькие шаги каждый день</p>
-        </div>
+        <p className={styles.placeholder}>
+          Начни с одной привычки: маленькие шаги каждый день приводят далеко
+        </p>
       )}
 
       {store.status === 'ready' &&
