@@ -21,23 +21,7 @@
   min-width: 0;
 }
 
-/* Огонёк стоит слева от названия, по центру его текста, в 8px от него. */
-.titleRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  min-width: 0;
-}
-
-.fire {
-  flex: none;
-  width: 24px;
-  height: 24px;
-  color: var(--text-tertiary);
-}
-
 .title {
-  min-width: 0;
   overflow-wrap: anywhere;
   text-align: left;
   color: var(--text-primary);
@@ -57,11 +41,6 @@
 
 .streak span {
   white-space: nowrap;
-}
-
-/* Привычка выполнена сегодня: огонёк залит лаймом. Текст серии всегда серый. */
-.fire.lit {
-  color: var(--habit-streak-accent);
 }
 
 .caret {

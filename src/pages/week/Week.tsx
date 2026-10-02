@@ -92,9 +92,12 @@ export function Week() {
               variant="secondary"
               size="lg"
               icon={<Plus aria-hidden />}
+              // На телефоне от кнопки остаётся квадрат с плюсом (см. PageHeader), подпись скрыта.
+              data-compact
+              aria-label="Добавить задачу"
               onClick={() => setAddingTask(true)}
             >
-              Добавить задачу
+              <span data-label>Добавить задачу</span>
             </Button>
             <CalendarPicker
               aria-label="Неделя"

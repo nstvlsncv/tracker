@@ -142,9 +142,6 @@
       "default": { "value": "{core.Lime.500}", "type": "color", "note": "Achievement colour: donut fill, checked checkbox. Never for buttons, navigation or text." },
       "foreground": { "value": "{core.Neutral.900}", "type": "color", "note": "Marks drawn on top of highlight (the check mark). Dark in both themes: lime is always light." }
     },
-    "habit": {
-      "streak-accent": { "value": "{core.Lime.500}", "type": "color", "note": "Flame of a habit done today (filled icon). The streak text itself stays grey." }
-    },
     "effects": {
       "focus-ring": { "value": "{core.Neutral.900}", "type": "color" },
       "overlay": { "value": "rgba(23, 23, 23, 0.5)", "type": "color" },
@@ -251,9 +248,6 @@
     "highlight": {
       "default": { "value": "{core.Lime.500}", "type": "color" },
       "foreground": { "value": "{core.Neutral.900}", "type": "color" }
-    },
-    "habit": {
-      "streak-accent": { "value": "{core.Lime.500}", "type": "color" }
     },
     "effects": {
       "focus-ring": { "value": "{core.Neutral.100}", "type": "color" },

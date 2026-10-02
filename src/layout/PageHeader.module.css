@@ -28,20 +28,36 @@
     line-height: var(--typography-heading-3-line-height);
   }
 
-  /* Без подложки: только сами кнопки. Друг под другом, главная (в разметке последняя) сверху.
-     64px: высота нижней панели, то же число стоит в AppShell.module.css. */
+  /* Без подложки: только сами кнопки, в один ряд. Главная (в разметке последняя) стоит слева
+     и занимает всю свободную ширину. 64px: высота нижней панели, то же число стоит
+     в AppShell.module.css. */
   .actions {
     position: fixed;
     right: var(--space-md);
     bottom: calc(64px + var(--space-sm) + env(safe-area-inset-bottom));
     left: var(--space-md);
     z-index: 30;
-    flex-direction: column-reverse;
+    flex-direction: row-reverse;
   }
 
-  .actions > *,
+  .actions > * {
+    flex: 1;
+    min-width: 0;
+  }
+
   .actions > * > button {
     width: 100%;
+  }
+
+  /* Второстепенная кнопка с пометкой data-compact сжимается в квадрат с одной иконкой. */
+  .actions > button[data-compact] {
+    flex: none;
+    width: 48px;
+    padding: 0;
+  }
+
+  .actions > button[data-compact] [data-label] {
+    display: none;
   }
 
   /* Календарь выбора недели открывается вверх: под кнопкой места уже нет. */

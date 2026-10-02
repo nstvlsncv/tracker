@@ -1,4 +1,4 @@
-import { CaretDown, CaretUp, Fire, PencilSimple } from '@phosphor-icons/react'
+import { CaretDown, CaretUp, PencilSimple } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
 import { useId } from 'react'
 import { Checkbox } from '../../components/Checkbox'
@@ -43,23 +43,15 @@ export function HabitCard({ habit, checks, today, open, onOpenChange, onToggle, 
           aria-label={doneToday ? `Снять отметку за сегодня: ${habit.title}` : `Отметить за сегодня: ${habit.title}`}
         />
         <div className={styles.text}>
-          <div className={styles.titleRow}>
-            {/* Сегодня выполнено: огонёк залит лаймом. Иначе контурный, серый. */}
-            <Fire
-              className={cx(styles.fire, doneToday && styles.lit)}
-              weight={doneToday ? 'fill' : 'bold'}
-              aria-hidden
-            />
-            {/* Кнопка, а не просто текст: так карточку можно раскрыть и с клавиатуры. */}
-            <button
-              type="button"
-              className={cx('t-heading-5', styles.title, doneToday && styles.done)}
-              aria-expanded={open}
-              aria-controls={detailsId}
-            >
-              {habit.title}
-            </button>
-          </div>
+          {/* Кнопка, а не просто текст: так карточку можно раскрыть и с клавиатуры. */}
+          <button
+            type="button"
+            className={cx('t-heading-5', styles.title, doneToday && styles.done)}
+            aria-expanded={open}
+            aria-controls={detailsId}
+          >
+            {habit.title}
+          </button>
           <span className={`t-body-md ${styles.streak}`}>
             {/* Две неразрывные части: на компьютере строка переносится только между ними. */}
             <span>текущая серия {formatDays(current)} ·</span> <span>лучшая {formatDays(best)}</span>
