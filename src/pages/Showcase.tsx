@@ -177,16 +177,17 @@ export function Showcase() {
           <Donut value={100} />
           <Donut value={null} />
           <Donut value={72} size="lg" />
+          <Donut value={67} size="xl" />
         </Row>
       </Section>
 
       <Section title="Stat card">
         <div className={styles.stats}>
-          <StatCard value="72%" label="прогресс недели" variant="inverse" />
-          <StatCard value="2/3" label="цели недели" variant="muted" />
-          <StatCard value="12" label="всего задач" />
-          <StatCard value="—" label="средний прогресс" />
-          <StatCard value="Каждый день" label="цель" textValue />
+          <StatCard value="67%" label="прогресс дня" variant="inverse" />
+          <StatCard value="1/4" label="цели недели" />
+          <StatCard value="ПН" label="лучший день" />
+          <StatCard value="12" label="текущая серия" variant="surface" />
+          <StatCard value="Каждый день" label="цель" variant="surface" />
         </div>
       </Section>
 

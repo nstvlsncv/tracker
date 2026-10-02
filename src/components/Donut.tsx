@@ -4,12 +4,14 @@ import styles from './Donut.module.css'
 type Props = {
   /** Процент 0–100 или null, если считать не из чего (в центре прочерк). */
   value: number | null
-  size?: 'sm' | 'lg'
+  /** sm 72px, lg 120px, xl 150px (карточки дней). */
+  size?: 'sm' | 'lg' | 'xl'
 }
 
 const SIZES = {
   sm: { diameter: 72, stroke: 6 },
   lg: { diameter: 120, stroke: 10 },
+  xl: { diameter: 150, stroke: 14 },
 }
 
 export function Donut({ value, size = 'sm' }: Props) {
@@ -44,7 +46,7 @@ export function Donut({ value, size = 'sm' }: Props) {
       <span
         className={cx(
           styles.label,
-          size === 'lg' ? 't-number-lg' : 't-number-sm',
+          size === 'sm' ? 't-number-sm' : 't-number-lg',
           value === null && styles.muted,
         )}
       >

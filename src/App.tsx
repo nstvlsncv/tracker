@@ -1,10 +1,26 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
 import { AuthProvider } from './auth/AuthProvider'
 import { GuestRoute, ProtectedRoute } from './auth/guards'
+import { useAuth } from './auth/useAuth'
 import { ToastProvider } from './components/Toast'
+import { PlannerProvider } from './data/PlannerProvider'
+import { supabaseApi } from './data/supabaseApi'
+import { AppShell } from './layout/AppShell'
 import { Login } from './pages/auth/Login'
-import { Home } from './pages/Home'
+import { ComingSoon } from './pages/ComingSoon'
+import { DevPreview } from './pages/DevPreview'
 import { Showcase } from './pages/Showcase'
+import { Week } from './pages/week/Week'
+
+/** Данные пользователя живут, пока он в аккаунте: при смене пользователя хранилище создаётся заново. */
+function Planner() {
+  const { profile } = useAuth()
+  return (
+    <PlannerProvider key={profile?.id} api={supabaseApi}>
+      <Outlet />
+    </PlannerProvider>
+  )
+}
 
 export default function App() {
   return (
@@ -16,10 +32,18 @@ export default function App() {
               <Route path="/login" element={<Login />} />
             </Route>
             <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<Home />} />
+              <Route element={<Planner />}>
+                <Route element={<AppShell />}>
+                  <Route path="/" element={<ComingSoon title="Главная" />} />
+                  <Route path="/week/:isoWeek?" element={<Week />} />
+                  <Route path="/habits" element={<ComingSoon title="Привычки" />} />
+                  <Route path="/profile" element={<ComingSoon title="Профиль" />} />
+                </Route>
+              </Route>
             </Route>
-            {/* Витрина компонентов, только в режиме разработки. */}
+            {/* Только в режиме разработки: витрина компонентов и экраны на демо-данных. */}
             {import.meta.env.DEV && <Route path="/dev" element={<Showcase />} />}
+            {import.meta.env.DEV && <Route path="/dev/app/*" element={<DevPreview />} />}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>

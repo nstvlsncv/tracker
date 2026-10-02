@@ -4,6 +4,7 @@
   /* [ДОПУЩЕНИЕ] В токенах у теней задан только цвет, геометрия выбрана здесь. */
   --shadow-modal: 0 16px 48px var(--effects-shadow-lg);
   --shadow-toast: 0 8px 24px var(--effects-shadow-md);
+  --shadow-popover: 0 8px 24px var(--effects-shadow-sm);
 
   --transition-fast: 150ms ease-out;
   --transition-press: 120ms ease-out;

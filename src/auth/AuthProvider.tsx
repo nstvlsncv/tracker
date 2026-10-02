@@ -23,6 +23,10 @@ const toProfile = (row: ProfileRow): Profile => ({
   passwordChangedAt: row.password_changed_at,
 })
 
+const signOut = () => {
+  supabase.auth.signOut({ scope: 'local' })
+}
+
 async function loadProfile(user: User): Promise<ProfileResult> {
   const { data, error } = await supabase
     .from('profiles')
@@ -97,6 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session: session ?? null,
       profile: profile && profile !== 'error' ? profile : null,
       refreshProfile,
+      signOut,
     }),
     [status, session, profile, refreshProfile],
   )

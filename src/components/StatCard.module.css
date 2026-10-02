@@ -2,33 +2,34 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  justify-content: space-between;
-  gap: var(--space-sm);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
   min-width: 0;
-  min-height: 88px;
-  padding: var(--space-md);
-  border-radius: var(--radius-md);
-}
-
-.surface {
-  background: var(--bg-surface);
+  padding: var(--space-lg) var(--space-md);
+  border-radius: var(--radius-xl);
+  text-align: center;
 }
 
 .muted {
   background: var(--bg-primary);
-  border-radius: var(--radius-lg);
 }
 
 .inverse {
   background: var(--bg-inverse);
-  border-radius: var(--radius-lg);
   color: var(--text-inverse);
 }
 
+.surface {
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+}
+
 .label {
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
 }
 
 .inverse .label {
-  color: var(--text-disabled);
+  color: var(--text-inverse);
 }

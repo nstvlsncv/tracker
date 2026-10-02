@@ -12,7 +12,7 @@
 }
 
 .track {
-  stroke: var(--bg-tertiary);
+  stroke: var(--bg-secondary);
 }
 
 .fill {

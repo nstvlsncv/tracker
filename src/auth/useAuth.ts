@@ -17,6 +17,8 @@ export type AuthContextValue = {
   profile: Profile | null
   /** Перечитать профиль (после изменения или после ошибки сети). */
   refreshProfile: () => Promise<void>
+  /** Выйти на этом устройстве. Остальные сессии остаются. */
+  signOut: () => void
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

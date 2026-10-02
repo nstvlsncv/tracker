@@ -1,0 +1,35 @@
+.card {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 300px;
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+  scroll-snap-align: start;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.number {
+  color: var(--text-disabled);
+}
+
+.today {
+  color: var(--text-primary);
+}
+
+.donut {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-sm) 0;
+}
+
+.empty {
+  color: var(--text-disabled);
+}

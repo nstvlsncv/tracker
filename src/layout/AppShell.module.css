@@ -1,0 +1,78 @@
+.shell {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-lg);
+  min-height: 100%;
+  padding: var(--space-lg);
+}
+
+.sidebar {
+  position: sticky;
+  top: var(--space-lg);
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--space-lg);
+  width: 300px;
+  /* Высота окна минус отступы сверху и снизу. */
+  height: calc(100vh - 2 * var(--space-lg));
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.logo {
+  padding: var(--space-sm) 0;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: 100%;
+  height: 48px;
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background-color var(--transition-fast);
+}
+
+.item svg {
+  flex: none;
+  width: 24px;
+  height: 24px;
+}
+
+.item:hover,
+.active {
+  background: var(--bg-secondary);
+}
+
+.bottom {
+  margin-top: auto;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.logout {
+  color: var(--status-danger-text);
+}
+
+.logout:hover {
+  background: var(--status-danger-bg);
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+}

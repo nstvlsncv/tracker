@@ -1,0 +1,71 @@
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  min-height: 48px;
+}
+
+.controls {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.hint {
+  color: var(--text-secondary);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+/* В узком окне шесть карточек в ряд не помещаются: встают в два ряда по три. */
+@media (max-width: 1240px) {
+  .stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Карточки дней листаются по горизонтали и уходят под правый край окна. */
+.days {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-md);
+  margin-right: calc(-1 * var(--space-lg));
+  padding-right: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+}
+
+.daySkeleton {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 300px;
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.donutSkeleton {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-sm) 0;
+}
+
+.listSkeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.rowSkeleton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
