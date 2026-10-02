@@ -19,7 +19,7 @@ type Props = {
 const FOCUSABLE = 'a[href], button:not(:disabled), input:not(:disabled), [tabindex]:not([tabindex="-1"])'
 
 /**
- * Карточка 440px по центру, на 120px ниже верхнего края. Крестик вынесен за карточку,
+ * Карточка 650px по центру, на 120px ниже верхнего края. Крестик вынесен за карточку,
  * справа сверху. Внутреннего скролла нет: если контент не помещается, скроллится подложка.
  */
 export function Modal({ open, title, onClose, children, footer, footerStart }: Props) {
@@ -90,7 +90,7 @@ export function Modal({ open, title, onClose, children, footer, footerStart }: P
         <div className={styles.content}>{children}</div>
         {(footer || footerStart) && (
           <footer className={styles.footer}>
-            <div className={styles.start}>{footerStart}</div>
+            <div>{footerStart}</div>
             <div className={styles.actions}>{footer}</div>
           </footer>
         )}

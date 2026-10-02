@@ -5,6 +5,7 @@ import { AddItem } from '../components/AddItem'
 import { Button } from '../components/Button'
 import { Checkbox } from '../components/Checkbox'
 import { Donut } from '../components/Donut'
+import { Dropdown } from '../components/Dropdown'
 import { IconButton } from '../components/IconButton'
 import { Input } from '../components/Input'
 import { ItemList } from '../components/ItemList'
@@ -68,6 +69,7 @@ export function Showcase() {
   const [checks, setChecks] = useState({ first: false, second: true })
   const [modal, setModal] = useState<'edit' | 'delete' | null>(null)
   const [password, setPassword] = useState('')
+  const [year, setYear] = useState('2026')
 
   const addItem = (title: string) =>
     setItems((current) => [
@@ -189,6 +191,21 @@ export function Showcase() {
           <StatCard value="12" label="текущая серия" variant="surface" />
           <StatCard value="Каждый день" label="цель" variant="surface" />
         </div>
+      </Section>
+
+      <Section title="Dropdown">
+        <Row>
+          <Dropdown
+            aria-label="Год"
+            align="start"
+            options={[
+              { value: '2025', label: '2025' },
+              { value: '2026', label: '2026' },
+            ]}
+            value={year}
+            onChange={setYear}
+          />
+        </Row>
       </Section>
 
       <Section title="Modal и toast">

@@ -63,10 +63,15 @@
 
 .logout {
   color: var(--status-danger-text);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
 }
 
+/* Как у кнопок Danger / Ghost: при наведении красная заливка и белый текст. */
 .logout:hover {
-  background: var(--status-danger-bg);
+  background: var(--status-danger-text);
+  color: var(--status-danger-foreground);
 }
 
 .main {

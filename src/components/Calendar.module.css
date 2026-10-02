@@ -72,9 +72,23 @@
 }
 
 .week {
+  position: relative;
   width: 100%;
   border-radius: var(--radius-md);
   color: inherit;
+}
+
+/* Неделя, в которой уже есть задачи или цели: точка у левого края строки. */
+.marked::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: var(--space-xs);
+  width: 4px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: currentColor;
+  transform: translateY(-50%);
 }
 
 .day:hover,

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router'
 import { AddItem } from '../../components/AddItem'
 import { Button } from '../../components/Button'
-import { Dropdown } from '../../components/Dropdown'
+import { CalendarPicker } from '../../components/CalendarPicker'
 import { ItemList } from '../../components/ItemList'
 import { Section } from '../../components/Section'
 import { Skeleton } from '../../components/Skeleton'
@@ -64,11 +64,9 @@ export function Week() {
 
   // В списке: недели с данными, добавленные вручную, текущая и та, что открыта сейчас.
   const weeks = [...new Set([...planner.knownWeeks, currentWeek, weekStart])].sort()
-  const thisYear = today.slice(0, 4)
-  const options = weeks.map((week) => ({
-    value: week,
-    label: formatWeekRange(parseISO(week), { year: !week.startsWith(thisYear) }),
-  }))
+  const weekLabel = formatWeekRange(parseISO(weekStart), {
+    year: !weekStart.startsWith(today.slice(0, 4)),
+  })
 
   const goToWeek = (week: string) =>
     navigate(isoWeek ? `../${toWeekParam(week)}` : toWeekParam(week), { relative: 'path' })
@@ -98,13 +96,21 @@ export function Week() {
       <PageHeader
         title="Неделя"
         aside={
-          <Dropdown
+          <CalendarPicker
             aria-label="Неделя"
-            variant="ghost"
-            align="start"
-            options={options}
+            mode="week"
             value={weekStart}
+            label={weekLabel}
+            today={today}
+            markedWeeks={planner.knownWeeks}
             onChange={goToWeek}
+            footer={
+              weekStart !== currentWeek && (
+                <Button variant="ghost" fullWidth onClick={() => goToWeek(currentWeek)}>
+                  Текущая неделя
+                </Button>
+              )
+            }
           />
         }
         actions={
@@ -129,6 +135,7 @@ export function Week() {
           // По умолчанию выбрана неделя, следующая за последней в списке.
           initialWeek={shiftDate(weeks[weeks.length - 1], 7)}
           today={today}
+          markedWeeks={planner.knownWeeks}
           onClose={() => setModal(null)}
           onAdd={addWeek}
         />

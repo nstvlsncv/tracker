@@ -18,7 +18,7 @@
   flex: none;
   flex-direction: column;
   gap: var(--space-lg);
-  width: 440px;
+  width: 650px;
   max-width: 100%;
   padding: var(--space-lg);
   border-radius: var(--radius-xl);
@@ -59,13 +59,6 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm);
-}
-
-/* Unbounded широкий: три кнопки помещаются в 440px, только если ghost-кнопка слева
-   занимает меньше места. Её текст при этом встаёт вровень с краем контента. */
-.start > button {
-  margin-left: calc(-1 * var(--space-sm));
-  padding: 0 var(--space-sm);
 }
 
 .actions {

@@ -6,7 +6,6 @@ import { Input } from '../../components/Input'
 import { Modal } from '../../components/Modal'
 import { ITEM_TITLE_MAX_LENGTH } from '../../lib/constants'
 import { formatDayMonth } from '../../lib/dates'
-import styles from './modals.module.css'
 
 type Props = {
   today: string
@@ -39,7 +38,7 @@ export function AddTaskModal({ today, onClose, onAdd }: Props) {
           <Button variant="secondary" onClick={onClose}>
             Отмена
           </Button>
-          <Button onClick={submit}>Добавить</Button>
+          <Button onClick={submit}>Добавить на {formatDayMonth(parseISO(date))}</Button>
         </>
       }
     >
@@ -58,7 +57,6 @@ export function AddTaskModal({ today, onClose, onAdd }: Props) {
         }}
       />
       <Calendar mode="day" value={date} onChange={setDate} today={today} />
-      <p className={`t-button ${styles.summary}`}>{formatDayMonth(parseISO(date))}</p>
     </Modal>
   )
 }

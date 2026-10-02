@@ -14,13 +14,15 @@ type Props = {
   value: string
   onChange: (value: string) => void
   today: string
+  /** Понедельники недель, в которых есть данные: помечаются точкой слева от строки. */
+  markedWeeks?: string[]
 }
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
 const ROWS = 6 // всегда шесть строк, чтобы высота не прыгала при листании месяцев
 
 /** Календарь на месяц, неделя с понедельника. Умеет выбирать день или неделю целиком. */
-export function Calendar({ mode, value, onChange, today }: Props) {
+export function Calendar({ mode, value, onChange, today, markedWeeks }: Props) {
   const [month, setMonth] = useState(() => startOfMonth(parseISO(value)))
   const gridStart = weekStartOf(month)
   const title = format(month, 'LLLL yyyy', { locale: ru })
@@ -74,7 +76,12 @@ export function Calendar({ mode, value, onChange, today }: Props) {
               <button
                 key={days[0].iso}
                 type="button"
-                className={cx('t-body-md', styles.week, selected && styles.selected)}
+                className={cx(
+                  't-body-md',
+                  styles.week,
+                  selected && styles.selected,
+                  markedWeeks?.includes(days[0].iso) && styles.marked,
+                )}
                 aria-pressed={selected}
                 aria-label={`Неделя ${formatWeekRange(monday)}`}
                 onClick={() => onChange(days[0].iso)}

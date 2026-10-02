@@ -1,4 +1,4 @@
-import { IconPencil, IconTrash } from '@tabler/icons-react'
+import { IconTrash } from '@tabler/icons-react'
 import { useState } from 'react'
 import { cx } from '../lib/cx'
 import { Checkbox } from './Checkbox'
@@ -14,7 +14,10 @@ type Props = {
   onDelete: () => void
 }
 
-/** Строка задачи или цели: чекбокс, текст, на hover иконки «редактировать» и «удалить». */
+/**
+ * Строка задачи или цели. Клик по строке (кроме чекбокса и корзины) включает
+ * переименование, корзина появляется при наведении.
+ */
 export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
   const [editing, setEditing] = useState(false)
 
@@ -24,7 +27,10 @@ export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
   }
 
   return (
-    <div className={cx(styles.item, done && styles.done)}>
+    <div
+      className={cx(styles.item, done && styles.done, editing && styles.editing)}
+      onClick={() => setEditing(true)}
+    >
       <Checkbox
         checked={done}
         onChange={onToggle}
@@ -38,29 +44,24 @@ export function ListItem({ title, done, onToggle, onRename, onDelete }: Props) {
           onBlur={save}
           onEscape={() => setEditing(false)}
         />
-      ) : done ? (
-        <span className={styles.title}>{title}</span>
       ) : (
-        <button type="button" className={styles.title} onClick={() => setEditing(true)}>
+        // Кнопка, а не просто текст: так переименование доступно и с клавиатуры.
+        <button type="button" className={styles.title} aria-label={`Переименовать: ${title}`}>
           {title}
         </button>
       )}
       {!editing && (
         <div className={styles.actions}>
           <IconButton
-            variant="ghost"
-            size="sm"
-            icon={<IconPencil aria-hidden />}
-            aria-label={`Редактировать: ${title}`}
-            onClick={() => setEditing(true)}
-          />
-          <IconButton
             tone="danger"
             variant="ghost"
             size="sm"
             icon={<IconTrash aria-hidden />}
             aria-label={`Удалить: ${title}`}
-            onClick={onDelete}
+            onClick={(event) => {
+              event.stopPropagation()
+              onDelete()
+            }}
           />
         </div>
       )}
