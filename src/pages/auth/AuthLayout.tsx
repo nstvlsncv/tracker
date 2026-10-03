@@ -51,7 +51,8 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, action, childr
           </div>
           {/* Вторая карточка: что это за сервис и кнопка, которая его показывает. */}
           <div className={styles.promo}>
-            <p className="t-body-sm">Недели, задачи, цели и привычки в одном месте</p>
+            {/* Неразрывные пробелы: «и» и «в» не остаются висеть в конце строки. */}
+            <p className="t-body-sm">Недели, задачи, цели и&nbsp;привычки в&nbsp;одном месте</p>
             {action}
           </div>
         </div>
