@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+import { cheer } from '../lib/cheer'
 import { cx } from '../lib/cx'
 import { useAfterMount } from '../lib/useAfterMount'
 import { Burst } from './Burst'
@@ -26,6 +28,10 @@ export function Donut({ value, size = 'sm' }: Props) {
   const ready = useAfterMount()
   // Кольцо дошло до 100% на глазах: короткий праздник.
   const burst = useBurst(value === 100)
+  // День закрыт на глазах: маскот тоже радуется.
+  useEffect(() => {
+    if (burst > 0) cheer()
+  }, [burst])
   const { diameter, stroke } = SIZES[size]
   const radius = (diameter - stroke) / 2
   const length = 2 * Math.PI * radius

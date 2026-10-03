@@ -3,19 +3,24 @@ import { parseISO } from 'date-fns'
 import { useAuth } from '../auth/useAuth'
 import { Button } from '../components/Button'
 import { Section } from '../components/Section'
-import { Segmented } from '../components/Segmented'
 import { CHANGELOG } from '../data/changelog'
 import { ACCENTS, setAccent, useAccent } from '../lib/accent'
 import { cx } from '../lib/cx'
 import { formatDateNumeric } from '../lib/dates'
 import { useSessionState } from '../lib/sessionState'
 import { setTheme, useTheme } from '../lib/theme'
+import type { Theme } from '../lib/theme'
 import { PageHeader } from '../layout/PageHeader'
 import { AccountSection } from './profile/AccountSection'
 import { DangerZone } from './profile/DangerZone'
 import { PasswordSection } from './profile/PasswordSection'
 import { SessionsSection } from './profile/SessionsSection'
 import styles from './Profile.module.css'
+
+const THEMES: Array<{ value: Theme; label: string; icon: typeof Sun }> = [
+  { value: 'light', label: 'Светлая', icon: Sun },
+  { value: 'dark', label: 'Тёмная', icon: Moon },
+]
 
 /** Экран Профиля: аккаунт, пароль, сессии, оформление, история версий и удаление аккаунта. */
 export function Profile() {
@@ -31,20 +36,35 @@ export function Profile() {
       <PageHeader title="Профиль" backTo=".." />
 
       <Section title="Оформление">
-        <div>
-          <Segmented
-            aria-label="Тема оформления"
-            value={theme}
-            onChange={(next, button) => {
-              // Новая тема расходится кругом из центра нажатой кнопки.
-              const rect = button.getBoundingClientRect()
-              setTheme(next, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
-            }}
-            options={[
-              { value: 'light', label: 'Светлая', icon: <Sun aria-hidden /> },
-              { value: 'dark', label: 'Тёмная', icon: <Moon aria-hidden /> },
-            ]}
-          />
+        {/* Тема выбирается так же, как акцентный цвет: кружками. */}
+        <div className={styles.accents}>
+          <span className={`t-caption ${styles.accentsLabel}`} id="theme-label">
+            Тема
+          </span>
+          <div className={styles.swatches} role="radiogroup" aria-labelledby="theme-label">
+            {THEMES.map(({ value, label, icon: Icon }) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={value === theme}
+                aria-label={label}
+                title={label}
+                className={cx(
+                  styles.swatch,
+                  styles[value],
+                  value === theme && styles.swatchSelected,
+                )}
+                onClick={(event) => {
+                  // Новая тема расходится кругом из центра нажатого кружка.
+                  const rect = event.currentTarget.getBoundingClientRect()
+                  setTheme(value, { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+                }}
+              >
+                <Icon aria-hidden />
+              </button>
+            ))}
+          </div>
         </div>
         {/* Акцентный цвет: им отмечено всё сделанное и текущее, в него же красится маскот. */}
         <div className={styles.accents}>

@@ -2,6 +2,7 @@ import { Plus } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { Button } from '../../components/Button'
 import { ConfirmModal } from '../../components/ConfirmModal'
+import { Mascot } from '../../components/Mascot'
 import { Section } from '../../components/Section'
 import { Skeleton } from '../../components/Skeleton'
 import { useToast } from '../../components/useToast'
@@ -120,7 +121,10 @@ export function Habits() {
       )}
 
       {store.status === 'ready' && habits.length === 0 && (
-        <p className={styles.placeholder}>Начни с одной привычки, остальные подтянутся</p>
+        <div className={styles.placeholder}>
+          <Mascot size={64} />
+          <p>Начни с одной привычки, остальные подтянутся</p>
+        </div>
       )}
 
       {store.status === 'ready' &&

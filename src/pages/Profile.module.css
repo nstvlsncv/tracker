@@ -76,3 +76,16 @@
     0 0 0 2px var(--bg-primary),
     0 0 0 4px var(--accent-default);
 }
+
+/* Кружки темы: светлый и тёмный, какими бы ни были тема и акцент сейчас. */
+.light {
+  border: 1px solid var(--core-neutral-300);
+  background: var(--core-base-white);
+  color: var(--core-neutral-900);
+}
+
+.dark {
+  border: 1px solid var(--core-neutral-700);
+  background: var(--core-neutral-890);
+  color: var(--core-base-white);
+}

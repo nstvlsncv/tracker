@@ -9,6 +9,7 @@ import { Checkbox } from '../../components/Checkbox'
 import { IconButton } from '../../components/IconButton'
 import { ItemList } from '../../components/ItemList'
 import { ListSkeleton } from '../../components/ListSkeleton'
+import { Mascot } from '../../components/Mascot'
 import { useRepeatDelete } from '../../components/RepeatDelete'
 import { Section } from '../../components/Section'
 import { StatCard } from '../../components/StatCard'
@@ -115,6 +116,8 @@ export function Home() {
           <User aria-hidden />
         </Link>
         <h1 className={`t-heading-1 ${styles.title}`}>
+          {/* На телефоне бокового меню нет: маскот живёт перед приветствием. */}
+          <Mascot size="0.9em" className={styles.mascot} />
           {greeting(now.getHours())}
           {profile?.name ? `, ${profile.name}` : ''}!
         </h1>

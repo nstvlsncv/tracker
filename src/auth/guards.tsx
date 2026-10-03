@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Outlet } from 'react-router'
 import { Button } from '../components/Button'
+import { Mascot } from '../components/Mascot'
 import { entranceHoldLeft } from '../lib/entrance'
 import { AppSkeleton } from '../layout/AppSkeleton'
 import { NETWORK_ERROR_MESSAGE } from '../lib/supabase'
@@ -12,6 +13,7 @@ function ConnectionError() {
   const { refreshProfile } = useAuth()
   return (
     <div className={styles.center}>
+      <Mascot size={64} mood="shy" />
       <p>{NETWORK_ERROR_MESSAGE}</p>
       <Button variant="secondary" onClick={refreshProfile}>
         Повторить

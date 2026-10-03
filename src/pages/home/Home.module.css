@@ -12,6 +12,22 @@
   margin: 0;
 }
 
+/* Маскот перед приветствием: только на телефоне, на компьютере он стоит в боковом меню. */
+.mascot {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .mascot {
+    display: inline-flex;
+    position: relative;
+    top: -0.08em;
+    margin-right: var(--space-sm);
+    /* По середине строчных букв: у круга с глазами своей базовой линии нет. */
+    vertical-align: middle;
+  }
+}
+
 /* Кнопка профиля: только на телефоне, в правом верхнем углу, рядом с приветствием. */
 .profile {
   display: none;
