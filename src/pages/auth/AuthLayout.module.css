@@ -104,7 +104,6 @@
   /* Имя того же серого, что вся подпись, лаймовое только подчёркивание. */
   border-radius: var(--radius-xs);
   color: inherit;
-  font-weight: var(--typography-caption-font-weight);
   text-decoration: underline;
   text-decoration-color: var(--highlight-default);
   text-underline-offset: 3px;
