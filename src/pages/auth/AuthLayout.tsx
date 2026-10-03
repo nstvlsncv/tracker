@@ -11,7 +11,7 @@ type Props = {
   shake?: number
   /** Вход выполнен: экран растворяется, пока открывается приложение. */
   leaving?: boolean
-  /** Кнопка в углу экрана («Посмотреть демо»). */
+  /** Кнопка в углу экрана, под строкой о сервисе («Посмотреть демо»). */
   corner?: ReactNode
   children: ReactNode
 }
@@ -37,14 +37,9 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, corner, childr
     <main className={cx(styles.page, leaving && styles.leaving)}>
       <DotField anchorRef={cardRef} />
       <div className={styles.content}>
-        <div className={styles.brand}>
-          <div className={`t-heading-2 ${styles.logo}`}>
-            <span className={styles.mark} aria-hidden />
-            Трекер
-          </div>
-          <p className={`t-body-lg ${styles.tagline}`}>
-            Недели, задачи, цели и привычки в одном месте
-          </p>
+        <div className={`t-heading-2 ${styles.logo}`}>
+          <span className={styles.mark} aria-hidden />
+          Трекер
         </div>
         <div ref={cardRef} className={styles.card}>
           <header className={styles.heading}>
@@ -54,7 +49,11 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, corner, childr
           {children}
         </div>
       </div>
-      {corner && <div className={styles.corner}>{corner}</div>}
+      {/* Что это за сервис и кнопка, которая его показывает. */}
+      <div className={`t-body-sm ${styles.corner}`}>
+        <p>Недели, задачи, цели и привычки в одном месте</p>
+        {corner}
+      </div>
       <footer className={`t-body-sm ${styles.footer}`}>
         Designed &amp; developed
         <br />

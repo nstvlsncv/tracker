@@ -22,6 +22,8 @@ export type AuthContextValue = {
   account: AccountApi | null
   /** Выйти на этом устройстве. Остальные сессии остаются. */
   signOut: () => void
+  /** Демо для гостей (/demo): нет смены пароля и удаления аккаунта, у выхода свой текст. */
+  demo?: boolean
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

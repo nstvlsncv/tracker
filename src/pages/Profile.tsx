@@ -17,7 +17,8 @@ import styles from './Profile.module.css'
 
 /** Экран Профиля: аккаунт, пароль, сессии, оформление, история версий и удаление аккаунта. */
 export function Profile() {
-  const { profile } = useAuth()
+  // В демо для гостей нет смены пароля и удаления аккаунта: пароля гость не знает.
+  const { profile, demo } = useAuth()
   const theme = useTheme()
   // В истории версий сразу видна только последняя, остальные открываются кнопкой.
   const [showAll, setShowAll] = useSessionState('profile.showAllReleases', false)
@@ -45,7 +46,7 @@ export function Profile() {
       </Section>
 
       <AccountSection />
-      <PasswordSection />
+      {!demo && <PasswordSection />}
       {/* После смены пароля другие сессии завершаются: список перечитывается заново. */}
       <SessionsSection key={profile?.passwordChangedAt} />
 
@@ -69,7 +70,7 @@ export function Profile() {
         )}
       </Section>
 
-      <DangerZone />
+      {!demo && <DangerZone />}
     </>
   )
 }

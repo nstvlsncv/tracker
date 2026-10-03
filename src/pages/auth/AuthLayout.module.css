@@ -22,32 +22,28 @@
   width: 100%;
 }
 
-/* Название и строка о том, что это за сервис. */
-.brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-sm);
-  text-align: center;
-}
-
-.tagline {
-  color: var(--text-primary);
-}
-
-/* Кнопка в правом нижнем углу экрана. На телефоне там подпись, поэтому она в правом верхнем. */
+/* Правый нижний угол экрана: строка о сервисе (набрана как подпись внизу) и кнопка демо. */
 .corner {
   position: fixed;
   right: var(--space-lg);
   bottom: var(--space-lg);
   z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-sm);
+  max-width: 220px;
+  color: var(--text-secondary);
+  text-align: right;
 }
 
-@media (max-width: 640px) {
+/* Планшет и телефон: в углу тесно, блок встаёт в поток под формой, по центру. */
+@media (max-width: 1024px) {
   .corner {
-    top: var(--space-md);
-    right: var(--space-md);
-    bottom: auto;
+    position: static;
+    align-items: center;
+    max-width: 280px;
+    text-align: center;
   }
 }
 
@@ -115,8 +111,7 @@
 /* Телефон: блок ближе к верху, поля карточки меньше. */
 @media (max-width: 640px) {
   .page {
-    /* Над названием в углу стоит кнопка «Посмотреть демо»: под неё нужно место. */
-    padding-top: calc(var(--space-2xl) + var(--space-lg));
+    padding-top: var(--space-2xl);
   }
 
   .card {

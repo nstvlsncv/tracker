@@ -66,6 +66,7 @@ export function DevPreview({ base = '/dev/app', visitor = false }: Props) {
       profile,
       refreshProfile: async () => {},
       account,
+      demo: visitor,
       signOut: () => {
         if (visitor) navigate('/login')
         else toast({ message: 'В демо-режиме выхода нет' })
