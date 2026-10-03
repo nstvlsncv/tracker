@@ -169,15 +169,17 @@ export function Login() {
             }}
           />
         </div>
-        <Button type="submit" size="lg" fullWidth pending={busy}>
-          Войти
-        </Button>
-        <p className={styles.alt}>
-          Нет аккаунта?{' '}
-          <a className={styles.link} href={AUTHOR_URL} target="_blank" rel="noreferrer">
-            Напиши мне
-          </a>
-        </p>
+        <div className={styles.submit}>
+          <Button type="submit" size="lg" fullWidth pending={busy}>
+            Войти
+          </Button>
+          <p className={styles.alt}>
+            Нет аккаунта?{' '}
+            <a className={styles.link} href={AUTHOR_URL} target="_blank" rel="noreferrer">
+              Напиши мне
+            </a>
+          </p>
+        </div>
       </form>
     </AuthLayout>
   )
