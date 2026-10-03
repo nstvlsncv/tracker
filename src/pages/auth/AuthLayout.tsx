@@ -28,7 +28,7 @@ export const AUTHOR_URL = 'https://t.me/nst_vlsncv'
 /** Каркас экрана входа: без сайдбара, логотип и карточка 450px на 120px ниже верхнего края. */
 export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, children }: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
-  // Пятно точек стоит под серединой обеих карточек: формы и демо.
+  // Пятно точек стоит под серединой колонки с формой и карточкой демо.
   const cardsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -42,6 +42,13 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
   return (
     <main className={cx(styles.page, leaving && styles.leaving)} data-accent="lime">
       <DotField anchorRef={cardsRef} />
+      {/* Компьютер: левая половина экрана отдана ролику, справа название, форма и подпись. */}
+      <aside className={styles.stage}>
+        <div className={styles.stageReel}>
+          <Showreel />
+        </div>
+      </aside>
+      <div className={styles.side}>
       <div className={styles.content}>
         <div className={`t-heading-2 ${styles.logo}`}>
           <Mascot size="1.3em" mood={mood} />
@@ -57,13 +64,9 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
           </div>
           {/* Вторая карточка: что это за сервис и кнопка, которая его показывает. */}
           <div className={styles.promo}>
-            {/* Ролик из настоящих деталей трекера: играет сам, по кругу. */}
-            <Showreel />
-            <div className={styles.promoRow}>
-              {/* Неразрывные пробелы: «и» и «в» не остаются висеть в конце строки. */}
-              <p className="t-body-sm">Недели, задачи, цели и&nbsp;привычки в&nbsp;одном месте</p>
-              {action}
-            </div>
+            {/* Неразрывные пробелы: «и» и «в» не остаются висеть в конце строки. */}
+            <p className="t-body-sm">Недели, задачи, цели и&nbsp;привычки в&nbsp;одном месте</p>
+            {action}
           </div>
         </div>
       </div>
@@ -75,6 +78,7 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
           Anastasia
         </a>
       </footer>
+      </div>
     </main>
   )
 }

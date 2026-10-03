@@ -231,16 +231,6 @@
     0 0 0 4px var(--accent-default);
 }
 
-@media (max-width: 640px) {
-  .reel {
-    height: 216px;
-  }
-
-  .day {
-    gap: var(--space-md);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .scene {
     animation: none;
