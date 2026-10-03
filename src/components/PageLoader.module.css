@@ -1,37 +1,9 @@
-/* Занимает всё свободное место экрана, маскот стоит по центру. */
+/* Занимает всё свободное место экрана, пока содержимое не готово. */
 .loader {
-  display: flex;
   flex: 1;
-  align-items: center;
-  justify-content: center;
   min-height: 240px;
 }
 
 .screen {
   min-height: 100dvh;
-}
-
-/* Маскот проявляется и мягко покачивается, пока ждём. */
-.mascot {
-  animation:
-    loader-in 200ms ease-out,
-    loader-bob 1.2s ease-in-out infinite;
-}
-
-@keyframes loader-in {
-  from {
-    opacity: 0;
-  }
-}
-
-@keyframes loader-bob {
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mascot {
-    animation: none;
-  }
 }
