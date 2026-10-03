@@ -8,8 +8,8 @@ import { buttonClassName } from '../../components/buttonStyles'
 import { Checkbox } from '../../components/Checkbox'
 import { IconButton } from '../../components/IconButton'
 import { ItemList } from '../../components/ItemList'
-import { ListSkeleton } from '../../components/ListSkeleton'
 import { Mascot } from '../../components/Mascot'
+import { PageLoader } from '../../components/PageLoader'
 import { useRepeatDelete } from '../../components/RepeatDelete'
 import { Section } from '../../components/Section'
 import { StatCard } from '../../components/StatCard'
@@ -101,42 +101,55 @@ export function Home() {
     />
   )
 
+  const header = (
+    <header className={styles.header}>
+      {/* Только на телефоне: Профиля нет в нижней панели, вход в него отсюда. */}
+      <Link
+        to="profile"
+        relative="path"
+        className={cx(buttonClassName({ variant: 'secondary', iconOnly: true }), styles.profile)}
+        aria-label="Профиль"
+      >
+        <User aria-hidden />
+      </Link>
+      <h1 className={`t-heading-1 ${styles.title}`}>
+        {/* На телефоне бокового меню нет: маскот живёт перед приветствием. */}
+        <Mascot
+          size="0.9em"
+          className={styles.mascot}
+          mood={overdue.length > 0 ? 'sad' : 'calm'}
+        />
+        {greeting(now.getHours())}
+        {profile?.name ? `, ${profile.name}` : ''}!
+      </h1>
+      <p className={`t-body-lg ${styles.date}`} aria-label={`${day} · ${hours}:${minutes}`}>
+        <span aria-hidden>
+          {day} · {hours}
+          {/* Двоеточие мигает раз в секунду, как на настоящих часах. */}
+          <span className={styles.colon}>:</span>
+          {minutes}
+        </span>
+      </p>
+    </header>
+  )
+
+  // Экран появляется целиком, когда готовы и задачи, и привычки: по частям он дёргался бы.
+  if (!ready || !habitsReady) {
+    return (
+      <>
+        {header}
+        <PageLoader />
+      </>
+    )
+  }
+
   return (
     <>
-      <header className={styles.header}>
-        {/* Только на телефоне: Профиля нет в нижней панели, вход в него отсюда. */}
-        <Link
-          to="profile"
-          relative="path"
-          className={cx(buttonClassName({ variant: 'secondary', iconOnly: true }), styles.profile)}
-          aria-label="Профиль"
-        >
-          <User aria-hidden />
-        </Link>
-        <h1 className={`t-heading-1 ${styles.title}`}>
-          {/* На телефоне бокового меню нет: маскот живёт перед приветствием. */}
-          <Mascot
-            size="0.9em"
-            className={styles.mascot}
-            mood={overdue.length > 0 ? 'sad' : 'calm'}
-          />
-          {greeting(now.getHours())}
-          {profile?.name ? `, ${profile.name}` : ''}!
-        </h1>
-        <p className={`t-body-lg ${styles.date}`} aria-label={`${day} · ${hours}:${minutes}`}>
-          <span aria-hidden>
-            {day} · {hours}
-            {/* Двоеточие мигает раз в секунду, как на настоящих часах. */}
-            <span className={styles.colon}>:</span>
-            {minutes}
-          </span>
-        </p>
-      </header>
+      {header}
 
       <div className={styles.stats}>
         <StatCard
           variant="highlight"
-          loading={!ready}
           // День без задач показывает 0%, как на Неделе.
           value={`${progress(tasks) ?? 0}%`}
           label="прогресс"
@@ -144,17 +157,14 @@ export function Home() {
           celebrate={progress(tasks) === 100}
         />
         <StatCard
-          loading={!ready}
           value={`${countDone(goals)}/${goals.length}`}
           label="цели"
         />
         <StatCard
-          loading={!ready}
           value={`${countDone(tasks)}/${tasks.length}`}
           label="задачи"
         />
         <StatCard
-          loading={!habitsReady}
           value={`${habitsDoneToday}/${habits.length}`}
           label="привычки"
         />
@@ -164,9 +174,7 @@ export function Home() {
         title="Цели недели"
         action={addButton('Добавить цель', 'goal')}
       >
-        {!ready ? (
-          <ListSkeleton rows={3} />
-        ) : goals.length > 0 ? (
+        {goals.length > 0 ? (
           <ItemList
             items={goals}
             burst
@@ -190,9 +198,7 @@ export function Home() {
         title="Задачи на сегодня"
         action={addButton('Добавить задачу', 'task')}
       >
-        {!ready ? (
-          <ListSkeleton rows={3} />
-        ) : tasks.length > 0 ? (
+        {tasks.length > 0 ? (
           <ItemList
             items={tasks}
             onToggle={planner.toggleTask}
@@ -233,9 +239,7 @@ export function Home() {
         title="Привычки сегодня"
         action={addButton('Добавить привычку', 'habit')}
       >
-        {!habitsReady ? (
-          <ListSkeleton rows={3} />
-        ) : habits.length > 0 ? (
+        {habits.length > 0 ? (
           <ul className={styles.habits}>
             {habits.map((habit) => {
               const checks = checksOf(habit.id)

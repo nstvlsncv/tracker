@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react'
 import { Navigate, Outlet } from 'react-router'
 import { Button } from '../components/Button'
 import { Mascot } from '../components/Mascot'
+import { PageLoader } from '../components/PageLoader'
 import { entranceHoldLeft } from '../lib/entrance'
-import { AppSkeleton } from '../layout/AppSkeleton'
 import { NETWORK_ERROR_MESSAGE } from '../lib/supabase'
-import { LoginSkeleton } from '../pages/auth/LoginSkeleton'
 import { useAuth } from './useAuth'
 import styles from './guards.module.css'
 
@@ -25,8 +24,8 @@ function ConnectionError() {
 /** Экраны после входа. Гость уходит на вход. */
 export function ProtectedRoute() {
   const { status } = useAuth()
-  // Пока проверяется вход, показываем силуэт приложения, а не пустую страницу.
-  if (status === 'loading') return <AppSkeleton />
+  // Пока проверяется вход: чистый экран, а если ждать приходится дольше, маскот по центру.
+  if (status === 'loading') return <PageLoader screen />
   if (status === 'error') return <ConnectionError />
   if (status === 'guest') return <Navigate to="/login" replace />
   return <Outlet />
@@ -44,7 +43,7 @@ export function GuestRoute() {
     return () => clearTimeout(timer)
   }, [hold])
 
-  if (status === 'loading') return <LoginSkeleton />
+  if (status === 'loading') return <PageLoader screen />
   if (status === 'error') return <ConnectionError />
   if (status === 'authenticated' && !hold) return <Navigate to="/" replace />
   return <Outlet />

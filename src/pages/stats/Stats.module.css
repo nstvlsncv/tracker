@@ -62,18 +62,14 @@
   text-decoration: none;
 }
 
+/* Значение над столбиком: мелко и строго по центру столбика, даже если шире него. */
 .value {
   height: 16px;
   color: var(--text-primary);
+  font-size: var(--typography-tab-font-size);
   line-height: 16px;
-  visibility: hidden;
-}
-
-/* Подпись шире столбика. У крайнего правого она прижата к правому краю, чтобы не вылезать
-   за секцию. */
-.column:last-child .value {
-  align-self: flex-end;
   white-space: nowrap;
+  visibility: hidden;
 }
 
 .shown,

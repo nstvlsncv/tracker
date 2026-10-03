@@ -4,8 +4,8 @@ import { Link } from 'react-router'
 import { Button } from '../../components/Button'
 import { Mascot } from '../../components/Mascot'
 import type { MascotMood } from '../../components/Mascot'
+import { PageLoader } from '../../components/PageLoader'
 import { Section } from '../../components/Section'
-import { Skeleton } from '../../components/Skeleton'
 import { StatCard } from '../../components/StatCard'
 import type { Goal, Task } from '../../data/types'
 import { useHabits } from '../../data/useHabits'
@@ -96,8 +96,18 @@ export function Stats() {
     )
   }
 
-  const ready = history !== null
-  const summary = summarizeWeeks(history?.tasks ?? [], history?.goals ?? [], weeks)
+  const habitsLoading = habitsStore.status === 'loading'
+  // Экран появляется целиком, когда готово всё: по частям он дёргался бы.
+  if (history === null || habitsLoading) {
+    return (
+      <>
+        <PageHeader title="Итоги" />
+        <PageLoader />
+      </>
+    )
+  }
+
+  const summary = summarizeWeeks(history.tasks, history.goals, weeks)
   const tasksDone = summary.reduce((sum, week) => sum + week.done, 0)
   const goalsDone = summary.reduce((sum, week) => sum + week.goalsDone, 0)
   const bestWeek = Math.max(0, ...summary.map((week) => week.percent ?? 0))
@@ -107,7 +117,6 @@ export function Stats() {
   const thisWeek = summary[summary.length - 1]
   const verdict = weekVerdict(thisWeek.percent)
 
-  const habitsReady = habitsStore.status === 'ready'
   const habits = habitsStore.habits.map((habit) => {
     const checks = habitsStore.checks[habit.id] ?? NO_CHECKS
     const schedule = scheduleOf(habit)
@@ -128,8 +137,7 @@ export function Stats() {
     <>
       <PageHeader title="Итоги" />
 
-      {ready && (
-        <div className={styles.verdict}>
+      <div className={styles.verdict}>
           <Mascot size={72} mood={verdict.mood} />
           <div className={styles.verdictText}>
             <p className="t-heading-4">{verdict.title}</p>
@@ -139,24 +147,20 @@ export function Stats() {
                 : `На этой неделе выполнено ${thisWeek.done} из ${thisWeek.total} задач`}
             </p>
           </div>
-        </div>
-      )}
+      </div>
 
       <div className={styles.stats}>
-        <StatCard variant="highlight" loading={!ready} value={tasksDone} label="задач выполнено" />
-        <StatCard loading={!ready} value={goalsDone} label="целей выполнено" />
-        <StatCard loading={!ready} value={`${bestWeek}%`} label="лучшая неделя" />
+        <StatCard variant="highlight" value={tasksDone} label="задач выполнено" />
+        <StatCard value={goalsDone} label="целей выполнено" />
+        <StatCard value={`${bestWeek}%`} label="лучшая неделя" />
         <StatCard
-          loading={!habitsReady}
           value={bestStreak}
           label={`${pluralize(bestStreak, 'день', 'дня', 'дней')}, лучшая серия`}
         />
       </div>
 
       <Section title={`Задачи за ${WEEKS} недель`}>
-        {!ready ? (
-          <Skeleton height={180} />
-        ) : !hasTasks ? (
+        {!hasTasks ? (
           <p className={styles.hint}>Здесь появится график, когда на неделях будут задачи</p>
         ) : (
           <>
@@ -208,9 +212,7 @@ export function Stats() {
       </Section>
 
       <Section title={`Привычки за ${HABIT_DAYS} дней`}>
-        {!habitsReady ? (
-          <Skeleton height={120} />
-        ) : habits.length === 0 ? (
+        {habits.length === 0 ? (
           <p className={styles.hint}>Здесь появятся привычки, когда заведёшь первую</p>
         ) : (
           <ul className={styles.habits}>

@@ -5,9 +5,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { AuthProvider } from './auth/AuthProvider'
 import { GuestRoute, ProtectedRoute } from './auth/guards'
 import { ToastProvider } from './components/Toast'
-import { AppSkeleton } from './layout/AppSkeleton'
+import { PageLoader } from './components/PageLoader'
 import { Login } from './pages/auth/Login'
-import { LoginSkeleton } from './pages/auth/LoginSkeleton'
 
 /** Все иконки приложения: набор Phosphor, начертание bold, чтобы держать вес рядом с Unbounded. */
 const ICONS = { weight: 'bold' } as const
@@ -41,8 +40,8 @@ export default function App() {
       <ToastProvider>
         <AuthProvider>
           <BrowserRouter>
-            {/* Пока кусок кода в пути, показывается тот же силуэт, что и при загрузке данных. */}
-            <Suspense fallback={<AppSkeleton />}>
+            {/* Пока кусок кода в пути: тот же экран загрузки, что и при проверке входа. */}
+            <Suspense fallback={<PageLoader screen />}>
             <Routes>
               <Route element={<GuestRoute />}>
                 <Route path="/login" element={<Login />} />
@@ -64,8 +63,6 @@ export default function App() {
               {import.meta.env.DEV && <Route path="/dev" element={<Showcase />} />}
               {import.meta.env.DEV && <Route path="/dev/og" element={<OgImage />} />}
               {import.meta.env.DEV && <Route path="/dev/app/*" element={<DevPreview />} />}
-            {import.meta.env.DEV && <Route path="/dev/skeleton/app" element={<AppSkeleton />} />}
-            {import.meta.env.DEV && <Route path="/dev/skeleton/login" element={<LoginSkeleton />} />}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             </Suspense>

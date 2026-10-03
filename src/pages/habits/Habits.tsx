@@ -3,8 +3,8 @@ import { useState } from 'react'
 import { Button } from '../../components/Button'
 import { ConfirmModal } from '../../components/ConfirmModal'
 import { Mascot } from '../../components/Mascot'
+import { PageLoader } from '../../components/PageLoader'
 import { Section } from '../../components/Section'
-import { Skeleton } from '../../components/Skeleton'
 import { useToast } from '../../components/useToast'
 import type { Habit, HabitSchedule } from '../../data/types'
 import { useHabits } from '../../data/useHabits'
@@ -98,16 +98,7 @@ export function Habits() {
         }
       />
 
-      {store.status === 'loading' &&
-        [0, 1, 2].map((row) => (
-          <div key={row} className={styles.skeleton}>
-            <Skeleton width={32} height={32} round />
-            <div className={styles.skeletonText}>
-              <Skeleton width={180} height={24} />
-              <Skeleton width={260} />
-            </div>
-          </div>
-        ))}
+      {store.status === 'loading' && <PageLoader />}
 
       {store.status === 'error' && (
         <div className={styles.empty}>

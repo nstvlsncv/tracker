@@ -6,9 +6,8 @@ import { AddItem } from '../../components/AddItem'
 import { Button } from '../../components/Button'
 import { CalendarPicker } from '../../components/CalendarPicker'
 import { ItemList } from '../../components/ItemList'
-import { ListSkeleton } from '../../components/ListSkeleton'
+import { PageLoader } from '../../components/PageLoader'
 import { Section } from '../../components/Section'
-import { Skeleton } from '../../components/Skeleton'
 import { StatCard } from '../../components/StatCard'
 import { useToast } from '../../components/useToast'
 import type { Repeat } from '../../data/types'
@@ -147,12 +146,12 @@ export function Week() {
             </Button>
           </div>
         </Section>
+      ) : !ready ? (
+        <PageLoader />
       ) : (
         <>
           <Section title="Цели недели">
-            {!ready ? (
-              <ListSkeleton rows={3} />
-            ) : goals.length > 0 ? (
+            {goals.length > 0 ? (
               <ItemList
                 items={goals}
                 burst
@@ -163,11 +162,7 @@ export function Week() {
             ) : (
               <p className={styles.placeholder}>Поставь 1–3 цели на неделю</p>
             )}
-            {ready ? (
-              <AddItem label="Добавить цель" onAdd={(title) => planner.addGoal(weekStart, title)} />
-            ) : (
-              <Skeleton width={160} height={40} />
-            )}
+            <AddItem label="Добавить цель" onAdd={(title) => planner.addGoal(weekStart, title)} />
           </Section>
 
           <div
@@ -177,46 +172,37 @@ export function Week() {
           >
             {DAYS.map((offset) => {
               const date = shiftDate(weekStart, offset)
-              return ready ? (
+              return (
                 <DayCard
                   key={date}
                   date={date}
                   isToday={date === today}
                   tasks={tasks.filter((task) => task.date === date)}
                 />
-              ) : (
-                <div key={date} className={styles.daySkeleton}>
-                  <Skeleton width={40} />
-                  <div className={styles.donutSkeleton}>
-                    <Skeleton width={150} height={150} round />
-                  </div>
-                  <ListSkeleton rows={2} />
-                  <Skeleton width={180} height={40} />
-                </div>
               )
             })}
           </div>
 
           {/* Заметка появляется, когда неделя загружена и в базе есть место для заметок. */}
-          {ready && planner.notes && <WeekNote key={weekStart} weekStart={weekStart} />}
+          {planner.notes && <WeekNote key={weekStart} weekStart={weekStart} />}
 
           <div className={styles.stats}>
-            <StatCard loading={!ready} value={stats.total} label="всего задач" />
-            <StatCard loading={!ready} value={stats.done} label="выполнено" />
-            <StatCard loading={!ready} value={stats.remaining} label="осталось" />
+            <StatCard value={stats.total} label="всего задач" />
+            <StatCard value={stats.done} label="выполнено" />
+            <StatCard value={stats.remaining} label="осталось" />
             <StatCard
-              loading={!ready}
+             
               value={stats.averageProgress !== null ? `${stats.averageProgress}%` : '—'}
               label="ср. прогресс"
             />
             <StatCard
-              loading={!ready}
+             
               value={
                 stats.productiveDay ? formatWeekdayShort(parseISO(stats.productiveDay)) : '—'
               }
               label="лучший день"
             />
-            <StatCard loading={!ready} value={stats.goalsDone} label="вып. целей" />
+            <StatCard value={stats.goalsDone} label="вып. целей" />
           </div>
         </>
       )}
