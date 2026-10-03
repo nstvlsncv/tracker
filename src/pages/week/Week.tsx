@@ -148,6 +148,7 @@ export function Week() {
             ) : goals.length > 0 ? (
               <ItemList
                 items={goals}
+                burst
                 onToggle={planner.toggleGoal}
                 onRename={planner.renameGoal}
                 onDelete={planner.deleteGoal}

@@ -19,6 +19,8 @@ type Props = {
   onDelete: (id: string) => void
   /** Перенос на другой день для задачи с этим id. undefined: переносить нельзя или некуда. */
   moveOf?: (id: string) => MoveAction | undefined
+  /** Салют на каждой отметке (цели). У задач его нет: там празднует прогресс дня. */
+  burst?: boolean
 }
 
 const MOVE_DURATION_MS = 200
@@ -28,7 +30,7 @@ const FADE_DURATION_MS = 180
  * Список задач или целей. Невыполненные сверху. Строки не прыгают: при отметке элемент
  * переезжает на новое место, новая строка проявляется, удалённая рассыпается в пыль.
  */
-export function ItemList({ items, onToggle, onRename, onDelete, moveOf }: Props) {
+export function ItemList({ items, onToggle, onRename, onDelete, moveOf, burst }: Props) {
   const listRef = useRef<HTMLUListElement>(null)
   // Где стояла каждая строка при прошлой отрисовке: от этого считается сдвиг.
   const tops = useRef<Map<string, number> | null>(null)
@@ -138,6 +140,7 @@ export function ItemList({ items, onToggle, onRename, onDelete, moveOf }: Props)
             onRename={(title) => onRename(item.id, title)}
             onDelete={() => remove(item.id)}
             move={item.isDone ? undefined : moveOf?.(item.id)}
+            burst={burst}
           />
         </li>
       ))}

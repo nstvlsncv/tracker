@@ -64,6 +64,8 @@
 .habits {
   display: flex;
   flex-direction: column;
+  /* Как в списках задач и целей: между строками 4px. */
+  gap: var(--space-xs);
   margin: 0;
   padding: 0;
   list-style: none;

@@ -19,6 +19,8 @@ type Props = {
   onDelete: () => void
   /** Есть у невыполненных задач. У целей и выполненных задач переноса нет. */
   move?: MoveAction
+  /** Салют при отметке (цели). */
+  burst?: boolean
 }
 
 /** Сенсорный экран: кнопок в строке нет, действия открываются свайпом. */
@@ -41,7 +43,7 @@ type Gesture = { x: number; y: number; base: number; offset: number; axis: 'x' |
  * перенос. Короткий свайп показывает кнопку, длинный действует сразу: влево удаляет,
  * вправо открывает то же меню с днями шторкой (как и нажатие на кнопку переноса).
  */
-export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Props) {
+export function ListItem({ title, done, onToggle, onRename, onDelete, move, burst }: Props) {
   const [editing, setEditing] = useState(false)
   const [open, setOpen] = useState<'delete' | 'move' | null>(null)
   const swipeRef = useRef<HTMLDivElement>(null)
@@ -179,6 +181,7 @@ export function ListItem({ title, done, onToggle, onRename, onDelete, move }: Pr
       >
         <Checkbox
           checked={done}
+          burst={burst}
           onChange={onToggle}
           aria-label={done ? `Снять отметку: ${title}` : `Отметить: ${title}`}
         />
