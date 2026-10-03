@@ -27,6 +27,7 @@ export function ConfirmModal({ title, children, confirmLabel, onConfirm, onClose
   return (
     <Modal
       open
+      size="sm"
       title={title}
       onClose={onClose}
       footer={

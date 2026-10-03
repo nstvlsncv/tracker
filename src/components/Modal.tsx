@@ -2,6 +2,7 @@ import { X } from '@phosphor-icons/react'
 import { useEffect, useId, useLayoutEffect, useRef } from 'react'
 import type { ReactNode, TouchEvent } from 'react'
 import { createPortal } from 'react-dom'
+import { cx } from '../lib/cx'
 import { IconButton } from './IconButton'
 import styles from './Modal.module.css'
 
@@ -14,6 +15,8 @@ type Props = {
   footer?: ReactNode
   /** Действие слева внизу (например, «Архивировать»). */
   footerStart?: ReactNode
+  /** md 650px: формы. sm 450px: подтверждения, где только вопрос и две кнопки. */
+  size?: 'md' | 'sm'
 }
 
 /** Когда модалка показывается шторкой снизу. */
@@ -29,11 +32,11 @@ const CLOSE_MS = 180
 const FOCUSABLE = 'a[href], button:not(:disabled), input:not(:disabled), [tabindex]:not([tabindex="-1"])'
 
 /**
- * Карточка 650px по центру, на 120px ниже верхнего края. Крестик вынесен за карточку,
+ * Карточка 650px (подтверждения 450px) по центру, на 120px ниже верхнего края. Крестик вынесен за карточку,
  * справа сверху. Внутреннего скролла нет: если контент не помещается, скроллится подложка.
  * На телефоне вместо карточки шторка: выезжает снизу и закрывается свайпом вниз.
  */
-export function Modal({ open, title, onClose, children, footer, footerStart }: Props) {
+export function Modal({ open, title, onClose, children, footer, footerStart, size = 'md' }: Props) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const titleId = useId()
   const onCloseRef = useRef(onClose)
@@ -150,7 +153,7 @@ export function Modal({ open, title, onClose, children, footer, footerStart }: P
     >
       <div
         ref={dialogRef}
-        className={styles.dialog}
+        className={cx(styles.dialog, size === 'sm' && styles.small)}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

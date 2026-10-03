@@ -63,6 +63,7 @@ function DeleteAccountModal({ onClose }: { onClose: () => void }) {
   return (
     <Modal
       open
+      size="sm"
       title="Удалить аккаунт?"
       onClose={onClose}
       footer={
