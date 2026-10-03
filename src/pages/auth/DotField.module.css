@@ -7,3 +7,10 @@
   color: var(--border-default);
   pointer-events: none;
 }
+
+/* Планшет и телефон: точек нет, фон чистый. */
+@media (max-width: 1024px), (hover: none) {
+  .canvas {
+    display: none;
+  }
+}

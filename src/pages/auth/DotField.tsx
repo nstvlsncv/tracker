@@ -9,15 +9,17 @@ const MAX_RADIUS = 2.6
 const FADE = 1.4 // насколько быстро точки бледнеют к краю пятна
 const EASE = 0.12 // доля пути до курсора за кадр: чем меньше, тем плавнее догоняет
 
+/** Планшет и телефон: точек нет вовсе (канвас скрыт и в CSS). */
+const TOUCH_QUERY = '(max-width: 1024px), (hover: none)'
 /** Когда пятно не следует за указателем. */
-const STILL_QUERY = '(max-width: 1024px), (hover: none), (prefers-reduced-motion: reduce)'
+const STILL_QUERY = '(prefers-reduced-motion: reduce)'
 
 type Point = { x: number; y: number }
 
 /**
  * Фон экрана входа: сетка точек, которые видны пятном. Сначала пятно стоит под формой,
  * при движении курсора плавно следует за ним, а когда курсор уходит из окна, возвращается.
- * На планшетах и телефонах пятно неподвижно.
+ * На планшетах и телефонах точек нет: фон чистый.
  */
 export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | null> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -25,7 +27,7 @@ export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | nul
   useEffect(() => {
     const canvas = canvasRef.current
     const context = canvas?.getContext('2d')
-    if (!canvas || !context) return
+    if (!canvas || !context || window.matchMedia(TOUCH_QUERY).matches) return
 
     let width = 0
     let height = 0
@@ -107,8 +109,7 @@ export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | nul
     })
     if (anchorRef.current) observer.observe(anchorRef.current)
 
-    // На планшетах и телефонах пятно стоит под формой и не двигается: там нет курсора,
-    // а пятно, прыгающее за каждым касанием, только мешает.
+    // При отключённых в системе анимациях пятно стоит под формой и не двигается.
     const still = window.matchMedia(STILL_QUERY).matches
     if (!still) {
       window.addEventListener('pointermove', onMove)
