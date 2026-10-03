@@ -63,8 +63,7 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, action, childr
         by{' '}
         <a className={styles.author} href={AUTHOR_URL} target="_blank" rel="noreferrer">
           Anastasia
-        </a>{' '}
-        with love
+        </a>
       </footer>
     </main>
   )

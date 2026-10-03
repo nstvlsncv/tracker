@@ -101,10 +101,9 @@
 }
 
 .author {
-  /* Имя тёмное, лаймовое только подчёркивание: плашка перетягивала внимание,
-     а лаймовый текст на белом не читался. */
+  /* Имя того же серого, что вся подпись, лаймовое только подчёркивание. */
   border-radius: var(--radius-xs);
-  color: var(--text-primary);
+  color: inherit;
   font-weight: var(--typography-caption-font-weight);
   text-decoration: underline;
   text-decoration-color: var(--highlight-default);
@@ -126,7 +125,8 @@
   /* Первый экран занимают название, форма и, у самого низа, карточка с демо.
      Подпись стоит ниже, до неё нужно прокрутить. */
   .content {
-    min-height: calc(100dvh - var(--space-2xl) - var(--space-md));
+    /* 16px от низа видимой области; на айфоне ещё и выше полоски «домой». */
+    min-height: calc(100dvh - var(--space-2xl) - var(--space-md) - env(safe-area-inset-bottom, 0px));
   }
 
   .cards {
