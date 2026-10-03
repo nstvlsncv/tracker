@@ -1,24 +1,35 @@
+/* Внешний элемент держит размер и взгляд (--look-x, --look-y). Он не пересоздаётся. */
 .mascot {
   position: relative;
   display: inline-flex;
   flex: none;
-  align-items: center;
-  justify-content: center;
   width: var(--size);
   height: var(--size);
   border-radius: var(--radius-full);
-  background: var(--highlight-default);
-  cursor: pointer;
-  transition:
-    background-color var(--transition-fast),
-    transform var(--transition-press);
 }
 
-.mascot:active {
+.alive {
+  cursor: pointer;
+  transition: transform var(--transition-press);
+}
+
+.alive:active {
   transform: scale(0.9);
 }
 
-/* Глаза стоят чуть выше центра и вместе сдвигаются вслед за курсором. */
+/* Лицо: сам круг с глазами. Пересоздаётся на каждую реакцию, чтобы анимация шла заново. */
+.face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--highlight-default);
+  transition: background-color var(--transition-fast);
+}
+
+/* Глаза стоят чуть выше центра и вместе сдвигаются вслед за взглядом. */
 .eyes {
   display: flex;
   gap: calc(var(--size) * 0.16);
@@ -50,7 +61,7 @@
 
 /* При наведении глаза округляются: заметил. */
 @media (hover: hover) {
-  .mascot:hover .eye {
+  .alive:hover .eye {
     height: calc(var(--size) * 0.26);
   }
 }
@@ -65,6 +76,24 @@
 .shy .eye {
   transform: scaleY(0.12);
   animation: none;
+}
+
+/* Грустит: глаза ниже и домиком, внутренние края подняты. */
+.sad .eyes {
+  margin-top: calc(var(--size) * 0.06);
+}
+
+.sad .eye {
+  height: calc(var(--size) * 0.18);
+  animation: none;
+}
+
+.sad .eye:first-child {
+  transform: rotate(24deg);
+}
+
+.sad .eye:last-child {
+  transform: rotate(-24deg);
 }
 
 /* Радуется: глаза щурятся, а сам подпрыгивает. */

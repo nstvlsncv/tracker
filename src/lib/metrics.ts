@@ -68,6 +68,26 @@ export function weekAnalytics(
   }
 }
 
+/** За сколько прошедших дней невыполненные задачи считаются «оставшимися с прошлых дней». */
+export const OVERDUE_DAYS = 7
+
+type OverdueCandidate = Checkable & { date: string; ruleId?: string | null }
+
+/**
+ * Невыполненные задачи последних дней: их предлагают перенести на сегодня, и из-за них
+ * грустит маскот. Повторяющиеся не в счёт: у них на сегодня и так есть своя задача.
+ */
+export function overdueTasks<T extends OverdueCandidate>(tasks: T[], today: string): T[] {
+  const from = shiftDate(today, -OVERDUE_DAYS)
+  return tasks.filter(
+    (task) => !task.isDone && !task.ruleId && task.date < today && task.date >= from,
+  )
+}
+
+export function hasOverdue(tasks: OverdueCandidate[], today: string): boolean {
+  return overdueTasks(tasks, today).length > 0
+}
+
 /**
  * Подряд идущие выполненные дни, заканчивая сегодня. Если сегодня ещё не отмечено,
  * серия считается до вчера включительно и не обнуляется до конца дня.

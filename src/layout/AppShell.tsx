@@ -9,8 +9,11 @@ import {
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
 import { Mascot } from '../components/Mascot'
+import { usePlanner } from '../data/usePlanner'
 import { cx } from '../lib/cx'
 import { takeEntrance } from '../lib/entrance'
+import { hasOverdue } from '../lib/metrics'
+import { useToday } from '../lib/useToday'
 import { recall, remember } from '../lib/sessionState'
 import { SignOutModal } from './SignOutModal'
 import styles from './AppShell.module.css'
@@ -41,6 +44,10 @@ function sectionOf(pathname: string, basePath: string): string {
  */
 export function AppShell({ basePath = '' }: Props) {
   const [leaving, setLeaving] = useState(false)
+  // Маскот грустит, пока с прошлых дней остаются невыполненные задачи.
+  const { tasks } = usePlanner()
+  const today = useToday()
+  const overdue = hasOverdue(tasks, today)
   // Сразу после входа приложение проявляется (см. экран входа).
   const [entering] = useState(takeEntrance)
 
@@ -81,7 +88,7 @@ export function AppShell({ basePath = '' }: Props) {
     <div className={cx(styles.shell, entering && styles.entering)}>
       <aside className={styles.sidebar}>
         <div className={`t-heading-3 ${styles.logo}`}>
-          <Mascot size={32} />
+          <Mascot size={32} mood={overdue ? 'sad' : 'calm'} />
           <span className={styles.logoText}>Трекер</span>
         </div>
         <nav className={styles.nav} aria-label="Разделы">

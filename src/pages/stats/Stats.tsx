@@ -2,6 +2,8 @@ import { parseISO } from 'date-fns'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { Button } from '../../components/Button'
+import { Mascot } from '../../components/Mascot'
+import type { MascotMood } from '../../components/Mascot'
 import { Section } from '../../components/Section'
 import { Skeleton } from '../../components/Skeleton'
 import { StatCard } from '../../components/StatCard'
@@ -35,6 +37,14 @@ const HABIT_DAYS = 30
 const NO_CHECKS: ReadonlySet<string> = new Set()
 
 type History = { tasks: Task[]; goals: Goal[] }
+
+/** Что маскот думает о текущей неделе. */
+function weekVerdict(percent: number | null): { mood: MascotMood; title: string } {
+  if (percent === null) return { mood: 'calm', title: 'Неделя ещё чистый лист' }
+  if (percent >= 80) return { mood: 'happy', title: 'Отличная неделя' }
+  if (percent >= 40) return { mood: 'calm', title: 'Неделя идёт ровно' }
+  return { mood: 'sad', title: 'Неделя пока буксует' }
+}
 
 /**
  * Итоги (в коде stats): взгляд назад. Задачи и цели за последние 12 недель и привычки за 30 дней.
@@ -93,6 +103,10 @@ export function Stats() {
   const bestWeek = Math.max(0, ...summary.map((week) => week.percent ?? 0))
   const hasTasks = summary.some((week) => week.total > 0)
 
+  // Настроение недели: по доле выполненных задач текущей недели.
+  const thisWeek = summary[summary.length - 1]
+  const verdict = weekVerdict(thisWeek.percent)
+
   const habitsReady = habitsStore.status === 'ready'
   const habits = habitsStore.habits.map((habit) => {
     const checks = habitsStore.checks[habit.id] ?? NO_CHECKS
@@ -113,6 +127,20 @@ export function Stats() {
   return (
     <>
       <PageHeader title="Итоги" />
+
+      {ready && (
+        <div className={styles.verdict}>
+          <Mascot size={72} mood={verdict.mood} />
+          <div className={styles.verdictText}>
+            <p className="t-heading-4">{verdict.title}</p>
+            <p className={styles.hint}>
+              {thisWeek.percent === null
+                ? 'На этой неделе пока нет задач'
+                : `На этой неделе выполнено ${thisWeek.done} из ${thisWeek.total} задач`}
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className={styles.stats}>
         <StatCard variant="highlight" loading={!ready} value={tasksDone} label="задач выполнено" />

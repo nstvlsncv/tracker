@@ -4,6 +4,27 @@
   gap: var(--space-md);
 }
 
+/* Маскот с настроением недели и одна фраза рядом. */
+.verdict {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.verdictText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.verdictText p {
+  margin: 0;
+}
+
 .hint {
   color: var(--text-tertiary);
 }

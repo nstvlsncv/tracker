@@ -21,6 +21,7 @@ import { formatWeekdayAndDay, weekStartISO } from '../../lib/dates'
 import {
   countDone,
   greeting,
+  overdueTasks,
   pluralize,
   progress,
   shiftDate,
@@ -82,10 +83,7 @@ export function Home() {
   const allHabitsDone = habits.length > 0 && habitsDoneToday === habits.length
   // Не закрытое за последние семь дней: можно одним нажатием перенести на сегодня.
   // Повторяющиеся задачи не в счёт: у них и так есть своя задача на сегодня.
-  const overdue = planner.tasks.filter(
-    (task) =>
-      !task.isDone && !task.ruleId && task.date < today && task.date >= shiftDate(today, -7),
-  )
+  const overdue = overdueTasks(planner.tasks, today)
   const repeatDelete = useRepeatDelete()
 
   const day = formatWeekdayAndDay(now)
@@ -117,7 +115,11 @@ export function Home() {
         </Link>
         <h1 className={`t-heading-1 ${styles.title}`}>
           {/* На телефоне бокового меню нет: маскот живёт перед приветствием. */}
-          <Mascot size="0.9em" className={styles.mascot} />
+          <Mascot
+            size="0.9em"
+            className={styles.mascot}
+            mood={overdue.length > 0 ? 'sad' : 'calm'}
+          />
           {greeting(now.getHours())}
           {profile?.name ? `, ${profile.name}` : ''}!
         </h1>
