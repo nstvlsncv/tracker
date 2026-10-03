@@ -88,7 +88,8 @@ export function AppShell({ basePath = '' }: Props) {
     <div className={cx(styles.shell, entering && styles.entering)}>
       <aside className={styles.sidebar}>
         <div className={`t-heading-3 ${styles.logo}`}>
-          <Mascot size={32} mood={overdue ? 'sad' : 'calm'} />
+          {/* В «Итогах» за курсором следит большой маскот экрана, этот смотрит прямо. */}
+          <Mascot size={32} mood={overdue ? 'sad' : 'calm'} still={section === 'stats'} />
           <span className={styles.logoText}>Трекер</span>
         </div>
         <nav className={styles.nav} aria-label="Разделы">

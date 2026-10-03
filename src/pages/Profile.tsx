@@ -1,8 +1,7 @@
-import { Moon, Sun } from '@phosphor-icons/react'
+import { Check, Moon, Sun } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
 import { useAuth } from '../auth/useAuth'
 import { Button } from '../components/Button'
-import { Mascot } from '../components/Mascot'
 import { Section } from '../components/Section'
 import { CHANGELOG } from '../data/changelog'
 import { ACCENTS, setAccent, useAccent } from '../lib/accent'
@@ -85,12 +84,7 @@ export function Profile() {
                 className={cx(styles.swatch, option.value === accent && styles.swatchSelected)}
                 onClick={() => setAccent(option.value)}
               >
-                {/* Пять маленьких маскотов, каждый своего цвета. Выбранный радуется. */}
-                <Mascot
-                  size={40}
-                  interactive={false}
-                  mood={option.value === accent ? 'happy' : 'calm'}
-                />
+                {option.value === accent && <Check aria-hidden />}
               </button>
             ))}
           </div>

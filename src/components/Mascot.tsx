@@ -15,11 +15,13 @@ type Props = {
    * sad: грустит (остались невыполненные задачи, неделя буксует).
    */
   mood?: MascotMood
-  /**
-   * false: просто картинка внутри чужой кнопки (кружки акцентного цвета): на нажатие
-   * не отвечает и за общими салютами не следит.
-   */
+  /** false: просто картинка: на нажатие не отвечает и на общие салюты не реагирует. */
   interactive?: boolean
+  /**
+   * Смотрит прямо перед собой и ни за чем не следит. Так стоит маскот в меню, когда на экране
+   * есть другой, главный (в «Итогах»): двое, синхронно водящих глазами, выглядят странно.
+   */
+  still?: boolean
   className?: string
 }
 
@@ -63,7 +65,13 @@ function typingPoint(field: HTMLInputElement | HTMLTextAreaElement): Point {
  * подмигиванием и кувырком, на каждое пятое выпускает салют; подпрыгивает, когда в трекере
  * что-то отмечают с салютом; ночью сонный. Украшение: для скринридера и клавиатуры его нет.
  */
-export function Mascot({ size = 32, mood = 'calm', interactive = true, className }: Props) {
+export function Mascot({
+  size = 32,
+  mood = 'calm',
+  interactive = true,
+  still = false,
+  className,
+}: Props) {
   const ref = useRef<HTMLElement>(null)
   // Текущая реакция и её номер: номер идёт в key лица, чтобы та же реакция проигралась заново.
   const [reaction, setReaction] = useState<{ kind: Reaction; id: number } | null>(null)
@@ -86,7 +94,12 @@ export function Mascot({ size = 32, mood = 'calm', interactive = true, className
   // поэтому слежение не теряется.
   useEffect(() => {
     const node = ref.current
-    if (!node || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (!node) return
+    if (still || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      node.style.setProperty('--look-x', '0px')
+      node.style.setProperty('--look-y', '0px')
+      return
+    }
     // На сенсорных экранах курсора нет: маскот смотрит прямо и только заглядывает в поля.
     const hasPointer = !window.matchMedia('(hover: none)').matches
     let frame = 0
@@ -140,7 +153,7 @@ export function Mascot({ size = 32, mood = 'calm', interactive = true, className
       document.removeEventListener('input', onType)
       document.removeEventListener('focusout', onLeaveField)
     }
-  }, [])
+  }, [still])
 
   const poke = () => {
     taps.current++
