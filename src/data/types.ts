@@ -45,8 +45,12 @@ export type Goal = {
 export type Habit = {
   id: string
   title: string
-  /** Пока только 'daily'. Поле заложено под будущие варианты цели. */
-  frequency: string
+  /** daily: каждый день. days: по дням недели из `days`. weekly: `timesPerWeek` раз в неделю. */
+  frequency: HabitFrequency
+  /** Дни недели для 'days': 1 понедельник, 7 воскресенье. */
+  days: number[]
+  /** Норма для 'weekly'. */
+  timesPerWeek: number | null
   /** Когда привычку убрали в архив. null: активна. */
   archivedAt: string | null
   /** Место в списке, меньше значит выше. null: порядок не задан, идёт по времени создания. */
@@ -57,7 +61,16 @@ export type Habit = {
 /** Отметка «привычка выполнена в этот день». */
 export type HabitCheck = { habitId: string; date: string }
 
-export type HabitPatch = { title?: string; archivedAt?: string | null; position?: number }
+export type HabitFrequency = 'daily' | 'days' | 'weekly'
+
+/** Расписание привычки: как часто её нужно отмечать. */
+export type HabitSchedule = Pick<Habit, 'frequency' | 'days' | 'timesPerWeek'>
+
+export type HabitPatch = Partial<HabitSchedule> & {
+  title?: string
+  archivedAt?: string | null
+  position?: number
+}
 
 /** `date` и `ruleId` меняются только у задач: перенос на другой день отвязывает от повтора. */
 export type ItemPatch = {

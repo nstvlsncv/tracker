@@ -164,6 +164,12 @@ grant execute on function public.end_session(uuid) to authenticated;
 -- Порядок привычек в списке (перестановка кнопками «Выше» и «Ниже»).
 alter table public.habits add column if not exists position integer;
 
+-- Расписание привычек. frequency: 'daily' (каждый день), 'days' (по дням недели из days,
+-- 1 = понедельник), 'weekly' (times_per_week раз в неделю в любые дни).
+alter table public.habits
+  add column if not exists days smallint[] not null default '{}',
+  add column if not exists times_per_week smallint check (times_per_week between 1 and 7);
+
 -- Заметка недели: одно текстовое поле на неделю.
 create table if not exists public.week_notes (
   user_id uuid not null default auth.uid() references auth.users on delete cascade,

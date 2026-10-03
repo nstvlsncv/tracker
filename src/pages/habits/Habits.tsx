@@ -5,9 +5,10 @@ import { ConfirmModal } from '../../components/ConfirmModal'
 import { Section } from '../../components/Section'
 import { Skeleton } from '../../components/Skeleton'
 import { useToast } from '../../components/useToast'
-import type { Habit } from '../../data/types'
+import type { Habit, HabitSchedule } from '../../data/types'
 import { useHabits } from '../../data/useHabits'
 import { PageHeader } from '../../layout/PageHeader'
+import { isDueOn, scheduleOf } from '../../lib/habits'
 import { useSessionState } from '../../lib/sessionState'
 import { useToday } from '../../lib/useToday'
 import { HabitCard } from './HabitCard'
@@ -33,12 +34,18 @@ export function Habits() {
   const [lastChecked, setLastChecked] = useState<string>()
 
   const checksOf = (habit: Habit) => store.checks[habit.id] ?? NO_CHECKS
-  // Не выполненные сегодня сверху, выполненные снизу. Внутри группы по времени создания.
-  const habits = [...store.habits].sort(
-    (a, b) => Number(checksOf(a).has(today)) - Number(checksOf(b).has(today)),
-  )
+  // Сверху те, что ждут отметки сегодня, ниже те, которым сегодня отметка не нужна
+  // (не их день или норма недели уже набрана), в самом низу выполненные сегодня.
+  const groupOf = (habit: Habit) => {
+    const checks = checksOf(habit)
+    if (checks.has(today)) return 2
+    return isDueOn(scheduleOf(habit), checks, today) ? 0 : 1
+  }
+  const habits = [...store.habits].sort((a, b) => groupOf(a) - groupOf(b))
 
-  const allDoneToday = habits.length > 0 && habits.every((habit) => checksOf(habit).has(today))
+  // Праздник, когда закрыто всё, что ждало отметки сегодня.
+  const allDoneToday =
+    habits.some((habit) => groupOf(habit) === 2) && habits.every((habit) => groupOf(habit) !== 0)
 
   /** Поменять привычку местами с соседкой: той, что стоит рядом в списке на экране. */
   const swap = (index: number, neighbour: number) => {
@@ -50,7 +57,7 @@ export function Habits() {
   }
   // Двигать можно только внутри своей группы: выполненные сегодня всегда стоят ниже остальных.
   const sameGroup = (a: number, b: number) =>
-    habits[a] && habits[b] && checksOf(habits[a]).has(today) === checksOf(habits[b]).has(today)
+    habits[a] && habits[b] && groupOf(habits[a]) === groupOf(habits[b])
 
   const setCardOpen = (id: string, next: boolean) =>
     setOpen((current) => {
@@ -60,13 +67,21 @@ export function Habits() {
       return ids
     })
 
-  const save = (title: string) => {
+  const save = (title: string, schedule: HabitSchedule) => {
     if (editing === 'new') {
-      store.addHabit(title)
+      store.addHabit(title, schedule)
       toast({ message: 'Привычка добавлена' })
-    } else if (editing && title !== editing.title) {
-      store.renameHabit(editing.id, title)
-      toast({ message: 'Сохранено' })
+    } else if (editing) {
+      const before = scheduleOf(editing)
+      const same =
+        title === editing.title &&
+        schedule.frequency === before.frequency &&
+        schedule.timesPerWeek === before.timesPerWeek &&
+        schedule.days.join() === before.days.join()
+      if (!same) {
+        store.editHabit(editing.id, title, schedule)
+        toast({ message: 'Сохранено' })
+      }
     }
     setEditing(undefined)
   }

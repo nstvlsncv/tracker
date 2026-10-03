@@ -9,7 +9,8 @@ import { StatCard } from '../../components/StatCard'
 import type { Habit } from '../../data/types'
 import { cx } from '../../lib/cx'
 import { toISODate } from '../../lib/dates'
-import { bestStreak, currentStreak, formatDays, totalChecks } from '../../lib/metrics'
+import { formatStreak, habitStreaks, scheduleLabel, scheduleOf } from '../../lib/habits'
+import { totalChecks } from '../../lib/metrics'
 import { HabitHistory } from './HabitHistory'
 import styles from './HabitCard.module.css'
 
@@ -46,8 +47,10 @@ export function HabitCard({
 }: Props) {
   const detailsId = useId()
   const doneToday = checks.has(today)
-  const current = currentStreak(checks, today)
-  const best = bestStreak(checks)
+  const schedule = scheduleOf(habit)
+  const { current, best } = habitStreaks(schedule, checks, today)
+  // У привычек «N раз в неделю» серия считается в неделях: подпись говорит об этом прямо.
+  const weeks = current.unit === 'weeks'
   const Caret = open ? CaretUp : CaretDown
   // С какого дня может быть история: создание привычки или более ранняя отметка задним числом.
   const since = [...checks, toISODate(parseISO(habit.createdAt))].sort()[0]
@@ -74,7 +77,9 @@ export function HabitCard({
           </button>
           <span className={`t-body-md ${styles.streak}`}>
             {/* Две неразрывные части: на компьютере строка переносится только между ними. */}
-            <span>текущая серия {formatDays(current)} ·</span> <span>лучшая {formatDays(best)}</span>
+            {habit.frequency !== 'daily' && <span>{scheduleLabel(schedule)} ·</span>}{' '}
+            <span>текущая серия {formatStreak(current)} ·</span>{' '}
+            <span>лучшая {formatStreak(best)}</span>
           </span>
         </div>
         {open && (
@@ -94,12 +99,27 @@ export function HabitCard({
       <Collapse open={open}>
         <div id={detailsId} className={styles.details}>
           <div className={styles.stats}>
-            <StatCard variant="surface" value={current} label="текущая серия" />
-            <StatCard variant="surface" value={best} label="лучшая серия" />
+            <StatCard
+              variant="surface"
+              value={current.value}
+              label={weeks ? 'серия, недель' : 'текущая серия'}
+            />
+            <StatCard
+              variant="surface"
+              value={best.value}
+              label={weeks ? 'лучшая, недель' : 'лучшая серия'}
+            />
             <StatCard variant="surface" value={totalChecks(checks)} label="всего выполнено" />
-            <StatCard variant="surface" value="Каждый день" label="цель" />
+            <StatCard variant="surface" value={scheduleLabel(schedule)} label="цель" />
           </div>
-          <HabitHistory habitId={habit.id} checks={checks} today={today} since={since} onToggle={onToggle} />
+          <HabitHistory
+            habitId={habit.id}
+            checks={checks}
+            schedule={schedule}
+            today={today}
+            since={since}
+            onToggle={onToggle}
+          />
           {(onMoveUp || onMoveDown) && (
             <div className={styles.order}>
               <span className={styles.orderLabel}>Место в списке</span>

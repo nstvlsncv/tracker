@@ -1,7 +1,17 @@
 import { weekStartISO } from '../lib/dates'
 import { shiftDate } from '../lib/metrics'
 import { supabase } from '../lib/supabase'
-import type { Goal, Habit, HabitCheck, ItemPatch, PlannerApi, Repeat, Task, TaskRule } from './types'
+import type {
+  Goal,
+  Habit,
+  HabitCheck,
+  HabitFrequency,
+  ItemPatch,
+  PlannerApi,
+  Repeat,
+  Task,
+  TaskRule,
+} from './types'
 
 type TaskRow = {
   id: string
@@ -83,8 +93,10 @@ type HabitRow = {
   frequency: string
   archived_at: string | null
   created_at: string
-  /** Колонки может ещё не быть в базе (её добавляет свежая версия schema.sql). */
+  /** Этих колонок может ещё не быть в базе (их добавляет свежая версия schema.sql). */
   position?: number | null
+  days?: number[] | null
+  times_per_week?: number | null
 }
 
 // Все колонки, а не список: так чтение работает и до того, как в базе появилась position.
@@ -93,7 +105,9 @@ const HABIT_COLUMNS = '*'
 const toHabit = (row: HabitRow): Habit => ({
   id: row.id,
   title: row.title,
-  frequency: row.frequency,
+  frequency: (['days', 'weekly'].includes(row.frequency) ? row.frequency : 'daily') as HabitFrequency,
+  days: row.days ?? [],
+  timesPerWeek: row.times_per_week ?? null,
   archivedAt: row.archived_at,
   position: row.position ?? null,
   createdAt: row.created_at,
@@ -273,6 +287,12 @@ export const supabaseApi: PlannerApi = {
         frequency: habit.frequency,
         archived_at: habit.archivedAt,
         created_at: habit.createdAt,
+        // Колонки расписания уходят в базу только у привычек не на каждый день:
+        // обычные сохраняются и до того, как в базе появились эти колонки.
+        ...(habit.frequency !== 'daily' && {
+          days: habit.days,
+          times_per_week: habit.timesPerWeek,
+        }),
       }),
     )
   },
@@ -285,6 +305,9 @@ export const supabaseApi: PlannerApi = {
           ...(patch.title !== undefined && { title: patch.title }),
           ...(patch.archivedAt !== undefined && { archived_at: patch.archivedAt }),
           ...(patch.position !== undefined && { position: patch.position }),
+          ...(patch.frequency !== undefined && { frequency: patch.frequency }),
+          ...(patch.days !== undefined && { days: patch.days }),
+          ...(patch.timesPerWeek !== undefined && { times_per_week: patch.timesPerWeek }),
         })
         .eq('id', id),
     )

@@ -4,7 +4,9 @@ import { Dropdown } from '../../components/Dropdown'
 import { fireBurst } from '../../components/fireBurst'
 import { cx } from '../../lib/cx'
 import { formatDayMonth } from '../../lib/dates'
+import type { HabitSchedule } from '../../data/types'
 import { habitHistory, historyYears } from '../../lib/habitHistory'
+import { isScheduled } from '../../lib/habits'
 import type { HistoryPeriod } from '../../lib/habitHistory'
 import { recall, remember, useSessionState } from '../../lib/sessionState'
 import styles from './HabitHistory.module.css'
@@ -13,6 +15,8 @@ type Props = {
   /** id привычки: по нему запоминаются выбранный период и прокрутка истории. */
   habitId: string
   checks: ReadonlySet<string>
+  /** Расписание: дни вне его (у привычки «по дням недели») нарисованы бледнее. */
+  schedule: HabitSchedule
   today: string
   /** Самый ранний день, с которого у привычки может быть история: создание или первая отметка. */
   since: string
@@ -30,7 +34,7 @@ const SCROLL_STEP_PX = 4
  * Сетка открывается прокрученной к концу периода. Подписи дней недели стоят с одной стороны:
  * справа, а когда сетку листают влево, переезжают налево.
  */
-export function HabitHistory({ habitId, checks, today, since, onToggle }: Props) {
+export function HabitHistory({ habitId, checks, schedule, today, since, onToggle }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [period, setPeriod] = useSessionState<HistoryPeriod>(`habit.period.${habitId}`, 'recent')
   const scrollKey = `habit.scroll.${habitId}.${period}`
@@ -103,7 +107,12 @@ export function HabitHistory({ habitId, checks, today, since, onToggle }: Props)
                     <button
                       key={date}
                       type="button"
-                      className={cx(styles.dot, done && styles.done, date === today && styles.today)}
+                      className={cx(
+                        styles.dot,
+                        done && styles.done,
+                        date === today && styles.today,
+                        !done && !isScheduled(schedule, date) && styles.off,
+                      )}
                       aria-label={label}
                       aria-pressed={done}
                       title={label}

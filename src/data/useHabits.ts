@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import type { Habit } from './types'
+import type { Habit, HabitSchedule } from './types'
 
 export type HabitsStatus = 'loading' | 'ready' | 'error'
 
@@ -14,8 +14,9 @@ export type HabitsValue = {
   /** Повторить загрузку после ошибки. */
   reload: () => void
 
-  addHabit: (title: string) => void
-  renameHabit: (id: string, title: string) => void
+  addHabit: (title: string, schedule: HabitSchedule) => void
+  /** Изменить название и расписание. */
+  editHabit: (id: string, title: string, schedule: HabitSchedule) => void
   /** Поставить или снять отметку за день (сегодня или задним числом). */
   toggleCheck: (id: string, date: string, done: boolean) => void
   /** Задать порядок активных привычек: id сверху вниз. */

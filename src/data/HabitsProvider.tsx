@@ -94,11 +94,11 @@ export function HabitsProvider({ api, children }: { api: PlannerApi; children: R
       checks,
       reload,
 
-      addHabit: (title) => {
+      addHabit: (title, schedule) => {
         const habit: Habit = {
           id: newId(),
           title,
-          frequency: 'daily',
+          ...schedule,
           archivedAt: null,
           position: null,
           createdAt: new Date().toISOString(),
@@ -109,7 +109,7 @@ export function HabitsProvider({ api, children }: { api: PlannerApi; children: R
         )
       },
 
-      renameHabit: (id, title) => patchHabit(id, { title }),
+      editHabit: (id, title, schedule) => patchHabit(id, { title, ...schedule }),
 
       toggleCheck: (id, date, done) => {
         setChecks((current) => withCheck(current, id, date, done))

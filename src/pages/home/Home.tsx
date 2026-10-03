@@ -17,13 +17,12 @@ import { cx } from '../../lib/cx'
 import { formatWeekdayAndDay, weekStartISO } from '../../lib/dates'
 import {
   countDone,
-  currentStreak,
-  formatDays,
   greeting,
   pluralize,
   progress,
   shiftDate,
 } from '../../lib/metrics'
+import { formatStreak, habitStreaks, isDueOn, scheduleOf, weekCount } from '../../lib/habits'
 import { useNow } from '../../lib/useNow'
 import { useToday } from '../../lib/useToday'
 import { HabitModal } from '../habits/HabitModal'
@@ -66,9 +65,14 @@ export function Home() {
 
   const tasks = planner.tasks.filter((task) => task.date === today)
   const goals = planner.goals.filter((goal) => goal.weekStart === currentWeek)
-  const habitsDoneToday = habitsStore.habits.filter((habit) => checksOf(habit.id).has(today)).length
+  // На Главной только то, что ждёт отметки сегодня: привычки не своего дня и те,
+  // у которых норма недели уже набрана, сюда не попадают.
+  const dueHabits = habitsStore.habits.filter((habit) =>
+    isDueOn(scheduleOf(habit), checksOf(habit.id), today),
+  )
+  const habitsDoneToday = dueHabits.filter((habit) => checksOf(habit.id).has(today)).length
   // Не выполненные сегодня сверху, как в списках задач.
-  const habits = [...habitsStore.habits].sort(
+  const habits = [...dueHabits].sort(
     (a, b) => Number(checksOf(a.id).has(today)) - Number(checksOf(b.id).has(today)),
   )
 
@@ -135,7 +139,7 @@ export function Home() {
         />
         <StatCard
           loading={!habitsReady}
-          value={`${habitsDoneToday}/${habitsStore.habits.length}`}
+          value={`${habitsDoneToday}/${habits.length}`}
           label="привычки"
         />
       </div>
@@ -234,22 +238,29 @@ export function Home() {
                   />
                   <span className={cx(styles.habitTitle, done && styles.done)}>{habit.title}</span>
                   <span className={`t-body-sm ${styles.streak}`}>
-                    {formatDays(currentStreak(checks, today))}
+                    {/* У «N раз в неделю» справа счёт недели, у остальных текущая серия. */}
+                    {habit.frequency === 'weekly'
+                      ? `${weekCount(checks, currentWeek)} из ${habit.timesPerWeek ?? 1}`
+                      : formatStreak(habitStreaks(scheduleOf(habit), checks, today).current)}
                   </span>
                 </li>
               )
             })}
           </ul>
         ) : (
-          <p className={styles.placeholder}>Начни с одной привычки, остальные подтянутся</p>
+          <p className={styles.placeholder}>
+            {habitsStore.habits.length > 0
+              ? 'На сегодня привычек нет'
+              : 'Начни с одной привычки, остальные подтянутся'}
+          </p>
         )}
       </Section>
 
       {adding === 'habit' && (
         <HabitModal
           onClose={() => setAdding(undefined)}
-          onSave={(title) => {
-            habitsStore.addHabit(title)
+          onSave={(title, schedule) => {
+            habitsStore.addHabit(title, schedule)
             toast({ message: 'Привычка добавлена' })
             setAdding(undefined)
           }}

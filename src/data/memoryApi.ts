@@ -67,6 +67,8 @@ export function createMemoryApi(): PlannerApi {
     id: newId(),
     title,
     frequency: 'daily',
+    days: [],
+    timesPerWeek: null,
     archivedAt: archived ? new Date().toISOString() : null,
     position: null,
     createdAt: new Date(Date.UTC(2026, 0, 1, 0, 0, stamp++)).toISOString(),
@@ -76,7 +78,8 @@ export function createMemoryApi(): PlannerApi {
     habit('Английский 15 минут'),
     habit('Чтение 20 минут'),
     habit('Витамины утром'),
-    habit('Зарядка 30 минут'),
+    { ...habit('Зарядка'), frequency: 'days', days: [1, 3, 5] },
+    { ...habit('Спортзал'), frequency: 'weekly', timesPerWeek: 3 },
     habit('Холодный душ', true),
   ]
   /** Отметки подряд: `length` дней, последний из них `daysAgo` дней назад. */
@@ -93,9 +96,21 @@ export function createMemoryApi(): PlannerApi {
     // Отметки больше года назад: у этой привычки появляется выбор года в истории.
     ...run(habits[2], 400, 20),
     ...run(habits[3], 0, 27),
-    ...run(habits[4], 0, 1),
-    ...run(habits[5], 40, 9),
+    // Зарядка по пн, ср, пт: отметки за последние три недели в свои дни.
+    ...[0, 2, 4, 7, 9, 11, 14, 16].map((offset) => ({
+      habitId: habits[4].id,
+      date: shiftDate(weekStart, 4 - offset),
+    })),
+    // Спортзал три раза в неделю: две полные недели и два раза на этой.
+    ...[-14, -12, -10, -7, -5, -2, 0, 2].map((offset) => ({
+      habitId: habits[5].id,
+      date: shiftDate(weekStart, offset),
+    })),
+    ...run(habits[6], 40, 9),
   ]
+
+  // Отметок в будущем не бывает: в начале недели часть демо-отметок ещё не наступила.
+  checks = checks.filter((check) => check.date <= today)
 
   // Небольшая задержка, чтобы было видно состояние загрузки.
   const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 300))
