@@ -39,6 +39,16 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
     )
   }, [shake])
 
+  // Что это за сервис и кнопка, которая его показывает. Стоит в двух местах: на компьютере
+  // под роликом, на планшете и телефоне под формой (видно всегда только одно).
+  const promo = (
+    <>
+      {/* Неразрывные пробелы: «и» и «в» не остаются висеть в конце строки. */}
+      <p className="t-body-sm">Недели, задачи, цели и&nbsp;привычки в&nbsp;одном месте</p>
+      {action}
+    </>
+  )
+
   return (
     <main className={cx(styles.page, leaving && styles.leaving)} data-accent="lime">
       <DotField anchorRef={cardsRef} />
@@ -47,6 +57,8 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
         <div className={styles.stageReel}>
           <Showreel />
         </div>
+        {/* Карточка демо на компьютере живёт здесь, под роликом. */}
+        <div className={styles.stagePromo}>{promo}</div>
       </aside>
       <div className={styles.side}>
       <div className={styles.content}>
@@ -63,11 +75,8 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
             {children}
           </div>
           {/* Вторая карточка: что это за сервис и кнопка, которая его показывает. */}
-          <div className={styles.promo}>
-            {/* Неразрывные пробелы: «и» и «в» не остаются висеть в конце строки. */}
-            <p className="t-body-sm">Недели, задачи, цели и&nbsp;привычки в&nbsp;одном месте</p>
-            {action}
-          </div>
+          {/* На планшете и телефоне ролика нет: карточка демо стоит под формой. */}
+          <div className={styles.promo}>{promo}</div>
         </div>
       </div>
       <footer className={`t-body-sm ${styles.footer}`}>

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import type { CSSProperties } from 'react'
 import { Checkbox } from '../../components/Checkbox'
 import { Donut } from '../../components/Donut'
 import { Mascot } from '../../components/Mascot'
@@ -14,7 +13,9 @@ const STEPS_PER_SCENE = 8
 
 const SCENES = [
   { id: 'day', title: 'Задачи дня' },
+  { id: 'week', title: 'Вся неделя на виду' },
   { id: 'habits', title: 'Привычки и серии' },
+  { id: 'note', title: 'Заметка недели' },
   { id: 'stats', title: 'Итоги недель' },
   { id: 'mascot', title: 'Свой цвет' },
 ] as const
@@ -41,10 +42,48 @@ function DayScene({ step }: { step: number }) {
   )
 }
 
+const WEEK = [
+  { day: 'Пн', value: 100 },
+  { day: 'Вт', value: 75 },
+  { day: 'Ср', value: 100 },
+  { day: 'Чт', value: 50 },
+  { day: 'Пт', value: 25 },
+]
+
+/** Сцена 2: кольца дней недели заполняются одно за другим. */
+function WeekScene({ step }: { step: number }) {
+  return (
+    <div className={styles.week}>
+      {WEEK.map(({ day, value }, index) => (
+        <div key={day} className={styles.weekDay}>
+          <span className={`t-heading-5 ${styles.weekLabel}`}>{day}</span>
+          <Donut value={step > index ? value : 0} size="sm" quiet />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+const NOTE = 'Хорошая неделя: закрыто почти всё. На следующей не забыть про отдых.'
+
+/** Сцена 4: заметка недели печатается сама, маскот читает. */
+function NoteScene({ step }: { step: number }) {
+  const typed = NOTE.slice(0, Math.round(NOTE.length * Math.min(1, step / 6)))
+  return (
+    <div className={styles.note}>
+      <Mascot size={40} interactive={false} still mood={step >= 6 ? 'happy' : 'calm'} />
+      <p className={styles.noteField}>
+        {typed}
+        <span className={styles.caret} />
+      </p>
+    </div>
+  )
+}
+
 const HISTORY = 14
 const HISTORY_FILLED = 9
 
-/** Сцена 2: точки истории заполняются, серия растёт. */
+/** Сцена 3: точки истории заполняются, серия растёт. */
 function HabitsScene({ step }: { step: number }) {
   const filled = HISTORY_FILLED + Math.min(HISTORY - HISTORY_FILLED, step)
   const today = filled === HISTORY
@@ -77,7 +116,7 @@ function HabitsScene({ step }: { step: number }) {
 
 const BARS = [35, 60, 55, 72, 48, 80, 66, 92]
 
-/** Сцена 3: столбики недель вырастают один за другим, маскот доволен. */
+/** Сцена 5: столбики недель вырастают один за другим, маскот доволен. */
 function StatsScene({ step }: { step: number }) {
   const grown = step >= 1
   return (
@@ -100,12 +139,13 @@ function StatsScene({ step }: { step: number }) {
   )
 }
 
-/** Сцена 4: маскот перебирает акцентные цвета. */
+/** Сцена 6: маскот перебирает акцентные цвета и в конце радуется. */
 function MascotScene({ step }: { step: number }) {
   const accent = ACCENTS[step % ACCENTS.length]
   return (
     <div className={styles.mascotScene} data-accent={accent.value}>
-      <Mascot size={88} interactive={false} still mood={step % 2 ? 'happy' : 'calm'} />
+      {/* Прыгает один раз, в конце: прыжок на каждой смене цвета обрывался и дёргался. */}
+      <Mascot size={88} interactive={false} still mood={step >= 6 ? 'happy' : 'calm'} />
       <div className={styles.swatches}>
         {ACCENTS.map((option) => (
           <span
@@ -121,7 +161,7 @@ function MascotScene({ step }: { step: number }) {
 
 /**
  * Шоурил на экране входа: короткий ролик из настоящих деталей трекера, который сам играет
- * по кругу, как видео. Четыре сцены: задачи дня, привычки, итоги, маскот и цвета.
+ * по кругу, как видео. Шесть сцен: задачи дня, неделя, привычки, заметка, итоги, маскот и цвета.
  * Нажимать в нём нечего: он неживой (inert) и для скринридера не существует.
  * При отключённых в системе анимациях стоит на первой сцене в её конечном виде.
  */
@@ -145,29 +185,17 @@ export function Showreel() {
 
   return (
     <div className={styles.reel} inert aria-hidden>
-      <span className={`t-caption ${styles.title}`}>{scene.title}</span>
+      <span key={scene.id} className={`t-heading-5 ${styles.title}`}>
+        {scene.title}
+      </span>
       {/* key: каждая сцена создаётся заново и проявляется, счётчики и кольцо стартуют с нуля. */}
       <div key={loop} className={styles.scene}>
         {scene.id === 'day' && <DayScene step={step} />}
+        {scene.id === 'week' && <WeekScene step={step} />}
         {scene.id === 'habits' && <HabitsScene step={step} />}
+        {scene.id === 'note' && <NoteScene step={step} />}
         {scene.id === 'stats' && <StatsScene step={step} />}
         {scene.id === 'mascot' && <MascotScene step={step} />}
-      </div>
-      {/* Полоска сцен, как в сторис: текущая заполняется по мере показа. */}
-      <div className={styles.progress}>
-        {SCENES.map((item, position) => (
-          <span key={item.id} className={styles.segment}>
-            <span
-              className={styles.segmentFill}
-              style={
-                {
-                  '--fill':
-                    position < index ? 1 : position === index ? (step + 1) / STEPS_PER_SCENE : 0,
-                } as CSSProperties
-              }
-            />
-          </span>
-        ))}
       </div>
     </div>
   )
