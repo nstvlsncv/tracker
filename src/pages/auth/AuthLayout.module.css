@@ -60,10 +60,6 @@
   border-radius: var(--radius-xs);
   color: var(--text-primary);
   font-weight: var(--typography-caption-font-weight);
-  text-decoration: none;
-}
-
-.author:hover {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
