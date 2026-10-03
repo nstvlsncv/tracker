@@ -25,7 +25,7 @@ export function Profile() {
 
   return (
     <>
-      <PageHeader title="Профиль" />
+      <PageHeader title="Профиль" backTo=".." />
 
       <Section title="Оформление">
         <div>

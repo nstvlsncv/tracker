@@ -10,7 +10,12 @@ import { useHabits } from '../../data/useHabits'
 import { usePlanner } from '../../data/usePlanner'
 import { PageHeader } from '../../layout/PageHeader'
 import { cx } from '../../lib/cx'
-import { formatDateNumeric, formatWeekRangeShort, toWeekParam } from '../../lib/dates'
+import {
+  formatDateNumeric,
+  formatDayMonth,
+  formatWeekRangeShort,
+  toWeekParam,
+} from '../../lib/dates'
 import {
   completionRate,
   formatStreak,
@@ -165,6 +170,11 @@ export function Stats() {
                 )
               })}
             </ol>
+            {/* Телефон: под каждым столбиком дата не помещается, вместо этого подписаны края. */}
+            <div className={`t-caption ${styles.range}`} aria-hidden>
+              <span>с {formatDayMonth(parseISO(summary[0].weekStart))}</span>
+              <span>эта неделя</span>
+            </div>
           </>
         )}
       </Section>

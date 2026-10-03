@@ -1,5 +1,9 @@
+import { ArrowLeft } from '@phosphor-icons/react'
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
+import { Link } from 'react-router'
+import { buttonClassName } from '../components/buttonStyles'
+import { cx } from '../lib/cx'
 import styles from './PageHeader.module.css'
 
 type Props = {
@@ -8,13 +12,18 @@ type Props = {
   aside?: ReactNode
   /** Кнопки у правого края. */
   actions?: ReactNode
+  /**
+   * Куда ведёт стрелка «назад» перед названием (адрес относительно текущего). Стрелка есть
+   * только на телефоне и только у экранов, которых нет в нижней панели (Профиль).
+   */
+  backTo?: string
 }
 
 /**
  * Шапка экрана: название раздела и кнопки. До основного содержимого от неё 24px.
  * На телефоне кнопки не стоят в шапке, а закреплены внизу экрана, над нижней панелью.
  */
-export function PageHeader({ title, aside, actions }: Props) {
+export function PageHeader({ title, aside, actions, backTo }: Props) {
   const actionsRef = useRef<HTMLDivElement>(null)
   const hasActions = Boolean(actions)
 
@@ -37,6 +46,16 @@ export function PageHeader({ title, aside, actions }: Props) {
   return (
     <header className={styles.header}>
       <div className={styles.title}>
+        {backTo && (
+          <Link
+            to={backTo}
+            relative="path"
+            className={cx(buttonClassName({ variant: 'ghost', iconOnly: true }), styles.back)}
+            aria-label="Назад"
+          >
+            <ArrowLeft aria-hidden />
+          </Link>
+        )}
         <h1 className="t-heading-1">{title}</h1>
         {aside}
       </div>

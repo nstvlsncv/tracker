@@ -48,6 +48,13 @@
   visibility: hidden;
 }
 
+/* Подпись шире столбика. У крайнего правого она прижата к правому краю, чтобы не вылезать
+   за секцию. */
+.column:last-child .value {
+  align-self: flex-end;
+  white-space: nowrap;
+}
+
 .shown,
 .bar:hover .value,
 .bar:focus-visible .value {
@@ -116,6 +123,13 @@
 .tick {
   color: var(--text-tertiary);
   white-space: nowrap;
+}
+
+/* Подписи краёв графика: только на телефоне, вместо дат под столбиками. */
+.range {
+  display: none;
+  justify-content: space-between;
+  color: var(--text-tertiary);
 }
 
 /* --- Привычки: название, доля, полоска и серии --- */
@@ -189,12 +203,12 @@
     height: 120px;
   }
 
-  /* На телефоне подписи через три: дата шире столбика. */
+  /* На телефоне дата шире столбика: подписей под столбиками нет, подписаны края графика. */
   .column .tick {
-    visibility: hidden;
+    display: none;
   }
 
-  .column:nth-last-child(4n + 1) .tick {
-    visibility: visible;
+  .range {
+    display: flex;
   }
 }

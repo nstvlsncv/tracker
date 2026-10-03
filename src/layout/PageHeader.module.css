@@ -21,11 +21,29 @@
   gap: var(--space-sm);
 }
 
+/* Стрелка «назад»: только на телефоне. */
+.back {
+  display: none;
+}
+
 /* Телефон: заголовок меньше, кнопки закреплены внизу экрана над нижней панелью. */
 @media (max-width: 640px) {
   .title h1 {
     font-size: var(--typography-heading-3-font-size);
     line-height: var(--typography-heading-3-line-height);
+  }
+
+  /* Стрелка стоит перед названием в одну строку с ним. Сдвинута влево на свои поля,
+     чтобы сама иконка стояла по краю страницы. */
+  .title:has(.back) {
+    flex-wrap: nowrap;
+    gap: var(--space-xs);
+  }
+
+  .back {
+    display: inline-flex;
+    flex: none;
+    margin-left: calc(-1 * var(--space-sm));
   }
 
   /* Без подложки: только сами кнопки, в один ряд. Главная (в разметке последняя) стоит слева
