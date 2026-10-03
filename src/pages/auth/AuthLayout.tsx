@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Mascot } from '../../components/Mascot'
 import { cx } from '../../lib/cx'
 import { DotField } from './DotField'
+import { Showreel } from './Showreel'
 import styles from './AuthLayout.module.css'
 
 type Props = {
@@ -54,9 +55,13 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
           </div>
           {/* Вторая карточка: что это за сервис и кнопка, которая его показывает. */}
           <div className={styles.promo}>
-            {/* Неразрывные пробелы: «и» и «в» не остаются висеть в конце строки. */}
-            <p className="t-body-sm">Недели, задачи, цели и&nbsp;привычки в&nbsp;одном месте</p>
-            {action}
+            {/* Ролик из настоящих деталей трекера: играет сам, по кругу. */}
+            <Showreel />
+            <div className={styles.promoRow}>
+              {/* Неразрывные пробелы: «и» и «в» не остаются висеть в конце строки. */}
+              <p className="t-body-sm">Недели, задачи, цели и&nbsp;привычки в&nbsp;одном месте</p>
+              {action}
+            </div>
           </div>
         </div>
       </div>

@@ -31,24 +31,32 @@
   max-width: 100%;
 }
 
-/* Карточка о сервисе: слева строка, справа кнопка демо. */
+/* Карточка о сервисе: сверху ролик, под ним строка и кнопка демо. */
 .promo {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   gap: var(--space-md);
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-md);
   border-radius: var(--radius-xl);
   background: var(--bg-primary);
   color: var(--text-secondary);
 }
 
+/* Слева строка, справа кнопка. Отступы по бокам добирают до полей формы над карточкой. */
+.promoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 0 var(--space-sm);
+}
+
 /* Строка делится на две равные по длине. */
-.promo > p {
+.promoRow > p {
   text-wrap: balance;
 }
 
-.promo > button {
+.promoRow > button {
   flex: none;
 }
 
@@ -125,12 +133,15 @@
     flex: 1;
   }
 
-  /* Строка сверху, кнопка под ней во всю ширину. */
   .promo {
+    margin-top: auto;
+  }
+
+  /* Строка сверху, кнопка под ней во всю ширину. */
+  .promoRow {
     flex-direction: column;
     align-items: stretch;
-    margin-top: auto;
-    padding: var(--space-md);
+    padding: 0;
     text-align: center;
   }
 }

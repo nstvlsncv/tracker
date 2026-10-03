@@ -12,6 +12,8 @@ type Props = {
   value: number | null
   /** sm 72px, lg 120px, xl 150px (карточки дней). */
   size?: 'sm' | 'lg' | 'xl'
+  /** Не звать маскотов радоваться на 100% (кольцо в ролике на экране входа). */
+  quiet?: boolean
 }
 
 const SIZES = {
@@ -24,14 +26,14 @@ const SIZES = {
  * Кольцо прогресса. При появлении полоска заполняется от нуля, а процент в центре
  * проворачивается как счётчик; при смене значения оба плавно переходят к новому.
  */
-export function Donut({ value, size = 'sm' }: Props) {
+export function Donut({ value, size = 'sm', quiet = false }: Props) {
   const ready = useAfterMount()
   // Кольцо дошло до 100% на глазах: короткий праздник.
   const burst = useBurst(value === 100)
   // День закрыт на глазах: маскот тоже радуется.
   useEffect(() => {
-    if (burst > 0) cheer()
-  }, [burst])
+    if (burst > 0 && !quiet) cheer()
+  }, [burst, quiet])
   const { diameter, stroke } = SIZES[size]
   const radius = (diameter - stroke) / 2
   const length = 2 * Math.PI * radius
