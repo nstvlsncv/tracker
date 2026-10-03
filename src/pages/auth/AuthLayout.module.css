@@ -109,6 +109,31 @@
   text-underline-offset: 3px;
 }
 
+/* Компьютер: форма и карточка с роликом стоят рядом, одной высоты, и вместе с названием
+   и подписью помещаются в один экран без прокрутки. На невысоком экране верхний отступ
+   сжимается. */
+@media (min-width: 1025px) {
+  .page {
+    padding-top: clamp(var(--space-lg), 12vh, 120px);
+  }
+
+  .cards {
+    flex-direction: row;
+    align-items: stretch;
+    width: auto;
+  }
+
+  .cards > * {
+    flex: none;
+    width: 450px;
+  }
+
+  /* Форма ниже карточки с роликом: её содержимое стоит по центру высоты. */
+  .card {
+    justify-content: center;
+  }
+}
+
 /* Телефон: блок ближе к верху, поля карточки меньше. */
 @media (max-width: 640px) {
   .page {

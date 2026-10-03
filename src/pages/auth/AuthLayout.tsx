@@ -28,6 +28,8 @@ export const AUTHOR_URL = 'https://t.me/nst_vlsncv'
 /** Каркас экрана входа: без сайдбара, логотип и карточка 450px на 120px ниже верхнего края. */
 export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, children }: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
+  // Пятно точек стоит под серединой обеих карточек: формы и демо.
+  const cardsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!shake || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -39,13 +41,13 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
 
   return (
     <main className={cx(styles.page, leaving && styles.leaving)} data-accent="lime">
-      <DotField anchorRef={cardRef} />
+      <DotField anchorRef={cardsRef} />
       <div className={styles.content}>
         <div className={`t-heading-2 ${styles.logo}`}>
           <Mascot size="1.3em" mood={mood} />
           Трекер
         </div>
-        <div className={styles.cards}>
+        <div ref={cardsRef} className={styles.cards}>
           <div ref={cardRef} className={styles.card}>
             <header className={styles.heading}>
               <h1 className="t-heading-5">{title}</h1>
