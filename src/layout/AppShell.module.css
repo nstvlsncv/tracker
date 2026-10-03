@@ -24,7 +24,11 @@
   background: var(--bg-primary);
 }
 
+/* Название с маскотом. В узкой полосе планшета остаётся один маскот. */
 .logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
   padding: var(--space-sm) 0;
 }
 
@@ -171,7 +175,7 @@
     padding: var(--space-md) var(--space-sm);
   }
 
-  .logo,
+  .logoText,
   .label {
     position: absolute;
     width: 1px;
@@ -258,6 +262,11 @@
     height: auto;
     overflow: visible;
     clip-path: none;
+  }
+
+  /* В нижней панели названия с маскотом нет. */
+  .logo {
+    display: none;
   }
 
   /* Профиль на телефоне открывается кнопкой на Главной, в панели остаются четыре раздела. */

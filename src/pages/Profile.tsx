@@ -1,10 +1,12 @@
-import { Moon, Sun } from '@phosphor-icons/react'
+import { Check, Moon, Sun } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
 import { useAuth } from '../auth/useAuth'
 import { Button } from '../components/Button'
 import { Section } from '../components/Section'
 import { Segmented } from '../components/Segmented'
 import { CHANGELOG } from '../data/changelog'
+import { ACCENTS, setAccent, useAccent } from '../lib/accent'
+import { cx } from '../lib/cx'
 import { formatDateNumeric } from '../lib/dates'
 import { useSessionState } from '../lib/sessionState'
 import { setTheme, useTheme } from '../lib/theme'
@@ -20,6 +22,7 @@ export function Profile() {
   // В демо для гостей нет смены пароля и удаления аккаунта: пароля гость не знает.
   const { profile, demo } = useAuth()
   const theme = useTheme()
+  const accent = useAccent()
   // В истории версий сразу видна только последняя, остальные открываются кнопкой.
   const [showAll, setShowAll] = useSessionState('profile.showAllReleases', false)
 
@@ -42,6 +45,29 @@ export function Profile() {
               { value: 'dark', label: 'Тёмная', icon: <Moon aria-hidden /> },
             ]}
           />
+        </div>
+        {/* Акцентный цвет: им отмечено всё сделанное и текущее, в него же красится маскот. */}
+        <div className={styles.accents}>
+          <span className={`t-caption ${styles.accentsLabel}`} id="accent-label">
+            Акцентный цвет
+          </span>
+          <div className={styles.swatches} role="radiogroup" aria-labelledby="accent-label">
+            {ACCENTS.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                role="radio"
+                aria-checked={option.value === accent}
+                aria-label={option.label}
+                title={option.label}
+                data-accent={option.value}
+                className={cx(styles.swatch, option.value === accent && styles.swatchSelected)}
+                onClick={() => setAccent(option.value)}
+              >
+                {option.value === accent && <Check aria-hidden />}
+              </button>
+            ))}
+          </div>
         </div>
       </Section>
 

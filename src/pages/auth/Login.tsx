@@ -61,6 +61,8 @@ export function Login() {
   const [errors, setErrors] = useState<FieldErrors>({})
   const [busy, setBusy] = useState(false)
   const [caps, setCaps] = useState(false)
+  // Пока курсор в поле пароля, маскот у названия зажмуривается.
+  const [typingPassword, setTypingPassword] = useState(false)
   // Каждая неудача качает карточку, удачный вход растворяет экран.
   const [shake, setShake] = useState(0)
   const [leaving, setLeaving] = useState(false)
@@ -148,6 +150,7 @@ export function Login() {
       subtitle={subtitle}
       shake={shake}
       leaving={leaving}
+      mood={success ? 'happy' : typingPassword ? 'shy' : 'calm'}
       action={
         // Настоящий трекер на демо-данных, без входа: проще показать, чем рассказать.
         <Button variant="secondary" onClick={() => navigate('/demo')}>
@@ -189,7 +192,11 @@ export function Login() {
             hint={caps ? 'Включён Caps Lock' : undefined}
             onKeyDown={watchCaps}
             onKeyUp={watchCaps}
-            onBlur={() => setCaps(false)}
+            onFocus={() => setTypingPassword(true)}
+            onBlur={() => {
+              setCaps(false)
+              setTypingPassword(false)
+            }}
             onChange={(event) => {
               setPassword(event.target.value)
               setErrors({})

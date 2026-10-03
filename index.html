@@ -22,6 +22,9 @@
         if (saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches) {
           document.documentElement.dataset.theme = 'dark'
         }
+        // Акцентный цвет, выбранный в Профиле. Без выбора остаётся лаймовый.
+        var accent = localStorage.getItem('tracker.accent')
+        if (accent) document.documentElement.dataset.accent = accent
       } catch (e) {}
     </script>
     <title>Трекер</title>

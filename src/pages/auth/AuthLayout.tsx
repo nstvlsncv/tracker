@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
+import { Mascot } from '../../components/Mascot'
 import { cx } from '../../lib/cx'
 import { DotField } from './DotField'
 import styles from './AuthLayout.module.css'
@@ -11,6 +12,8 @@ type Props = {
   shake?: number
   /** Вход выполнен: экран растворяется, пока открывается приложение. */
   leaving?: boolean
+  /** Настроение маскота у названия: зажмуривается на пароле, радуется удачному входу. */
+  mood?: 'calm' | 'shy' | 'happy'
   /** Кнопка во второй карточке, рядом со строкой о сервисе («Посмотреть демо»). */
   action?: ReactNode
   children: ReactNode
@@ -22,7 +25,7 @@ const SHAKE_PX = [-10, 9, -7, 5, -3]
 export const AUTHOR_URL = 'https://t.me/nst_vlsncv'
 
 /** Каркас экрана входа: без сайдбара, логотип и карточка 450px на 120px ниже верхнего края. */
-export function AuthLayout({ title, subtitle, shake = 0, leaving, action, children }: Props) {
+export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, children }: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -34,11 +37,11 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, action, childr
   }, [shake])
 
   return (
-    <main className={cx(styles.page, leaving && styles.leaving)}>
+    <main className={cx(styles.page, leaving && styles.leaving)} data-accent="lime">
       <DotField anchorRef={cardRef} />
       <div className={styles.content}>
         <div className={`t-heading-2 ${styles.logo}`}>
-          <span className={styles.mark} aria-hidden />
+          <Mascot size="1.3em" mood={mood} />
           Трекер
         </div>
         <div className={styles.cards}>

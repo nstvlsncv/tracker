@@ -8,6 +8,7 @@ import {
 } from '@phosphor-icons/react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
+import { Mascot } from '../components/Mascot'
 import { cx } from '../lib/cx'
 import { takeEntrance } from '../lib/entrance'
 import { recall, remember } from '../lib/sessionState'
@@ -79,7 +80,10 @@ export function AppShell({ basePath = '' }: Props) {
   return (
     <div className={cx(styles.shell, entering && styles.entering)}>
       <aside className={styles.sidebar}>
-        <div className={`t-heading-3 ${styles.logo}`}>Трекер</div>
+        <div className={`t-heading-3 ${styles.logo}`}>
+          <Mascot size={32} />
+          <span className={styles.logoText}>Трекер</span>
+        </div>
         <nav className={styles.nav} aria-label="Разделы">
           {NAV.map(({ to, label, icon: Icon, end, motion, ...item }) => (
             <NavLink

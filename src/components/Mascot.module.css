@@ -1,0 +1,71 @@
+.mascot {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--size);
+  height: var(--size);
+  border-radius: var(--radius-full);
+  background: var(--highlight-default);
+  transition: background-color var(--transition-fast);
+}
+
+/* Глаза стоят чуть выше центра и вместе сдвигаются вслед за курсором. */
+.eyes {
+  display: flex;
+  gap: calc(var(--size) * 0.16);
+  margin-top: calc(var(--size) * -0.08);
+  transform: translate(var(--look-x, 0px), var(--look-y, 0px));
+  transition: transform 120ms ease-out;
+}
+
+.eye {
+  width: calc(var(--size) * 0.13);
+  height: calc(var(--size) * 0.22);
+  border-radius: var(--radius-full);
+  background: var(--highlight-foreground);
+  transition: transform 160ms ease-out;
+  animation: blink 5s infinite;
+}
+
+/* Моргает раз в пять секунд: веки смыкаются на мгновение. */
+@keyframes blink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+
+/* Зажмурился: вводят пароль, подглядывать нехорошо. */
+.shy .eye {
+  transform: scaleY(0.12);
+  animation: none;
+}
+
+/* Радуется: глаза щурятся, а сам подпрыгивает. */
+.happy .eye {
+  transform: scaleY(0.45);
+  animation: none;
+}
+
+.happy {
+  animation: hop 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes hop {
+  40% {
+    transform: translateY(-22%) scale(1.06);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eye,
+  .happy {
+    animation: none;
+  }
+}

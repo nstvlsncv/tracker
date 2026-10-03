@@ -11,6 +11,38 @@
   --transition-press: 120ms ease-out;
 }
 
+/*
+ * Акцентный цвет на выбор (Профиль → Оформление, src/lib/accent.ts). Меняется одна переменная:
+ * всё, что отмечает сделанное и текущее, и маскот перекрашиваются сами. Знаки поверх акцента
+ * тёмные у всех цветов: каждый достаточно светлый. Атрибут можно поставить и на часть страницы:
+ * экран входа всегда лаймовый, какой бы цвет ни был выбран. Селекторы с :root, чтобы быть
+ * не слабее правила тёмной темы, которое тоже задаёт эту переменную.
+ */
+:root[data-accent='lime'],
+:root [data-accent='lime'] {
+  --highlight-default: var(--core-lime-500);
+}
+
+:root[data-accent='pink'],
+:root [data-accent='pink'] {
+  --highlight-default: var(--core-pink-500);
+}
+
+:root[data-accent='sky'],
+:root [data-accent='sky'] {
+  --highlight-default: var(--core-sky-500);
+}
+
+:root[data-accent='yellow'],
+:root [data-accent='yellow'] {
+  --highlight-default: var(--core-yellow-500);
+}
+
+:root[data-accent='violet'],
+:root [data-accent='violet'] {
+  --highlight-default: var(--core-violet-500);
+}
+
 *,
 *::before,
 *::after {

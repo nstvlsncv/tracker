@@ -52,19 +52,11 @@
   flex: none;
 }
 
-/* Название с лаймовым кругом: тот же знак, что на иконке приложения. */
+/* Название с маскотом: лаймовый круг с глазами, тот же знак, что на иконке приложения. */
 .logo {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-}
-
-.mark {
-  flex: none;
-  width: 0.95em;
-  height: 0.95em;
-  border-radius: var(--radius-full);
-  background: var(--highlight-default);
 }
 
 .card {

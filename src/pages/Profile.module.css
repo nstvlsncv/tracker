@@ -30,3 +30,49 @@
   margin: 0;
   color: var(--text-tertiary);
 }
+
+/* --- Акцентный цвет: подпись и пять кружков --- */
+
+.accents {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.accentsLabel {
+  color: var(--text-secondary);
+}
+
+.swatches {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* Каждый кружок залит своим цветом: атрибут data-accent на нём подменяет переменную. */
+.swatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--highlight-default);
+  color: var(--highlight-foreground);
+  transition: transform var(--transition-press);
+}
+
+.swatch:active {
+  transform: scale(0.92);
+}
+
+.swatch svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Выбранный: галочка внутри и кольцо вокруг. */
+.swatchSelected {
+  box-shadow:
+    0 0 0 2px var(--bg-primary),
+    0 0 0 4px var(--accent-default);
+}

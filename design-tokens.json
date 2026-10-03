@@ -21,7 +21,19 @@
       "900": { "value": "#0A3323", "type": "color", "note": "Added for the dark theme: success background." }
     },
     "Lime": {
-      "500": { "value": "#C6F432", "type": "color", "note": "The one juicy colour of the product. Marks what is done or current." }
+      "500": { "value": "#C6F432", "type": "color", "note": "The default juicy colour of the product. Marks what is done or current." }
+    },
+    "Pink": {
+      "500": { "value": "#FF7EC8", "type": "color", "note": "Accent option. Like every accent: bright and light enough for dark marks on top." }
+    },
+    "Sky": {
+      "500": { "value": "#6CCBFF", "type": "color", "note": "Accent option." }
+    },
+    "Yellow": {
+      "500": { "value": "#FFD534", "type": "color", "note": "Accent option." }
+    },
+    "Violet": {
+      "500": { "value": "#B9A6FF", "type": "color", "note": "Accent option." }
     },
     "Orange": {
       "100": { "value": "#FFF0D9", "type": "color" },
