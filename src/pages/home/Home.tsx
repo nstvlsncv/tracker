@@ -1,8 +1,10 @@
-import { Plus } from '@phosphor-icons/react'
+import { Plus, User } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
 import { useAuth } from '../../auth/useAuth'
 import { AddItemField } from '../../components/AddItem'
 import { Button } from '../../components/Button'
+import { buttonClassName } from '../../components/buttonStyles'
 import { Checkbox } from '../../components/Checkbox'
 import { IconButton } from '../../components/IconButton'
 import { ItemList } from '../../components/ItemList'
@@ -103,6 +105,15 @@ export function Home() {
   return (
     <>
       <header className={styles.header}>
+        {/* Только на телефоне: Профиля нет в нижней панели, вход в него отсюда. */}
+        <Link
+          to="profile"
+          relative="path"
+          className={cx(buttonClassName({ variant: 'secondary', iconOnly: true }), styles.profile)}
+          aria-label="Профиль"
+        >
+          <User aria-hidden />
+        </Link>
         <h1 className={`t-heading-1 ${styles.title}`}>
           {greeting(now.getHours())}
           {profile?.name ? `, ${profile.name}` : ''}!

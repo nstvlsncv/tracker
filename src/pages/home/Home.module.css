@@ -12,6 +12,27 @@
   margin: 0;
 }
 
+/* Кнопка профиля: только на телефоне, в правом верхнем углу, рядом с приветствием. */
+.profile {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .header {
+    position: relative;
+    /* Место под кнопку: заголовок не заходит под неё. */
+    padding-right: calc(40px + var(--space-sm));
+  }
+
+  .profile {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: inline-flex;
+    border-radius: var(--radius-full);
+  }
+}
+
 .date {
   color: var(--text-tertiary);
 }

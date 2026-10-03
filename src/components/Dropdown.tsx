@@ -13,13 +13,21 @@ type Props<T extends string> = {
   onChange: (value: T) => void
   /** Что выбирает список: для скринридера. */
   'aria-label': string
+  /**
+   * Подпись над списком. С ней список выглядит как поле формы: подпись сверху, как у Input,
+   * и поле во всю ширину с рамкой, вместо серой кнопки.
+   */
+  label?: string
   size?: ButtonSize
   variant?: 'secondary' | 'ghost'
   /** К какому краю кнопки прижато меню. */
   align?: 'start' | 'end'
 }
 
-/** Выпадающий список: серая кнопка с текущим значением и меню под ней. */
+/**
+ * Выпадающий список: серая кнопка с текущим значением и меню под ней.
+ * С `label` это поле формы: подпись сверху и поле во всю ширину, как Input.
+ */
 export function Dropdown<T extends string>({
   options,
   value,
@@ -27,6 +35,7 @@ export function Dropdown<T extends string>({
   size = 'lg',
   variant = 'secondary',
   align = 'end',
+  label,
   ...rest
 }: Props<T>) {
   const [open, setOpen] = useState(false)
@@ -68,7 +77,7 @@ export function Dropdown<T extends string>({
   return (
     <div
       ref={rootRef}
-      className={styles.root}
+      className={cx(styles.root, label && styles.field)}
       onKeyDown={(event) => {
         if (!open) return
         if (event.key === 'Escape') {
@@ -82,10 +91,15 @@ export function Dropdown<T extends string>({
         if (event.key === 'Tab') setOpen(false)
       }}
     >
+      {label && (
+        <span className={`t-caption ${styles.label}`} aria-hidden>
+          {label}
+        </span>
+      )}
       <button
         ref={triggerRef}
         type="button"
-        className={buttonClassName({ variant, size })}
+        className={label ? `t-body-md ${styles.input}` : buttonClassName({ variant, size })}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={open ? listId : undefined}
@@ -102,7 +116,7 @@ export function Dropdown<T extends string>({
           ref={listRef}
           id={listId}
           role="listbox"
-          className={cx(styles.list, align === 'start' ? styles.start : styles.end)}
+          className={cx(styles.list, label || align === 'start' ? styles.start : styles.end)}
           {...rest}
         >
           {options.map((option) => (

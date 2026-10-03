@@ -25,7 +25,8 @@ const NAV = [
   { to: 'week', label: 'Неделя', icon: CalendarDots, end: false, motion: 'flip' },
   { to: 'habits', label: 'Привычки', icon: ArrowsClockwise, end: false, motion: 'spin' },
   { to: 'stats', label: 'Итоги', icon: ChartBar, end: false, motion: 'bounce' },
-  { to: 'profile', label: 'Профиль', icon: User, end: false, motion: 'nod' },
+  // На телефоне Профиля в нижней панели нет: туда ведёт кнопка в правом верхнем углу Главной.
+  { to: 'profile', label: 'Профиль', icon: User, end: false, motion: 'nod', desktopOnly: true },
 ] as const
 
 /** Раздел, к которому относится адрес: 'week' для /week/2026-W38, '' для Главной. */
@@ -80,14 +81,21 @@ export function AppShell({ basePath = '' }: Props) {
       <aside className={styles.sidebar}>
         <div className={`t-heading-3 ${styles.logo}`}>Трекер</div>
         <nav className={styles.nav} aria-label="Разделы">
-          {NAV.map(({ to, label, icon: Icon, end, motion }) => (
+          {NAV.map(({ to, label, icon: Icon, end, motion, ...item }) => (
             <NavLink
               key={to}
               // Из другого раздела возвращаемся туда, где были. Нажатие на уже открытый
               // раздел ведёт в его начало (текущая неделя).
               to={(to !== section && recall<string>(`shell.path.${to}`)) || `${basePath}/${to}`}
               end={end}
-              className={({ isActive }) => cx('t-button', styles.item, isActive && styles.active)}
+              className={({ isActive }) =>
+                cx(
+                  't-button',
+                  styles.item,
+                  isActive && styles.active,
+                  'desktopOnly' in item && styles.desktopOnly,
+                )
+              }
               onClick={() => setTap((last) => ({ to, count: last.count + 1 }))}
             >
               <Icon

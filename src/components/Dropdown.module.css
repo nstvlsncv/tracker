@@ -69,3 +69,51 @@
 .option:focus-visible {
   outline-offset: -2px;
 }
+
+/* --- Поле формы: подпись сверху и поле во всю ширину, тот же вид, что у Input --- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.label {
+  color: var(--text-secondary);
+}
+
+.input {
+  width: 100%;
+  height: 48px;
+  padding: 0 var(--space-md);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  text-align: left;
+  transition: border-color var(--transition-fast);
+}
+
+.input .value {
+  display: flex;
+  justify-content: space-between;
+}
+
+.input .chevron {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: var(--text-placeholder);
+}
+
+.input[aria-expanded='true'],
+.input:focus-visible {
+  border-color: var(--accent-default);
+  outline: none;
+}
+
+@media (hover: hover) {
+  .input:hover:not([aria-expanded='true']) {
+    border-color: var(--border-default);
+  }
+}

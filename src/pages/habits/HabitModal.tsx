@@ -1,9 +1,7 @@
-import { Minus, Plus } from '@phosphor-icons/react'
 import { useId, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Button } from '../../components/Button'
 import { Dropdown } from '../../components/Dropdown'
-import { IconButton } from '../../components/IconButton'
 import { Input } from '../../components/Input'
 import { Modal } from '../../components/Modal'
 import type { Habit, HabitFrequency, HabitSchedule } from '../../data/types'
@@ -27,6 +25,11 @@ const FREQUENCIES: Array<{ value: HabitFrequency; label: string }> = [
   { value: 'days', label: 'По дням недели' },
   { value: 'weekly', label: 'Несколько раз в неделю' },
 ]
+
+const TIMES = [1, 2, 3, 4, 5, 6].map((count) => ({
+  value: String(count),
+  label: `${count} ${pluralize(count, 'раз', 'раза', 'раз')}`,
+}))
 
 /**
  * Модалка «Добавить привычку» и «Изменить привычку»: название и как часто её отмечать.
@@ -94,19 +97,19 @@ export function HabitModal({ habit, onClose, onSave, onArchive }: Props) {
             setError(undefined)
           }}
         />
-        <div className={styles.row}>
-          <span>Как часто</span>
-          <Dropdown
-            aria-label="Как часто"
-            size="md"
-            value={frequency}
-            onChange={setFrequency}
-            options={FREQUENCIES}
-          />
-        </div>
+        <Dropdown
+          label="Как часто"
+          aria-label="Как часто"
+          value={frequency}
+          onChange={setFrequency}
+          options={FREQUENCIES}
+        />
 
         {frequency === 'days' && (
           <div className={styles.block}>
+            <span className={`t-caption ${styles.label}`} aria-hidden>
+              Дни недели
+            </span>
             <div className={styles.days} role="group" aria-label="Дни недели">
               {WEEKDAY_LABELS.map((label, index) => {
                 const day = index + 1
@@ -133,27 +136,13 @@ export function HabitModal({ habit, onClose, onSave, onArchive }: Props) {
         )}
 
         {frequency === 'weekly' && (
-          <div className={styles.row}>
-            <span>Сколько раз в неделю</span>
-            <div className={styles.stepper}>
-              <IconButton
-                variant="secondary"
-                icon={<Minus aria-hidden />}
-                aria-label="Меньше"
-                onClick={() => setTimes((current) => Math.max(1, current - 1))}
-              />
-              <span className={`t-heading-5 ${styles.times}`} aria-live="polite">
-                {times}
-                <span className="visually-hidden"> {pluralize(times, 'раз', 'раза', 'раз')}</span>
-              </span>
-              <IconButton
-                variant="secondary"
-                icon={<Plus aria-hidden />}
-                aria-label="Больше"
-                onClick={() => setTimes((current) => Math.min(6, current + 1))}
-              />
-            </div>
-          </div>
+          <Dropdown
+            label="Сколько раз в неделю"
+            aria-label="Сколько раз в неделю"
+            value={String(times)}
+            onChange={(value) => setTimes(Number(value))}
+            options={TIMES}
+          />
         )}
       </form>
     </Modal>

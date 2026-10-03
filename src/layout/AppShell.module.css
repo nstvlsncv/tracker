@@ -239,11 +239,8 @@
     padding: var(--space-xs) 0;
     border-radius: var(--radius-md);
     color: var(--text-placeholder);
-    /* Пять разделов на узком экране: подпись на пиксель мельче и чуть плотнее,
-       иначе «Привычки» упираются в соседей. */
-    font-size: calc(var(--typography-tab-font-size) - 1px);
+    font-size: var(--typography-tab-font-size);
     line-height: var(--typography-tab-line-height);
-    letter-spacing: -0.01em;
   }
 
   .item:hover,
@@ -261,6 +258,11 @@
     height: auto;
     overflow: visible;
     clip-path: none;
+  }
+
+  /* Профиль на телефоне открывается кнопкой на Главной, в панели остаются четыре раздела. */
+  .desktopOnly {
+    display: none;
   }
 
   /* Выход на телефоне живёт на экране Профиля. */

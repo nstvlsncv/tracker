@@ -9,7 +9,6 @@ import { ITEM_TITLE_MAX_LENGTH } from '../../lib/constants'
 import type { Repeat } from '../../data/types'
 import { formatDayMonth } from '../../lib/dates'
 import { REPEAT_OPTIONS } from '../../lib/repeat'
-import styles from './AddTaskModal.module.css'
 
 type Props = {
   today: string
@@ -54,7 +53,6 @@ export function AddTaskModal({ today, canRepeat, onClose, onAdd }: Props) {
     >
       <Input
         label="Что нужно сделать"
-        hideLabel
         maxLength={ITEM_TITLE_MAX_LENGTH}
         value={title}
         error={error}
@@ -67,16 +65,13 @@ export function AddTaskModal({ today, canRepeat, onClose, onAdd }: Props) {
         }}
       />
       {canRepeat && (
-        <div className={styles.repeat}>
-          <span>Повтор</span>
-          <Dropdown
-            aria-label="Повтор"
-            size="md"
-            value={repeat}
-            onChange={setRepeat}
-            options={REPEAT_OPTIONS}
-          />
-        </div>
+        <Dropdown
+          label="Повтор"
+          aria-label="Повтор"
+          value={repeat}
+          onChange={setRepeat}
+          options={REPEAT_OPTIONS}
+        />
       )}
       <Calendar mode="day" value={date} onChange={setDate} today={today} />
     </Modal>
