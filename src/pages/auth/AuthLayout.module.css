@@ -95,8 +95,8 @@
 
 .footer {
   margin-top: auto;
-  /* Цвет как у подзаголовка карточки, размер на ступень меньше. */
-  color: var(--text-secondary);
+  /* Светлее подзаголовка карточки и на ступень меньше: подпись не спорит с формой. */
+  color: var(--text-tertiary);
   text-align: center;
 }
 
@@ -114,6 +114,8 @@
 /* Телефон: блок ближе к верху, поля карточки меньше. */
 @media (max-width: 640px) {
   .page {
+    /* Между карточкой с демо и подписью 24px. */
+    gap: var(--space-lg);
     padding-top: var(--space-2xl);
   }
 
