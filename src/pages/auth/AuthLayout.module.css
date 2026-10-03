@@ -121,10 +121,21 @@
     padding: var(--space-md);
   }
 
+  /* Первый экран занимают название, форма и, у самого низа, карточка с демо.
+     Подпись стоит ниже, до неё нужно прокрутить. */
+  .content {
+    min-height: calc(100dvh - var(--space-2xl) - var(--space-md));
+  }
+
+  .cards {
+    flex: 1;
+  }
+
   /* Строка сверху, кнопка под ней во всю ширину. */
   .promo {
     flex-direction: column;
     align-items: stretch;
+    margin-top: auto;
     padding: var(--space-md);
     text-align: center;
   }
