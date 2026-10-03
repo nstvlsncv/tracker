@@ -7,7 +7,7 @@ export function LoginSkeleton() {
     <main className={styles.page} aria-busy="true" aria-label="Загрузка">
       <div className={styles.content}>
         <Skeleton width={150} height={34} />
-        <div className={styles.card}>
+        <div className={`${styles.card} ${styles.cards}`}>
           <div className={styles.heading}>
             <Skeleton width="50%" height={24} />
           </div>

@@ -148,9 +148,9 @@ export function Login() {
       subtitle={subtitle}
       shake={shake}
       leaving={leaving}
-      corner={
+      action={
         // Настоящий трекер на демо-данных, без входа: проще показать, чем рассказать.
-        <Button variant="secondary" size="sm" onClick={() => navigate('/demo')}>
+        <Button variant="secondary" onClick={() => navigate('/demo')}>
           Посмотреть демо
         </Button>
       }

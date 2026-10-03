@@ -11,8 +11,8 @@ type Props = {
   shake?: number
   /** Вход выполнен: экран растворяется, пока открывается приложение. */
   leaving?: boolean
-  /** Кнопка в углу экрана, под строкой о сервисе («Посмотреть демо»). */
-  corner?: ReactNode
+  /** Кнопка во второй карточке, рядом со строкой о сервисе («Посмотреть демо»). */
+  action?: ReactNode
   children: ReactNode
 }
 
@@ -22,7 +22,7 @@ const SHAKE_PX = [-10, 9, -7, 5, -3]
 export const AUTHOR_URL = 'https://t.me/nst_vlsncv'
 
 /** Каркас экрана входа: без сайдбара, логотип и карточка 450px на 120px ниже верхнего края. */
-export function AuthLayout({ title, subtitle, shake = 0, leaving, corner, children }: Props) {
+export function AuthLayout({ title, subtitle, shake = 0, leaving, action, children }: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -41,18 +41,20 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, corner, childr
           <span className={styles.mark} aria-hidden />
           Трекер
         </div>
-        <div ref={cardRef} className={styles.card}>
-          <header className={styles.heading}>
-            <h1 className="t-heading-5">{title}</h1>
-            <p className={styles.subtitle}>{subtitle}</p>
-          </header>
-          {children}
+        <div className={styles.cards}>
+          <div ref={cardRef} className={styles.card}>
+            <header className={styles.heading}>
+              <h1 className="t-heading-5">{title}</h1>
+              <p className={styles.subtitle}>{subtitle}</p>
+            </header>
+            {children}
+          </div>
+          {/* Вторая карточка: что это за сервис и кнопка, которая его показывает. */}
+          <div className={styles.promo}>
+            <p className="t-body-sm">Недели, задачи, цели и привычки в одном месте</p>
+            {action}
+          </div>
         </div>
-      </div>
-      {/* Что это за сервис и кнопка, которая его показывает. */}
-      <div className={`t-body-sm ${styles.corner}`}>
-        <p>Недели, задачи, цели и привычки в одном месте</p>
-        {corner}
       </div>
       <footer className={`t-body-sm ${styles.footer}`}>
         Designed &amp; developed
