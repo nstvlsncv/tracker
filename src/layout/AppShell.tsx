@@ -2,6 +2,7 @@ import { ArrowsClockwise, CalendarDots, House, SignOut, User } from '@phosphor-i
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
 import { cx } from '../lib/cx'
+import { takeEntrance } from '../lib/entrance'
 import { recall, remember } from '../lib/sessionState'
 import { SignOutModal } from './SignOutModal'
 import styles from './AppShell.module.css'
@@ -30,6 +31,8 @@ function sectionOf(pathname: string, basePath: string): string {
  */
 export function AppShell({ basePath = '' }: Props) {
   const [leaving, setLeaving] = useState(false)
+  // Сразу после входа приложение проявляется (см. экран входа).
+  const [entering] = useState(takeEntrance)
 
   // Каждый раздел помнит, где его оставили: адрес внутри раздела (выбранная неделя) и прокрутку.
   const { pathname } = useLocation()
@@ -65,7 +68,7 @@ export function AppShell({ basePath = '' }: Props) {
   const [tap, setTap] = useState<{ to: string | null; count: number }>({ to: null, count: 0 })
 
   return (
-    <div className={styles.shell}>
+    <div className={cx(styles.shell, entering && styles.entering)}>
       <aside className={styles.sidebar}>
         <div className={`t-heading-3 ${styles.logo}`}>Трекер</div>
         <nav className={styles.nav} aria-label="Разделы">

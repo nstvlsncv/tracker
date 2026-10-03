@@ -4,3 +4,16 @@
   flex-direction: column;
   gap: var(--space-sm);
 }
+
+/* Регистрации нет: под кнопкой подсказка, к кому обратиться за аккаунтом. */
+.alt {
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.link {
+  border-radius: var(--radius-xs);
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

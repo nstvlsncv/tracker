@@ -78,3 +78,17 @@
     padding: var(--space-md);
   }
 }
+
+/* После входа экран растворяется, приложение потом проявляется само (AppShell). */
+.leaving {
+  opacity: 0;
+  transition: opacity 250ms ease-out;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .leaving {
+    opacity: 1;
+    transition: none;
+  }
+}

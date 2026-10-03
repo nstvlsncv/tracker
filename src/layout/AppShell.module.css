@@ -275,3 +275,21 @@
     animation: none;
   }
 }
+
+/* Сразу после входа всё приложение проявляется. Только прозрачность: сдвиг сломал бы
+   закреплённые кнопки на телефоне. */
+.entering {
+  animation: shell-enter 400ms ease-out both;
+}
+
+@keyframes shell-enter {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entering {
+    animation: none;
+  }
+}
