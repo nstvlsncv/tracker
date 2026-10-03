@@ -52,7 +52,8 @@
 
 .footer {
   margin-top: auto;
-  color: var(--text-disabled);
+  /* Тот же размер и цвет, что у подзаголовка карточки. */
+  color: var(--text-secondary);
   text-align: center;
 }
 
