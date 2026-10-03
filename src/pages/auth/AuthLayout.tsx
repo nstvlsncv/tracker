@@ -48,7 +48,9 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, children }: Pr
         </div>
       </div>
       <footer className={styles.footer}>
-        Designed &amp; developed by{' '}
+        Designed &amp; developed
+        <br />
+        by{' '}
         <a className={styles.author} href={AUTHOR_URL} target="_blank" rel="noreferrer">
           Anastasia
         </a>{' '}
