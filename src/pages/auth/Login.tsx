@@ -162,7 +162,6 @@ export function Login() {
             hideLabel
             type="email"
             autoComplete="email"
-            autoFocus
             enterKeyHint="next"
             value={email}
             error={errors.login}

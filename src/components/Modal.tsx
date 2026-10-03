@@ -49,11 +49,9 @@ export function Modal({ open, title, onClose, children, footer, footerStart, siz
     if (!open || !dialog) return
 
     const previous = document.activeElement
-    // На компьютере фокус сразу встаёт в первое поле. На телефоне нет: там это выдвинуло бы
-    // клавиатуру поверх шторки и закрыло всё, что под полем.
-    const touch = window.matchMedia('(pointer: coarse)').matches
-    const field = touch ? null : dialog.querySelector<HTMLElement>('input:not(:disabled)')
-    ;(field ?? dialog).focus()
+    // Фокус встаёт на саму модалку, а не в первое поле: поле выбирает человек (первый Tab
+    // ведёт в него). На телефоне фокус в поле ещё и выдвинул бы клавиатуру поверх шторки.
+    dialog.focus()
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
