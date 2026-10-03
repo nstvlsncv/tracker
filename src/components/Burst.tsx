@@ -1,7 +1,6 @@
 import type { CSSProperties } from 'react'
+import { BURST_DOTS as DOTS } from './fireBurst'
 import styles from './Burst.module.css'
-
-const DOTS = 10
 
 type Props = {
   /** На каком расстоянии от центра точки появляются и до какого долетают, px. */

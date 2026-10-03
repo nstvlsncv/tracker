@@ -4,6 +4,13 @@
   pointer-events: none;
 }
 
+/* Салют отдельным слоем поверх страницы (fireBurst): место и размер задаются в коде. */
+.floating {
+  position: fixed;
+  inset: auto;
+  z-index: 200;
+}
+
 .burst span {
   position: absolute;
   top: 50%;

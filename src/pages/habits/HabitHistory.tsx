@@ -1,6 +1,7 @@
 import { parseISO } from 'date-fns'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Dropdown } from '../../components/Dropdown'
+import { fireBurst } from '../../components/fireBurst'
 import { cx } from '../../lib/cx'
 import { formatDayMonth } from '../../lib/dates'
 import { habitHistory, historyYears } from '../../lib/habitHistory'
@@ -106,7 +107,11 @@ export function HabitHistory({ habitId, checks, today, since, onToggle }: Props)
                       aria-label={label}
                       aria-pressed={done}
                       title={label}
-                      onClick={() => onToggle(date, !done)}
+                      onClick={(event) => {
+                        // Отметили день: маленький салют из точки.
+                        if (!done) fireBurst(event.currentTarget, 10, 24)
+                        onToggle(date, !done)
+                      }}
                     />
                   )
                 })}
