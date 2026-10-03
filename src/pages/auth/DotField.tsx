@@ -101,6 +101,11 @@ export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | nul
     // Когда догрузится шрифт, форма чуть сдвигается: пятно встаёт под неё заново.
     document.fonts.ready.then(resize)
     window.addEventListener('resize', resize)
+    // Форма меняет высоту (появилась ошибка, догрузились стили): пятно остаётся под её центром.
+    const observer = new ResizeObserver(() => {
+      if (!following) moveTo(rest())
+    })
+    if (anchorRef.current) observer.observe(anchorRef.current)
 
     // На планшетах и телефонах пятно стоит под формой и не двигается: там нет курсора,
     // а пятно, прыгающее за каждым касанием, только мешает.
@@ -112,6 +117,7 @@ export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | nul
 
     return () => {
       cancelAnimationFrame(frame)
+      observer.disconnect()
       window.removeEventListener('resize', resize)
       window.removeEventListener('pointermove', onMove)
       document.documentElement.removeEventListener('pointerleave', onLeave)

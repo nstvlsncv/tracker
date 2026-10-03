@@ -73,12 +73,13 @@
 }
 
 .author {
+  /* Имя как маркером выделено: тёмный текст на лаймовой плашке, читается в обеих темах. */
+  padding: 2px 6px;
   border-radius: var(--radius-xs);
-  /* Имя лаймовое: так решила владелица, хотя обычно текст лаймом не красится. */
-  color: var(--highlight-default);
+  background: var(--highlight-default);
+  color: var(--highlight-foreground);
   font-weight: var(--typography-caption-font-weight);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  text-decoration: none;
 }
 
 /* Телефон: блок ближе к верху, поля карточки меньше. */
