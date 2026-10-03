@@ -1,38 +1,38 @@
 import { IconContext } from '@phosphor-icons/react'
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router'
+import { lazy, Suspense } from 'react'
+import type { ComponentType } from 'react'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { AuthProvider } from './auth/AuthProvider'
 import { GuestRoute, ProtectedRoute } from './auth/guards'
-import { useAuth } from './auth/useAuth'
 import { ToastProvider } from './components/Toast'
-import { HabitsProvider } from './data/HabitsProvider'
-import { PlannerProvider } from './data/PlannerProvider'
-import { supabaseApi } from './data/supabaseApi'
-import { AppShell } from './layout/AppShell'
 import { AppSkeleton } from './layout/AppSkeleton'
 import { Login } from './pages/auth/Login'
 import { LoginSkeleton } from './pages/auth/LoginSkeleton'
-import { DevPreview } from './pages/DevPreview'
-import { Habits } from './pages/habits/Habits'
-import { Home } from './pages/home/Home'
-import { OgImage } from './pages/OgImage'
-import { Profile } from './pages/Profile'
-import { Showcase } from './pages/Showcase'
-import { Week } from './pages/week/Week'
 
 /** Все иконки приложения: набор Phosphor, начертание bold, чтобы держать вес рядом с Unbounded. */
 const ICONS = { weight: 'bold' } as const
 
-/** Данные пользователя живут, пока он в аккаунте: при смене пользователя хранилище создаётся заново. */
-function Planner() {
-  const { profile } = useAuth()
-  return (
-    <PlannerProvider key={profile?.id} api={supabaseApi}>
-      <HabitsProvider api={supabaseApi}>
-        <Outlet />
-      </HabitsProvider>
-    </PlannerProvider>
-  )
-}
+// Код грузится частями. Сразу приходит только то, что нужно экрану входа. Всё, что открывается
+// после входа, лежит отдельным куском, демо и страницы для разработки ещё двумя.
+const loadWorkspace = () => import('./workspace')
+type Workspace = Awaited<ReturnType<typeof loadWorkspace>>
+const fromWorkspace = <K extends keyof Workspace>(name: K) =>
+  lazy(() => loadWorkspace().then((module) => ({ default: module[name] as ComponentType })))
+
+const Planner = fromWorkspace('Planner')
+const AppShell = fromWorkspace('AppShell')
+const Home = fromWorkspace('Home')
+const Week = fromWorkspace('Week')
+const Habits = fromWorkspace('Habits')
+const Profile = fromWorkspace('Profile')
+
+const DevPreview = lazy(() => import('./pages/DevPreview').then((m) => ({ default: m.DevPreview })))
+const Showcase = lazy(() => import('./pages/Showcase').then((m) => ({ default: m.Showcase })))
+const OgImage = lazy(() => import('./pages/OgImage').then((m) => ({ default: m.OgImage })))
+
+// Кусок с приложением начинает грузиться сразу, не дожидаясь проверки входа: пока она идёт,
+// он уже в пути. Экрану входа это не мешает.
+void loadWorkspace()
 
 export default function App() {
   return (
@@ -40,6 +40,8 @@ export default function App() {
       <ToastProvider>
         <AuthProvider>
           <BrowserRouter>
+            {/* Пока кусок кода в пути, показывается тот же силуэт, что и при загрузке данных. */}
+            <Suspense fallback={<AppSkeleton />}>
             <Routes>
               <Route element={<GuestRoute />}>
                 <Route path="/login" element={<Login />} />
@@ -64,6 +66,7 @@ export default function App() {
             {import.meta.env.DEV && <Route path="/dev/skeleton/login" element={<LoginSkeleton />} />}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            </Suspense>
           </BrowserRouter>
         </AuthProvider>
       </ToastProvider>
