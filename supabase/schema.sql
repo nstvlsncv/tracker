@@ -164,6 +164,51 @@ grant execute on function public.end_session(uuid) to authenticated;
 -- Порядок привычек в списке (перестановка кнопками «Выше» и «Ниже»).
 alter table public.habits add column if not exists position integer;
 
+-- Заметка недели: одно текстовое поле на неделю.
+create table if not exists public.week_notes (
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  -- понедельник недели
+  week_start date not null check (extract(isodow from week_start) = 1),
+  text text not null check (char_length(text) between 1 and 5000),
+  updated_at timestamptz not null default now(),
+  primary key (user_id, week_start)
+);
+
+alter table public.week_notes enable row level security;
+drop policy if exists "own week notes" on public.week_notes;
+create policy "own week notes" on public.week_notes for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+grant select, insert, update, delete on public.week_notes to authenticated;
+
+-- Повторяющиеся задачи: правило повтора. Задачи на каждый день обычные строки tasks,
+-- их ставит приложение, когда открывают неделю.
+create table if not exists public.task_rules (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  title text not null check (char_length(title) between 1 and 200),
+  repeat text not null check (repeat in ('daily', 'weekdays', 'weekly')),
+  start_date date not null,
+  -- null = повторяется без конца
+  end_date date,
+  -- дни, на которые задачу заново ставить не нужно (её удалили или перенесли)
+  skipped date[] not null default '{}',
+  created_at timestamptz not null default now()
+);
+
+alter table public.task_rules enable row level security;
+drop policy if exists "own task rules" on public.task_rules;
+create policy "own task rules" on public.task_rules for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+grant select, insert, update, delete on public.task_rules to authenticated;
+
+alter table public.tasks
+  add column if not exists rule_id uuid references public.task_rules on delete set null;
+-- Одна задача правила на день: открыть неделю с двух устройств сразу не создаст дубль.
+-- У обычных задач rule_id пустой, и это ограничение их не касается.
+create unique index if not exists tasks_rule_date_idx on public.tasks (rule_id, date);
+
 -- Регистрация с кодом из письма и согласием убрана вместе со своими полями и функцией.
 drop function if exists public.email_registered(text);
 alter table public.profiles

@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import type { Goal, Task } from './types'
+import type { Goal, Repeat, Task } from './types'
 
 export type WeekStatus = 'loading' | 'ready' | 'error'
 
@@ -14,12 +14,22 @@ export type PlannerValue = {
   /** Загрузить неделю, если она ещё не загружена. `force` перезапрашивает после ошибки. */
   loadWeek: (weekStart: string, force?: boolean) => void
 
-  addTask: (date: string, title: string) => void
+  /** Заметки недель по понедельнику. undefined: заметок в этой базе нет. */
+  notes: Record<string, string> | undefined
+  /** Сохранить заметку недели. Пустой текст убирает её. */
+  saveNote: (weekStart: string, text: string) => void
+  /** Можно ли ставить задачам повтор (в базе есть правила повтора). */
+  canRepeat: boolean
+
+  /** С `repeat` задача повторяется начиная с этого дня. */
+  addTask: (date: string, title: string, repeat?: Repeat) => void
   toggleTask: (id: string, done: boolean) => void
   renameTask: (id: string, title: string) => void
   deleteTask: (id: string) => void
   /** Перенести задачи на другой день (невыполненное с прошлых дней на сегодня). */
   moveTasks: (ids: string[], date: string) => void
+  /** Перестать повторять: убрать эту задачу и все следующие по её правилу. */
+  endRepeat: (taskId: string) => void
 
   addGoal: (weekStart: string, title: string) => void
   toggleGoal: (id: string, done: boolean) => void

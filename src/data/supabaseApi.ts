@@ -1,7 +1,7 @@
 import { weekStartISO } from '../lib/dates'
 import { shiftDate } from '../lib/metrics'
 import { supabase } from '../lib/supabase'
-import type { Goal, Habit, HabitCheck, ItemPatch, PlannerApi, Task } from './types'
+import type { Goal, Habit, HabitCheck, ItemPatch, PlannerApi, Repeat, Task, TaskRule } from './types'
 
 type TaskRow = {
   id: string
@@ -10,10 +10,23 @@ type TaskRow = {
   is_done: boolean
   done_at: string | null
   created_at: string
+  /** Колонки может ещё не быть в базе (её добавляет свежая версия schema.sql). */
+  rule_id?: string | null
 }
-type GoalRow = Omit<TaskRow, 'date'> & { week_start: string }
+type GoalRow = Omit<TaskRow, 'date' | 'rule_id'> & { week_start: string }
 
-const TASK_COLUMNS = 'id, date, title, is_done, done_at, created_at'
+type RuleRow = {
+  id: string
+  title: string
+  repeat: Repeat
+  start_date: string
+  end_date: string | null
+  skipped: string[] | null
+  created_at: string
+}
+
+// Все колонки, а не список: так чтение работает и до того, как в базе появилась rule_id.
+const TASK_COLUMNS = '*'
 const GOAL_COLUMNS = 'id, week_start, title, is_done, done_at, created_at'
 
 const toTask = (row: TaskRow): Task => ({
@@ -22,6 +35,28 @@ const toTask = (row: TaskRow): Task => ({
   title: row.title,
   isDone: row.is_done,
   doneAt: row.done_at,
+  createdAt: row.created_at,
+  ruleId: row.rule_id ?? null,
+})
+
+const toTaskRow = (task: Task) => ({
+  id: task.id,
+  date: task.date,
+  title: task.title,
+  is_done: task.isDone,
+  done_at: task.doneAt,
+  created_at: task.createdAt,
+  // Поле уходит в базу только у задач из правил: обычные сохраняются и без колонки rule_id.
+  ...(task.ruleId && { rule_id: task.ruleId }),
+})
+
+const toRule = (row: RuleRow): TaskRule => ({
+  id: row.id,
+  title: row.title,
+  repeat: row.repeat,
+  startDate: row.start_date,
+  endDate: row.end_date,
+  skipped: row.skipped ?? [],
   createdAt: row.created_at,
 })
 
@@ -39,6 +74,7 @@ const toRowPatch = (patch: ItemPatch) => ({
   ...(patch.isDone !== undefined && { is_done: patch.isDone }),
   ...(patch.doneAt !== undefined && { done_at: patch.doneAt }),
   ...(patch.date !== undefined && { date: patch.date }),
+  ...(patch.ruleId !== undefined && { rule_id: patch.ruleId }),
 })
 
 type HabitRow = {
@@ -95,7 +131,7 @@ async function loadAllChecks(): Promise<HabitCheck[]> {
 // а правила доступа не дают прочитать или изменить чужое.
 export const supabaseApi: PlannerApi = {
   async loadWeek(weekStart) {
-    const [tasks, goals] = await Promise.all([
+    const [tasks, goals, note] = await Promise.all([
       unwrap(
         supabase
           .from('tasks')
@@ -104,8 +140,75 @@ export const supabaseApi: PlannerApi = {
           .lte('date', shiftDate(weekStart, 6)),
       ),
       unwrap(supabase.from('goals').select(GOAL_COLUMNS).eq('week_start', weekStart)),
+      // Таблицы заметок может ещё не быть: тогда неделя открывается без заметки.
+      supabase
+        .from('week_notes')
+        .select('text')
+        .eq('week_start', weekStart)
+        .maybeSingle()
+        .then(({ data, error }) => (error ? undefined : ((data?.text as string) ?? ''))),
     ])
-    return { tasks: (tasks ?? []).map(toTask), goals: (goals ?? []).map(toGoal) }
+    return { tasks: (tasks ?? []).map(toTask), goals: (goals ?? []).map(toGoal), note }
+  },
+
+  async saveNote(weekStart, text) {
+    await unwrap(
+      text
+        ? supabase
+            .from('week_notes')
+            .upsert(
+              { week_start: weekStart, text, updated_at: new Date().toISOString() },
+              { onConflict: 'user_id,week_start' },
+            )
+        : supabase.from('week_notes').delete().eq('week_start', weekStart),
+    )
+  },
+
+  async loadRules() {
+    const { data, error } = await supabase.from('task_rules').select('*')
+    // Таблицы правил может ещё не быть: тогда трекер работает без повтора.
+    return error ? null : (data as RuleRow[]).map(toRule)
+  },
+
+  async insertRule(rule) {
+    await unwrap(
+      supabase.from('task_rules').insert({
+        id: rule.id,
+        title: rule.title,
+        repeat: rule.repeat,
+        start_date: rule.startDate,
+        end_date: rule.endDate,
+        skipped: rule.skipped,
+        created_at: rule.createdAt,
+      }),
+    )
+  },
+
+  async updateRule(id, patch) {
+    await unwrap(
+      supabase
+        .from('task_rules')
+        .update({
+          ...(patch.endDate !== undefined && { end_date: patch.endDate }),
+          ...(patch.skipped !== undefined && { skipped: patch.skipped }),
+        })
+        .eq('id', id),
+    )
+  },
+
+  async insertRuleTasks(tasks) {
+    if (tasks.length === 0) return
+    // Неделю могли открыть на двух устройствах сразу: вторая попытка поставить ту же задачу
+    // правила на тот же день молча пропускается.
+    await unwrap(
+      supabase
+        .from('tasks')
+        .upsert(tasks.map(toTaskRow), { onConflict: 'rule_id,date', ignoreDuplicates: true }),
+    )
+  },
+
+  async deleteRuleTasksFrom(ruleId, fromDate) {
+    await unwrap(supabase.from('tasks').delete().eq('rule_id', ruleId).gte('date', fromDate))
   },
 
   async loadWeeksWithData() {
@@ -122,16 +225,7 @@ export const supabaseApi: PlannerApi = {
   },
 
   async insertTask(task) {
-    await unwrap(
-      supabase.from('tasks').insert({
-        id: task.id,
-        date: task.date,
-        title: task.title,
-        is_done: task.isDone,
-        done_at: task.doneAt,
-        created_at: task.createdAt,
-      }),
-    )
+    await unwrap(supabase.from('tasks').insert(toTaskRow(task)))
   },
 
   async updateTask(id, patch) {

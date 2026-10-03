@@ -11,6 +11,7 @@ import { Section } from '../../components/Section'
 import { Skeleton } from '../../components/Skeleton'
 import { StatCard } from '../../components/StatCard'
 import { useToast } from '../../components/useToast'
+import type { Repeat } from '../../data/types'
 import { usePlanner } from '../../data/usePlanner'
 import { PageHeader } from '../../layout/PageHeader'
 import {
@@ -27,6 +28,7 @@ import { NETWORK_ERROR_MESSAGE } from '../../lib/supabase'
 import { useToday } from '../../lib/useToday'
 import { AddTaskModal } from './AddTaskModal'
 import { DayCard } from './DayCard'
+import { WeekNote } from './WeekNote'
 import styles from './Week.module.css'
 
 const DAYS = [0, 1, 2, 3, 4, 5, 6]
@@ -74,8 +76,8 @@ export function Week() {
   const goToWeek = (week: string) =>
     navigate(isoWeek ? `../${toWeekParam(week)}` : toWeekParam(week), { relative: 'path' })
 
-  const addTask = (date: string, title: string) => {
-    planner.addTask(date, title)
+  const addTask = (date: string, title: string, repeat?: Repeat) => {
+    planner.addTask(date, title, repeat)
     setAddingTask(false)
     const week = weekStartISO(date)
     toast({
@@ -128,7 +130,12 @@ export function Week() {
       />
 
       {addingTask && (
-        <AddTaskModal today={today} onClose={() => setAddingTask(false)} onAdd={addTask} />
+        <AddTaskModal
+          today={today}
+          canRepeat={planner.canRepeat}
+          onClose={() => setAddingTask(false)}
+          onAdd={addTask}
+        />
       )}
 
       {status === 'error' ? (
@@ -189,6 +196,9 @@ export function Week() {
               )
             })}
           </div>
+
+          {/* Заметка появляется, когда неделя загружена и в базе есть место для заметок. */}
+          {ready && planner.notes && <WeekNote key={weekStart} weekStart={weekStart} />}
 
           <div className={styles.stats}>
             <StatCard loading={!ready} value={stats.total} label="всего задач" />

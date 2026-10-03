@@ -52,6 +52,14 @@ button.title {
   text-decoration: line-through;
 }
 
+/* Значок «повторяется» после названия. */
+.repeat {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--text-placeholder);
+}
+
 /* Кнопки (перенос и корзина) лежат поверх правого края строки и не отнимают ширину у текста (важно в узких карточках дней). */
 .actions {
   position: absolute;

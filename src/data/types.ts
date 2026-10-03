@@ -6,7 +6,31 @@ export type Task = {
   isDone: boolean
   doneAt: string | null
   createdAt: string
+  /** Правило повтора, из которого появилась задача. null или нет поля: обычная задача. */
+  ruleId?: string | null
 }
+
+/** daily: каждый день. weekdays: с понедельника по пятницу. weekly: в день недели начала. */
+export type Repeat = 'daily' | 'weekdays' | 'weekly'
+
+/**
+ * Правило повторяющейся задачи. Сами задачи на каждый день обычные: они появляются из правила,
+ * когда открывают неделю, и дальше живут своей жизнью (их можно отметить, переименовать, удалить).
+ */
+export type TaskRule = {
+  id: string
+  title: string
+  repeat: Repeat
+  /** Первый день повтора, 'yyyy-MM-dd'. */
+  startDate: string
+  /** Последний день повтора. null: повторяется без конца. */
+  endDate: string | null
+  /** Дни, на которые задачу заново ставить не нужно: её там удалили или перенесли. */
+  skipped: string[]
+  createdAt: string
+}
+
+export type RulePatch = { endDate?: string | null; skipped?: string[] }
 
 export type Goal = {
   id: string
@@ -35,15 +59,33 @@ export type HabitCheck = { habitId: string; date: string }
 
 export type HabitPatch = { title?: string; archivedAt?: string | null; position?: number }
 
-/** `date` меняется только у задач: перенос на другой день. */
-export type ItemPatch = { title?: string; isDone?: boolean; doneAt?: string | null; date?: string }
+/** `date` и `ruleId` меняются только у задач: перенос на другой день отвязывает от повтора. */
+export type ItemPatch = {
+  title?: string
+  isDone?: boolean
+  doneAt?: string | null
+  date?: string
+  ruleId?: string | null
+}
 
 /**
  * Откуда берутся и куда сохраняются задачи, цели и привычки. Настоящая реализация ходит в Supabase,
  * а для витрины в режиме разработки есть реализация в памяти. Методы бросают ошибку при сбое.
  */
 export type PlannerApi = {
-  loadWeek: (weekStart: string) => Promise<{ tasks: Task[]; goals: Goal[] }>
+  /** `note`: заметка недели. undefined: заметок в этой базе нет (не применена свежая схема). */
+  loadWeek: (weekStart: string) => Promise<{ tasks: Task[]; goals: Goal[]; note?: string }>
+  /** Сохранить заметку недели. Пустой текст убирает её. */
+  saveNote: (weekStart: string, text: string) => Promise<void>
+
+  /** Правила повторяющихся задач. null: повтора в этой базе нет (не применена свежая схема). */
+  loadRules: () => Promise<TaskRule[] | null>
+  insertRule: (rule: TaskRule) => Promise<void>
+  updateRule: (id: string, patch: RulePatch) => Promise<void>
+  /** Поставить задачи из правил. Если на этот день задача правила уже есть, она не дублируется. */
+  insertRuleTasks: (tasks: Task[]) => Promise<void>
+  /** Удалить задачи правила начиная с этого дня («эту и все следующие»). */
+  deleteRuleTasksFrom: (ruleId: string, fromDate: string) => Promise<void>
   /** Понедельники всех недель, в которых есть хотя бы одна задача или цель. */
   loadWeeksWithData: () => Promise<string[]>
   insertTask: (task: Task) => Promise<void>

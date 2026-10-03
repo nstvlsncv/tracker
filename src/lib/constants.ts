@@ -11,3 +11,6 @@ export const UNDO_TOAST_DURATION_MS = 5000
 
 export const LOGIN_MAX_ATTEMPTS = 5
 export const LOGIN_LOCK_MS = 5 * 60 * 1000
+
+/** Заметка недели: то же ограничение стоит в базе. */
+export const NOTE_MAX_LENGTH = 5000

@@ -10,6 +10,8 @@ export type Item = {
   title: string
   isDone: boolean
   createdAt: string
+  /** Задача из правила повтора: у строки значок «повторяется». */
+  ruleId?: string | null
 }
 
 type Props = {
@@ -21,6 +23,11 @@ type Props = {
   moveOf?: (id: string) => MoveAction | undefined
   /** Салют на каждой отметке (цели). У задач его нет: там празднует прогресс дня. */
   burst?: boolean
+  /**
+   * Спросить перед удалением (повторяющиеся задачи). Строка рассыплется и удалится,
+   * только когда вызовут `proceed`.
+   */
+  confirmDelete?: (id: string, proceed: () => void) => void
 }
 
 const MOVE_DURATION_MS = 200
@@ -30,7 +37,7 @@ const FADE_DURATION_MS = 180
  * Список задач или целей. Невыполненные сверху. Строки не прыгают: при отметке элемент
  * переезжает на новое место, новая строка проявляется, удалённая рассыпается в пыль.
  */
-export function ItemList({ items, onToggle, onRename, onDelete, moveOf, burst }: Props) {
+export function ItemList({ items, onToggle, onRename, onDelete, moveOf, burst, confirmDelete }: Props) {
   const listRef = useRef<HTMLUListElement>(null)
   // Где стояла каждая строка при прошлой отрисовке: от этого считается сдвиг.
   const tops = useRef<Map<string, number> | null>(null)
@@ -138,7 +145,10 @@ export function ItemList({ items, onToggle, onRename, onDelete, moveOf, burst }:
             done={item.isDone}
             onToggle={(done) => onToggle(item.id, done)}
             onRename={(title) => onRename(item.id, title)}
-            onDelete={() => remove(item.id)}
+            onDelete={() =>
+              confirmDelete ? confirmDelete(item.id, () => remove(item.id)) : remove(item.id)
+            }
+            repeats={Boolean(item.ruleId)}
             move={item.isDone ? undefined : moveOf?.(item.id)}
             burst={burst}
           />

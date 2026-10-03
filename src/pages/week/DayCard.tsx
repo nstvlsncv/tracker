@@ -2,6 +2,7 @@ import { parseISO } from 'date-fns'
 import { AddItem } from '../../components/AddItem'
 import { Donut } from '../../components/Donut'
 import { ItemList } from '../../components/ItemList'
+import { useRepeatDelete } from '../../components/RepeatDelete'
 import type { Task } from '../../data/types'
 import { usePlanner } from '../../data/usePlanner'
 import { cx } from '../../lib/cx'
@@ -22,6 +23,7 @@ export function DayCard({ date, tasks, isToday }: Props) {
   const { addTask, toggleTask, renameTask, deleteTask, moveTasks } = usePlanner()
   const today = useToday()
   const day = parseISO(date)
+  const repeatDelete = useRepeatDelete()
 
   return (
     <article
@@ -44,6 +46,7 @@ export function DayCard({ date, tasks, isToday }: Props) {
           onToggle={toggleTask}
           onRename={renameTask}
           onDelete={deleteTask}
+          confirmDelete={repeatDelete.confirmDelete}
           moveOf={(id) => ({ date, today, onPick: (target) => moveTasks([id], target) })}
         />
       ) : (
@@ -52,6 +55,7 @@ export function DayCard({ date, tasks, isToday }: Props) {
       <div>
         <AddItem label="Добавить задачу" onAdd={(title) => addTask(date, title)} />
       </div>
+      {repeatDelete.modal}
     </article>
   )
 }

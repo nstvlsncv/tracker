@@ -1,0 +1,7 @@
+/* Строка «Повтор»: подпись слева, выпадающий список справа. */
+.repeat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}

@@ -7,6 +7,7 @@ import { Checkbox } from '../../components/Checkbox'
 import { IconButton } from '../../components/IconButton'
 import { ItemList } from '../../components/ItemList'
 import { ListSkeleton } from '../../components/ListSkeleton'
+import { useRepeatDelete } from '../../components/RepeatDelete'
 import { Section } from '../../components/Section'
 import { StatCard } from '../../components/StatCard'
 import { useToast } from '../../components/useToast'
@@ -73,9 +74,12 @@ export function Home() {
 
   const allHabitsDone = habits.length > 0 && habitsDoneToday === habits.length
   // Не закрытое за последние семь дней: можно одним нажатием перенести на сегодня.
+  // Повторяющиеся задачи не в счёт: у них и так есть своя задача на сегодня.
   const overdue = planner.tasks.filter(
-    (task) => !task.isDone && task.date < today && task.date >= shiftDate(today, -7),
+    (task) =>
+      !task.isDone && !task.ruleId && task.date < today && task.date >= shiftDate(today, -7),
   )
+  const repeatDelete = useRepeatDelete()
 
   const day = formatWeekdayAndDay(now)
   const hours = String(now.getHours()).padStart(2, '0')
@@ -174,6 +178,7 @@ export function Home() {
             onToggle={planner.toggleTask}
             onRename={planner.renameTask}
             onDelete={planner.deleteTask}
+            confirmDelete={repeatDelete.confirmDelete}
             moveOf={(id) => ({ date: today, today, onPick: (target) => planner.moveTasks([id], target) })}
           />
         ) : (
@@ -186,6 +191,7 @@ export function Home() {
             onClose={() => setAdding(undefined)}
           />
         )}
+        {repeatDelete.modal}
         {overdue.length > 0 && (
           <div className={styles.overdue}>
             <span className={styles.overdueText}>

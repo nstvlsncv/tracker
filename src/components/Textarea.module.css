@@ -1,0 +1,40 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.label {
+  color: var(--text-secondary);
+}
+
+/* Тот же вид, что у однострочного поля (Input). */
+.textarea {
+  display: block;
+  width: 100%;
+  min-height: 72px;
+  padding: var(--space-md);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+  resize: none;
+  transition: border-color var(--transition-fast);
+}
+
+.textarea::placeholder {
+  color: var(--text-placeholder);
+}
+
+.textarea:focus {
+  border-color: var(--accent-default);
+}
+
+@media (hover: hover) {
+  .textarea:hover:not(:focus) {
+    border-color: var(--border-default);
+  }
+}

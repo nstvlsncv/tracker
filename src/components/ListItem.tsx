@@ -1,4 +1,4 @@
-import { ArrowBendUpRight, Trash } from '@phosphor-icons/react'
+import { ArrowBendUpRight, Repeat, Trash } from '@phosphor-icons/react'
 import { useEffect, useRef, useState } from 'react'
 import type { TouchEvent } from 'react'
 import { cx } from '../lib/cx'
@@ -21,6 +21,8 @@ type Props = {
   move?: MoveAction
   /** Салют при отметке (цели). */
   burst?: boolean
+  /** Задача повторяется: после названия стоит значок. */
+  repeats?: boolean
 }
 
 /** Сенсорный экран: кнопок в строке нет, действия открываются свайпом. */
@@ -43,7 +45,7 @@ type Gesture = { x: number; y: number; base: number; offset: number; axis: 'x' |
  * перенос. Короткий свайп показывает кнопку, длинный действует сразу: влево удаляет,
  * вправо открывает то же меню с днями шторкой (как и нажатие на кнопку переноса).
  */
-export function ListItem({ title, done, onToggle, onRename, onDelete, move, burst }: Props) {
+export function ListItem({ title, done, onToggle, onRename, onDelete, move, burst, repeats }: Props) {
   const [editing, setEditing] = useState(false)
   const [open, setOpen] = useState<'delete' | 'move' | null>(null)
   const swipeRef = useRef<HTMLDivElement>(null)
@@ -198,6 +200,9 @@ export function ListItem({ title, done, onToggle, onRename, onDelete, move, burs
           <button type="button" className={styles.title} aria-label={`Переименовать: ${title}`}>
             {title}
           </button>
+        )}
+        {repeats && !editing && (
+          <Repeat className={styles.repeat} role="img" aria-label="Повторяется" />
         )}
         {!editing && (
           <div className={styles.actions}>

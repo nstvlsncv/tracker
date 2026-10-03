@@ -1,7 +1,7 @@
 import { toISODate, weekStartISO } from '../lib/dates'
 import { newId } from '../lib/id'
 import { shiftDate } from '../lib/metrics'
-import type { Goal, Habit, HabitCheck, PlannerApi, Task } from './types'
+import type { Goal, Habit, HabitCheck, PlannerApi, Task, TaskRule } from './types'
 
 /**
  * Хранилище в памяти с демо-данными: экраны без входа и без базы. На нём работают
@@ -40,6 +40,21 @@ export function createMemoryApi(): PlannerApi {
     { ...task(0, 'Разобрать почту'), date: toISODate(new Date()) },
     { ...task(0, 'Почитать перед сном'), date: toISODate(new Date()) },
   ]
+  // Повторяющаяся задача: её экземпляры на каждый день ставит само приложение.
+  let rules: TaskRule[] = [
+    {
+      id: newId(),
+      title: 'Прогулка 30 минут',
+      repeat: 'daily',
+      startDate: weekStart,
+      endDate: null,
+      skipped: [],
+      createdAt: new Date(Date.UTC(2026, 0, 1)).toISOString(),
+    },
+  ]
+  const notes = new Map<string, string>([
+    [weekStart, 'Хорошая неделя: закрыты почти все задачи. На следующей не забыть про стоматолога.'],
+  ])
   let goals: Goal[] = [
     goal('Закончить курс по дизайну'),
     goal('Три тренировки'),
@@ -92,7 +107,28 @@ export function createMemoryApi(): PlannerApi {
       return {
         tasks: tasks.filter((item) => item.date >= start && item.date <= end),
         goals: goals.filter((item) => item.weekStart === start),
+        note: notes.get(start) ?? '',
       }
+    },
+    async saveNote(start, text) {
+      if (text) notes.set(start, text)
+      else notes.delete(start)
+    },
+    async loadRules() {
+      return rules
+    },
+    async insertRule(rule) {
+      rules = [...rules, rule]
+    },
+    async updateRule(id, patch) {
+      rules = rules.map((rule) => (rule.id === id ? { ...rule, ...patch } : rule))
+    },
+    async insertRuleTasks(added) {
+      const taken = new Set(tasks.map((item) => `${item.ruleId}|${item.date}`))
+      tasks = [...tasks, ...added.filter((item) => !taken.has(`${item.ruleId}|${item.date}`))]
+    },
+    async deleteRuleTasksFrom(ruleId, fromDate) {
+      tasks = tasks.filter((item) => item.ruleId !== ruleId || item.date < fromDate)
     },
     async loadWeeksWithData() {
       return [
