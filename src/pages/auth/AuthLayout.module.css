@@ -80,6 +80,13 @@
   text-underline-offset: 3px;
 }
 
+.heart {
+  width: 1em;
+  height: 1em;
+  color: var(--highlight-default);
+  vertical-align: -0.12em;
+}
+
 /* Телефон: блок ближе к верху, поля карточки меньше. */
 @media (max-width: 640px) {
   .page {

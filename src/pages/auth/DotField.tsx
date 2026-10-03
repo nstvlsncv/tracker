@@ -3,20 +3,21 @@ import type { RefObject } from 'react'
 import styles from './DotField.module.css'
 
 const GAP = 24 // шаг сетки
-const REACH = 200 // радиус пятна вокруг курсора, дальше точки не видны
+const REACH = 560 // радиус пятна, дальше точки не видны
 const MIN_RADIUS = 0.6
-const MAX_RADIUS = 3
+const MAX_RADIUS = 2.6
+const FADE = 1.4 // насколько быстро точки бледнеют к краю пятна
 const EASE = 0.12 // доля пути до курсора за кадр: чем меньше, тем плавнее догоняет
 
-/** Где точек нет вовсе: планшет, телефон и отключённые в системе анимации. */
-const OFF_QUERY = '(max-width: 1024px), (hover: none), (prefers-reduced-motion: reduce)'
+/** Когда пятно не следует за указателем. */
+const STILL_QUERY = '(max-width: 1024px), (hover: none), (prefers-reduced-motion: reduce)'
 
 type Point = { x: number; y: number }
 
 /**
- * Фон экрана входа. Сам фон чистый, а вокруг курсора проступает пятно лаймовых точек
- * и плавно следует за ним. Когда курсор уходит из окна, пятно гаснет. На планшетах
- * и телефонах курсора нет, поэтому там просто чистый фон.
+ * Фон экрана входа: сетка точек, которые видны пятном. Сначала пятно стоит под формой,
+ * при движении курсора плавно следует за ним, а когда курсор уходит из окна, возвращается.
+ * На планшетах и телефонах пятно неподвижно.
  */
 export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | null> }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -24,16 +25,13 @@ export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | nul
   useEffect(() => {
     const canvas = canvasRef.current
     const context = canvas?.getContext('2d')
-    if (!canvas || !context || window.matchMedia(OFF_QUERY).matches) return
+    if (!canvas || !context) return
 
     let width = 0
     let height = 0
     let frame = 0
-    // Курсор в окне: пятно видно. Яркость плавно идёт к 1 или к 0.
     let following = false
-    let brightness = 0
 
-    // Пока курсора не было, пятно ждёт под формой: оттуда оно и выплывает.
     const rest = (): Point => {
       const rect = anchorRef.current?.getBoundingClientRect()
       return rect
@@ -46,18 +44,16 @@ export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | nul
 
     const draw = () => {
       context.clearRect(0, 0, width, height)
-      if (brightness < 0.01) return
       // Цвет точек задан в CSS через токен, сюда он приходит как color канваса.
       context.fillStyle = getComputedStyle(canvas).color
       // Сетка симметрична относительно центра экрана.
       const startX = (width / 2) % GAP
       for (let x = startX; x < width; x += GAP) {
-        if (Math.abs(x - spot.x) >= REACH) continue
         for (let y = GAP / 2; y < height; y += GAP) {
           const distance = Math.hypot(x - spot.x, y - spot.y)
           if (distance >= REACH) continue
           const strength = 1 - distance / REACH
-          context.globalAlpha = strength * brightness
+          context.globalAlpha = strength ** FADE
           context.beginPath()
           context.arc(x, y, MIN_RADIUS + (MAX_RADIUS - MIN_RADIUS) * strength, 0, Math.PI * 2)
           context.fill()
@@ -68,15 +64,13 @@ export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | nul
     const tick = () => {
       spot.x += (target.x - spot.x) * EASE
       spot.y += (target.y - spot.y) * EASE
-      const goal = following ? 1 : 0
-      brightness += (goal - brightness) * EASE
       draw()
-      const settled =
-        Math.hypot(target.x - spot.x, target.y - spot.y) < 0.5 && Math.abs(goal - brightness) < 0.01
+      const settled = Math.hypot(target.x - spot.x, target.y - spot.y) < 0.5
       frame = settled ? 0 : requestAnimationFrame(tick)
     }
 
-    const wake = () => {
+    const moveTo = (point: Point) => {
+      target = point
       if (!frame) frame = requestAnimationFrame(tick)
     }
 
@@ -87,7 +81,7 @@ export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | nul
       canvas.width = width * ratio
       canvas.height = height * ratio
       context.setTransform(ratio, 0, 0, ratio, 0, 0)
-      if (!following && brightness < 0.01) {
+      if (!following) {
         target = rest()
         Object.assign(spot, target)
       }
@@ -96,19 +90,25 @@ export function DotField({ anchorRef }: { anchorRef: RefObject<HTMLElement | nul
 
     const onMove = (event: PointerEvent) => {
       following = true
-      target = { x: event.clientX, y: event.clientY }
-      wake()
+      moveTo({ x: event.clientX, y: event.clientY })
     }
-    // Курсор ушёл из окна: пятно гаснет там, где было.
     const onLeave = () => {
       following = false
-      wake()
+      moveTo(rest())
     }
 
     resize()
+    // Когда догрузится шрифт, форма чуть сдвигается: пятно встаёт под неё заново.
+    document.fonts.ready.then(resize)
     window.addEventListener('resize', resize)
-    window.addEventListener('pointermove', onMove)
-    document.documentElement.addEventListener('pointerleave', onLeave)
+
+    // На планшетах и телефонах пятно стоит под формой и не двигается: там нет курсора,
+    // а пятно, прыгающее за каждым касанием, только мешает.
+    const still = window.matchMedia(STILL_QUERY).matches
+    if (!still) {
+      window.addEventListener('pointermove', onMove)
+      document.documentElement.addEventListener('pointerleave', onLeave)
+    }
 
     return () => {
       cancelAnimationFrame(frame)
