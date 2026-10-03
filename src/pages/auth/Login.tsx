@@ -148,6 +148,12 @@ export function Login() {
       subtitle={subtitle}
       shake={shake}
       leaving={leaving}
+      corner={
+        // Настоящий трекер на демо-данных, без входа: проще показать, чем рассказать.
+        <Button variant="secondary" size="sm" onClick={() => navigate('/demo')}>
+          Посмотреть демо
+        </Button>
+      }
     >
       <form onSubmit={submit} noValidate>
         <div className={styles.fields}>
@@ -201,10 +207,6 @@ export function Login() {
             aria-label={success ? 'Вход выполнен' : undefined}
           >
             {success ? <Check aria-hidden /> : 'Войти'}
-          </Button>
-          {/* Настоящий трекер на демо-данных, без входа: проще показать, чем рассказать. */}
-          <Button variant="secondary" size="lg" fullWidth onClick={() => navigate('/demo')}>
-            Посмотреть демо
           </Button>
           <p className={styles.alt}>
             Нет аккаунта?{' '}

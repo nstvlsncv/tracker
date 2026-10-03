@@ -25,12 +25,15 @@ export function createMemoryApi(): PlannerApi {
   const goal = (title: string, isDone = false): Goal => ({ ...base(title, isDone), weekStart })
 
   let tasks: Task[] = [
-    task(0, 'Прогулка с Винсом в 9:00', true),
-    task(0, 'Прогулка с Винсом в 21:00', true),
-    task(1, 'Сверстать макет дашборда'),
-    task(1, 'Запустить стирку чёрного', true),
-    task(1, 'Прогулка с Винсом в 9:00', true),
-    task(2, 'Стоматолог 15:00'),
+    // Демо видят посторонние (/demo): данные нейтральные, ничего личного.
+    task(0, 'Утренняя пробежка', true),
+    task(0, 'Купить продукты', true),
+    task(1, 'Подготовить презентацию'),
+    task(1, 'Запустить стирку', true),
+    task(1, 'Позвонить родителям', true),
+    task(2, 'Стоматолог в 15:00'),
+    task(3, 'Оплатить счета'),
+    task(4, 'Созвон с командой'),
     { ...task(0, 'Задача с прошлой недели', true), date: shiftDate(weekStart, -5) },
     // На сегодня задачи есть всегда, в какой бы день недели ни открыли демо.
     { ...task(0, 'Спланировать неделю', true), date: toISODate(new Date()) },
@@ -38,10 +41,10 @@ export function createMemoryApi(): PlannerApi {
     { ...task(0, 'Почитать перед сном'), date: toISODate(new Date()) },
   ]
   let goals: Goal[] = [
-    goal('Подготовиться к др'),
-    goal('Реализовать Pet-проект «Трекер»'),
-    goal('Сделать резюме'),
-    goal('Прочитать 2 главы книги «Задача трёх тел» (2 часть)', true),
+    goal('Закончить курс по дизайну'),
+    goal('Три тренировки'),
+    goal('Разобрать гардероб'),
+    goal('Прочитать две главы книги', true),
   ]
 
   const today = toISODate(new Date())
@@ -55,7 +58,7 @@ export function createMemoryApi(): PlannerApi {
   })
   let habits: Habit[] = [
     habit('Витамины вечером'),
-    habit('Портфолио'),
+    habit('Английский 15 минут'),
     habit('Чтение 20 минут'),
     habit('Витамины утром'),
     habit('Зарядка 30 минут'),

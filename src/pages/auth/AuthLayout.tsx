@@ -11,6 +11,8 @@ type Props = {
   shake?: number
   /** Вход выполнен: экран растворяется, пока открывается приложение. */
   leaving?: boolean
+  /** Кнопка в углу экрана («Посмотреть демо»). */
+  corner?: ReactNode
   children: ReactNode
 }
 
@@ -20,7 +22,7 @@ const SHAKE_PX = [-10, 9, -7, 5, -3]
 export const AUTHOR_URL = 'https://t.me/nst_vlsncv'
 
 /** Каркас экрана входа: без сайдбара, логотип и карточка 450px на 120px ниже верхнего края. */
-export function AuthLayout({ title, subtitle, shake = 0, leaving, children }: Props) {
+export function AuthLayout({ title, subtitle, shake = 0, leaving, corner, children }: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, children }: Pr
             <span className={styles.mark} aria-hidden />
             Трекер
           </div>
-          <p className={`t-body-sm ${styles.tagline}`}>
+          <p className={`t-body-lg ${styles.tagline}`}>
             Недели, задачи, цели и привычки в одном месте
           </p>
         </div>
@@ -52,6 +54,7 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, children }: Pr
           {children}
         </div>
       </div>
+      {corner && <div className={styles.corner}>{corner}</div>}
       <footer className={`t-body-sm ${styles.footer}`}>
         Designed &amp; developed
         <br />

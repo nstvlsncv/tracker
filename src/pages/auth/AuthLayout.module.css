@@ -32,7 +32,23 @@
 }
 
 .tagline {
-  color: var(--text-tertiary);
+  color: var(--text-primary);
+}
+
+/* Кнопка в правом нижнем углу экрана. На телефоне там подпись, поэтому она в правом верхнем. */
+.corner {
+  position: fixed;
+  right: var(--space-lg);
+  bottom: var(--space-lg);
+  z-index: 1;
+}
+
+@media (max-width: 640px) {
+  .corner {
+    top: var(--space-md);
+    right: var(--space-md);
+    bottom: auto;
+  }
 }
 
 /* Название с лаймовым кругом: тот же знак, что на иконке приложения. */
@@ -99,7 +115,8 @@
 /* Телефон: блок ближе к верху, поля карточки меньше. */
 @media (max-width: 640px) {
   .page {
-    padding-top: var(--space-2xl);
+    /* Над названием в углу стоит кнопка «Посмотреть демо»: под неё нужно место. */
+    padding-top: calc(var(--space-2xl) + var(--space-lg));
   }
 
   .card {
