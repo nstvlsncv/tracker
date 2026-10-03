@@ -47,7 +47,7 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, children }: Pr
           {children}
         </div>
       </div>
-      <footer className={styles.footer}>
+      <footer className={`t-body-sm ${styles.footer}`}>
         Designed &amp; developed
         <br />
         by{' '}

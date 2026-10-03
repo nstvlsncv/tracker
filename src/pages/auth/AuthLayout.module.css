@@ -67,7 +67,7 @@
 
 .footer {
   margin-top: auto;
-  /* Тот же размер и цвет, что у подзаголовка карточки. */
+  /* Цвет как у подзаголовка карточки, размер на ступень меньше. */
   color: var(--text-secondary);
   text-align: center;
 }
@@ -80,8 +80,7 @@
   font-weight: var(--typography-caption-font-weight);
   text-decoration: underline;
   text-decoration-color: var(--highlight-default);
-  text-decoration-thickness: 3px;
-  text-underline-offset: 4px;
+  text-underline-offset: 3px;
 }
 
 /* Телефон: блок ближе к верху, поля карточки меньше. */
