@@ -229,6 +229,7 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
       ],
       loadWeek,
 
+      loadHistory: api.loadHistory,
       notes,
       saveNote: (weekStart, text) => {
         const before = latest.current.notes?.[weekStart] ?? ''

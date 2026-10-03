@@ -12,6 +12,7 @@ import { forgetSessionState } from '../lib/sessionState'
 import { Habits } from './habits/Habits'
 import { Home } from './home/Home'
 import { Profile } from './Profile'
+import { Stats } from './stats/Stats'
 import { Week } from './week/Week'
 
 type Props = {
@@ -84,6 +85,7 @@ export function DevPreview({ base = '/dev/app', visitor = false }: Props) {
               <Route index element={<Home />} />
               <Route path="week/:isoWeek?" element={<Week />} />
               <Route path="habits" element={<Habits />} />
+              <Route path="stats" element={<Stats />} />
               <Route path="profile" element={<Profile />} />
             </Route>
           </Routes>

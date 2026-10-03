@@ -1,4 +1,11 @@
-import { ArrowsClockwise, CalendarDots, House, SignOut, User } from '@phosphor-icons/react'
+import {
+  ArrowsClockwise,
+  CalendarDots,
+  ChartBar,
+  House,
+  SignOut,
+  User,
+} from '@phosphor-icons/react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
 import { cx } from '../lib/cx'
@@ -17,6 +24,7 @@ const NAV = [
   { to: '', label: 'Главная', icon: House, end: true, motion: 'bounce' },
   { to: 'week', label: 'Неделя', icon: CalendarDots, end: false, motion: 'flip' },
   { to: 'habits', label: 'Привычки', icon: ArrowsClockwise, end: false, motion: 'spin' },
+  { to: 'stats', label: 'Итоги', icon: ChartBar, end: false, motion: 'bounce' },
   { to: 'profile', label: 'Профиль', icon: User, end: false, motion: 'nod' },
 ] as const
 

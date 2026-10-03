@@ -224,7 +224,9 @@
 
   .nav {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    /* Разделы делят ширину поровну, сколько бы их ни было. */
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
     gap: 0;
   }
 
@@ -237,8 +239,11 @@
     padding: var(--space-xs) 0;
     border-radius: var(--radius-md);
     color: var(--text-placeholder);
-    font-size: var(--typography-tab-font-size);
+    /* Пять разделов на узком экране: подпись на пиксель мельче и чуть плотнее,
+       иначе «Привычки» упираются в соседей. */
+    font-size: calc(var(--typography-tab-font-size) - 1px);
     line-height: var(--typography-tab-line-height);
+    letter-spacing: -0.01em;
   }
 
   .item:hover,

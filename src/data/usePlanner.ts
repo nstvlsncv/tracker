@@ -14,6 +14,8 @@ export type PlannerValue = {
   /** Загрузить неделю, если она ещё не загружена. `force` перезапрашивает после ошибки. */
   loadWeek: (weekStart: string, force?: boolean) => void
 
+  /** Все задачи и цели начиная с этого понедельника, свежие из базы: для статистики. */
+  loadHistory: (fromWeekStart: string) => Promise<{ tasks: Task[]; goals: Goal[] }>
   /** Заметки недель по понедельнику. undefined: заметок в этой базе нет. */
   notes: Record<string, string> | undefined
   /** Сохранить заметку недели. Пустой текст убирает её. */

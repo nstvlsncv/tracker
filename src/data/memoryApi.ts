@@ -35,6 +35,13 @@ export function createMemoryApi(): PlannerApi {
     task(3, 'Оплатить счета'),
     task(4, 'Созвон с командой'),
     { ...task(0, 'Задача с прошлой недели', true), date: shiftDate(weekStart, -5) },
+    // Прошлые недели: чтобы графику в Статистике было что показать.
+    ...[1, 2, 3, 4, 5, 6, 7, 8].flatMap((weeksAgo) =>
+      Array.from({ length: 6 + (weeksAgo % 3) }, (_, index) => ({
+        ...task(0, `Задача ${index + 1}`, (index * 7 + weeksAgo * 3) % 10 < 5 + (weeksAgo % 4)),
+        date: shiftDate(weekStart, -7 * weeksAgo + (index % 7)),
+      })),
+    ),
     // На сегодня задачи есть всегда, в какой бы день недели ни открыли демо.
     { ...task(0, 'Спланировать неделю', true), date: toISODate(new Date()) },
     { ...task(0, 'Разобрать почту'), date: toISODate(new Date()) },
@@ -144,6 +151,13 @@ export function createMemoryApi(): PlannerApi {
     },
     async deleteRuleTasksFrom(ruleId, fromDate) {
       tasks = tasks.filter((item) => item.ruleId !== ruleId || item.date < fromDate)
+    },
+    async loadHistory(from) {
+      await wait()
+      return {
+        tasks: tasks.filter((item) => item.date >= from),
+        goals: goals.filter((item) => item.weekStart >= from),
+      }
     },
     async loadWeeksWithData() {
       return [

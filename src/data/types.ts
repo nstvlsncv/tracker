@@ -99,6 +99,8 @@ export type PlannerApi = {
   insertRuleTasks: (tasks: Task[]) => Promise<void>
   /** Удалить задачи правила начиная с этого дня («эту и все следующие»). */
   deleteRuleTasksFrom: (ruleId: string, fromDate: string) => Promise<void>
+  /** Все задачи и цели начиная с этого понедельника: для экрана статистики. */
+  loadHistory: (fromWeekStart: string) => Promise<{ tasks: Task[]; goals: Goal[] }>
   /** Понедельники всех недель, в которых есть хотя бы одна задача или цель. */
   loadWeeksWithData: () => Promise<string[]>
   insertTask: (task: Task) => Promise<void>

@@ -225,6 +225,15 @@ export const supabaseApi: PlannerApi = {
     await unwrap(supabase.from('tasks').delete().eq('rule_id', ruleId).gte('date', fromDate))
   },
 
+  async loadHistory(fromWeekStart) {
+    // За 12 недель задач заведомо меньше тысячи строк, которые отдаёт один запрос.
+    const [tasks, goals] = await Promise.all([
+      unwrap(supabase.from('tasks').select(TASK_COLUMNS).gte('date', fromWeekStart)),
+      unwrap(supabase.from('goals').select(GOAL_COLUMNS).gte('week_start', fromWeekStart)),
+    ])
+    return { tasks: (tasks ?? []).map(toTask), goals: (goals ?? []).map(toGoal) }
+  },
+
   async loadWeeksWithData() {
     // TODO(open): Supabase отдаёт не больше 1000 строк за запрос. Когда задач станет больше,
     // список недель нужно считать в базе (представление или функция).

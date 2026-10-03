@@ -25,6 +25,7 @@ const Home = fromWorkspace('Home')
 const Week = fromWorkspace('Week')
 const Habits = fromWorkspace('Habits')
 const Profile = fromWorkspace('Profile')
+const Stats = fromWorkspace('Stats')
 
 const DevPreview = lazy(() => import('./pages/DevPreview').then((m) => ({ default: m.DevPreview })))
 const Showcase = lazy(() => import('./pages/Showcase').then((m) => ({ default: m.Showcase })))
@@ -52,6 +53,7 @@ export default function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/week/:isoWeek?" element={<Week />} />
                     <Route path="/habits" element={<Habits />} />
+                    <Route path="/stats" element={<Stats />} />
                     <Route path="/profile" element={<Profile />} />
                   </Route>
                 </Route>

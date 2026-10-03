@@ -10,6 +10,7 @@ export { AppShell } from './layout/AppShell'
 export { Habits } from './pages/habits/Habits'
 export { Home } from './pages/home/Home'
 export { Profile } from './pages/Profile'
+export { Stats } from './pages/stats/Stats'
 export { Week } from './pages/week/Week'
 
 /** Данные пользователя живут, пока он в аккаунте: при смене пользователя хранилище создаётся заново. */
