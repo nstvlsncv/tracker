@@ -1,4 +1,3 @@
-import { Heart } from '@phosphor-icons/react'
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { cx } from '../../lib/cx'
@@ -55,7 +54,7 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, children }: Pr
         <a className={styles.author} href={AUTHOR_URL} target="_blank" rel="noreferrer">
           Anastasia
         </a>{' '}
-        with love <Heart weight="fill" className={styles.heart} aria-hidden />
+        with love
       </footer>
     </main>
   )

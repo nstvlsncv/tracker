@@ -74,17 +74,11 @@
 
 .author {
   border-radius: var(--radius-xs);
-  color: var(--text-primary);
+  /* Имя лаймовое: так решила владелица, хотя обычно текст лаймом не красится. */
+  color: var(--highlight-default);
   font-weight: var(--typography-caption-font-weight);
   text-decoration: underline;
   text-underline-offset: 3px;
-}
-
-.heart {
-  width: 1em;
-  height: 1em;
-  color: var(--highlight-default);
-  vertical-align: -0.12em;
 }
 
 /* Телефон: блок ближе к верху, поля карточки меньше. */
