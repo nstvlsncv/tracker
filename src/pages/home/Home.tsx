@@ -115,7 +115,7 @@ export function Home() {
       <h1 className={`t-heading-1 ${styles.title}`}>
         {/* На телефоне бокового меню нет: маскот живёт перед приветствием. */}
         <Mascot
-          size="0.9em"
+          size="1.15em"
           className={styles.mascot}
           mood={overdue.length > 0 ? 'sad' : 'calm'}
         />

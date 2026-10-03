@@ -64,7 +64,7 @@ function typingPoint(field: HTMLInputElement | HTMLTextAreaElement): Point {
 
 /**
  * Маскот трекера: круг акцентного цвета с глазами. Глаза следят за курсором, а пока
- * где-то печатают, за текстом; моргают. Живой: на нажатие отвечает по очереди прыжком,
+ * где-то печатают, за текстом (до первого движения курсора); моргают. Живой: на нажатие отвечает по очереди прыжком,
  * подмигиванием и кувырком, на каждое пятое выпускает салют; подпрыгивает, когда в трекере
  * что-то отмечают с салютом; ночью сонный. Украшение: для скринридера и клавиатуры его нет.
  */
@@ -131,6 +131,9 @@ export function Mascot({
 
     const onMove = (event: PointerEvent) => {
       pointer = { x: event.clientX, y: event.clientY }
+      // Курсор главнее: стоит ему сдвинуться, взгляд возвращается к нему, даже если поле
+      // ввода ещё в фокусе. Иначе после нажатия в поле маскот «залипал» на нём.
+      typing = null
       schedule()
     }
     const onType = (event: Event) => {
@@ -146,7 +149,9 @@ export function Mascot({
     }
 
     if (hasPointer) window.addEventListener('pointermove', onMove)
-    document.addEventListener('focusin', onType)
+    // За текстом он смотрит, только пока печатают: фокус в поле сам по себе взгляд не забирает.
+    // На сенсорных экранах курсора нет, там хватает и фокуса.
+    if (!hasPointer) document.addEventListener('focusin', onType)
     document.addEventListener('input', onType)
     document.addEventListener('focusout', onLeaveField)
     return () => {
