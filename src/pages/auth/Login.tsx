@@ -1,3 +1,4 @@
+import { Check } from '@phosphor-icons/react'
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent, KeyboardEvent } from 'react'
 import { isLocked, NO_ATTEMPTS, registerFailure } from '../../auth/validation'
@@ -18,6 +19,20 @@ function formatLeft(ms: number): string {
   const seconds = Math.ceil(ms / 1000)
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`
 }
+
+/** Подзаголовок: при каждом открытии экрана одна из фраз. */
+const SUBTITLES = [
+  'Войди, чтобы продолжить',
+  'Задачи сами себя не закроют',
+  'Привычки уже соскучились',
+  'Неделя ждёт, когда её спланируют',
+  'Галочки ждут своего часа',
+  'Кольца сами не заполнятся',
+]
+
+/** Сколько экран стоит после удачного входа (кнопка празднует) и сколько из этого он растворяется. */
+const SUCCESS_MS = 800
+const LEAVE_MS = 250
 
 type FieldErrors = { login?: string; password?: string; loginInvalid?: boolean }
 
@@ -47,6 +62,8 @@ export function Login() {
   // Каждая неудача качает карточку, удачный вход растворяет экран.
   const [shake, setShake] = useState(0)
   const [leaving, setLeaving] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [subtitle] = useState(() => SUBTITLES[Math.floor(Math.random() * SUBTITLES.length)])
   const passwordRef = useRef<HTMLInputElement>(null)
 
   // Блокировка после серии неудач: отсчёт идёт на глазах и сам исчезает, когда время вышло.
@@ -67,6 +84,7 @@ export function Login() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
+    if (success) return
     const noLogin = !email.trim()
     const noPassword = !password
     if (noLogin && noPassword) return failBoth('Введи логин и пароль, чтобы войти')
@@ -88,8 +106,10 @@ export function Login() {
     if (!authError) {
       // Кнопка остаётся в ожидании, пока грузится профиль: дальше GuestRoute уведёт на Главную.
       writeAttempts(NO_ATTEMPTS)
-      markEntrance()
-      setLeaving(true)
+      // Кнопка на мгновение становится лаймовой с галочкой, потом экран растворяется.
+      markEntrance(SUCCESS_MS)
+      setSuccess(true)
+      setTimeout(() => setLeaving(true), SUCCESS_MS - LEAVE_MS)
       return
     }
     setBusy(false)
@@ -123,7 +143,7 @@ export function Login() {
   return (
     <AuthLayout
       title="С возвращением!"
-      subtitle="Войди, чтобы продолжить"
+      subtitle={subtitle}
       shake={shake}
       leaving={leaving}
     >
@@ -170,8 +190,15 @@ export function Login() {
           />
         </div>
         <div className={styles.submit}>
-          <Button type="submit" size="lg" fullWidth pending={busy}>
-            Войти
+          <Button
+            type="submit"
+            size="lg"
+            fullWidth
+            pending={busy && !success}
+            className={success ? styles.success : undefined}
+            aria-label={success ? 'Вход выполнен' : undefined}
+          >
+            {success ? <Check aria-hidden /> : 'Войти'}
           </Button>
           <p className={styles.alt}>
             Нет аккаунта?{' '}

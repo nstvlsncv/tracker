@@ -22,6 +22,21 @@
   width: 100%;
 }
 
+/* Название с лаймовым кругом: тот же знак, что на иконке приложения. */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.mark {
+  flex: none;
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: var(--radius-full);
+  background: var(--highlight-default);
+}
+
 .card {
   display: flex;
   flex-direction: column;

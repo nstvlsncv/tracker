@@ -17,7 +17,11 @@
     <!-- Тема ставится до первой отрисовки, чтобы страница не мигала светлой перед тёмной. -->
     <script>
       try {
-        if (localStorage.getItem('tracker.theme') === 'dark') document.documentElement.dataset.theme = 'dark'
+        var saved = localStorage.getItem('tracker.theme')
+        // Пока тему не выбирали в Профиле, берётся системная.
+        if (saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches) {
+          document.documentElement.dataset.theme = 'dark'
+        }
       } catch (e) {}
     </script>
     <title>Трекер</title>

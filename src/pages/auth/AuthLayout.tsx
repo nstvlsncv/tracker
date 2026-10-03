@@ -35,7 +35,10 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, children }: Pr
     <main className={cx(styles.page, leaving && styles.leaving)}>
       <DotField anchorRef={cardRef} />
       <div className={styles.content}>
-        <div className="t-heading-2">Трекер</div>
+        <div className={`t-heading-2 ${styles.logo}`}>
+          <span className={styles.mark} aria-hidden />
+          Трекер
+        </div>
         <div ref={cardRef} className={styles.card}>
           <header className={styles.heading}>
             <h1 className="t-heading-5">{title}</h1>

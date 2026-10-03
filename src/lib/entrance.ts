@@ -2,9 +2,17 @@
 // При обычной загрузке страницы пометки нет, и приложение показывается сразу после заглушек.
 
 let pending = false
+let holdUntil = 0
 
-export function markEntrance() {
+/** holdMs: сколько экран входа ещё остаётся на месте, чтобы кнопка успела отпраздновать. */
+export function markEntrance(holdMs = 0) {
   pending = true
+  holdUntil = Date.now() + holdMs
+}
+
+/** Сколько миллисекунд экран входа ещё нужно подержать. */
+export function entranceHoldLeft(): number {
+  return Math.max(0, holdUntil - Date.now())
 }
 
 /** Забрать пометку: срабатывает один раз. */
