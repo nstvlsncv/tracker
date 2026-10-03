@@ -8,29 +8,40 @@ type Props = {
   checked: boolean
   onChange: (checked: boolean) => void
   disabled?: boolean
-  /** Этой отметкой закрыто всё (например, все привычки за день): салют крупнее обычного. */
+  /** Салют при каждой отметке (привычки). У задач и целей его нет: там празднует прогресс дня. */
+  burst?: boolean
+  /** Этой отметкой закрыто всё (все привычки за день): салют крупнее обычного. */
   celebrate?: boolean
   /** У чекбокса нет своего текста, подпись обязательна. */
   'aria-label': string
 }
 
 /**
- * Круглый чекбокс 32×32. При отметке круг заливается, галочка прорисовывается штрихом,
- * а из чекбокса разлетается маленький салют. Если отметка уже стояла при появлении
- * чекбокса, салюта нет: он только за то, что сделано сейчас.
+ * Круглый чекбокс 32×32. При отметке круг заливается, галочка прорисовывается штрихом.
+ * С `burst` из чекбокса при отметке разлетается маленький салют. Если отметка уже стояла
+ * при появлении чекбокса, салюта нет: он только за то, что сделано сейчас.
  */
-export function Checkbox({ checked, onChange, disabled, celebrate = false, ...rest }: Props) {
+export function Checkbox({
+  checked,
+  onChange,
+  disabled,
+  burst = false,
+  celebrate = false,
+  ...rest
+}: Props) {
   const ref = useRef<HTMLButtonElement>(null)
-  const burst = useBurst(checked)
+  const checks = useBurst(checked)
   // Размер салюта берётся на момент отметки, а не при каждой перерисовке.
-  const big = useRef(celebrate)
+  const latest = useRef({ burst, celebrate })
   useEffect(() => {
-    big.current = celebrate
+    latest.current = { burst, celebrate }
   })
 
   useEffect(() => {
-    if (burst > 0 && ref.current) fireBurst(ref.current, 14, big.current ? 46 : 30)
-  }, [burst])
+    if (checks > 0 && latest.current.burst && ref.current) {
+      fireBurst(ref.current, 14, latest.current.celebrate ? 46 : 30)
+    }
+  }, [checks])
 
   return (
     <button

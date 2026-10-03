@@ -57,6 +57,7 @@ export function HabitCard({
       <div className={styles.head} onClick={() => onOpenChange(!open)}>
         <Checkbox
           checked={doneToday}
+          burst
           celebrate={celebrate}
           onChange={(done) => onToggle(today, done)}
           aria-label={doneToday ? `Снять отметку за сегодня: ${habit.title}` : `Отметить за сегодня: ${habit.title}`}

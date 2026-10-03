@@ -116,6 +116,8 @@ export function Home() {
           // День без задач показывает 0%, как на Неделе.
           value={`${progress(tasks) ?? 0}%`}
           label="прогресс"
+          // Все задачи дня закрыты на глазах: карточка празднует.
+          celebrate={progress(tasks) === 100}
         />
         <StatCard
           loading={!ready}
@@ -215,6 +217,7 @@ export function Home() {
                 <li key={habit.id} className={styles.habit}>
                   <Checkbox
                     checked={done}
+                    burst
                     celebrate={allHabitsDone && lastChecked === habit.id}
                     onChange={(next) => {
                       setLastChecked(habit.id)
