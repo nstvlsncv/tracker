@@ -22,6 +22,19 @@
   width: 100%;
 }
 
+/* Название и строка о том, что это за сервис. */
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  text-align: center;
+}
+
+.tagline {
+  color: var(--text-tertiary);
+}
+
 /* Название с лаймовым кругом: тот же знак, что на иконке приложения. */
 .logo {
   display: flex;

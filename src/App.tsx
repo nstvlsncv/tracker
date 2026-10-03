@@ -54,6 +54,8 @@ export default function App() {
                   </Route>
                 </Route>
               </Route>
+              {/* Демо для гостей: настоящий трекер на данных в памяти, без входа и без базы. */}
+              <Route path="/demo/*" element={<DevPreview base="/demo" visitor />} />
               {/* Только в режиме разработки: витрина компонентов, экраны на демо-данных и заглушки загрузки. */}
               {import.meta.env.DEV && <Route path="/dev" element={<Showcase />} />}
               {import.meta.env.DEV && <Route path="/dev/og" element={<OgImage />} />}

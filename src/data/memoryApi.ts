@@ -4,8 +4,8 @@ import { shiftDate } from '../lib/metrics'
 import type { Goal, Habit, HabitCheck, PlannerApi, Task } from './types'
 
 /**
- * Хранилище в памяти с демо-данными. Используется только в режиме разработки
- * (адреса /dev/app/…), чтобы смотреть экраны без входа и без базы.
+ * Хранилище в памяти с демо-данными: экраны без входа и без базы. На нём работают
+ * демо для гостей (/demo) и экраны для разработки (/dev/app).
  * После перезагрузки страницы данные возвращаются к исходным.
  */
 export function createMemoryApi(): PlannerApi {
@@ -32,6 +32,10 @@ export function createMemoryApi(): PlannerApi {
     task(1, 'Прогулка с Винсом в 9:00', true),
     task(2, 'Стоматолог 15:00'),
     { ...task(0, 'Задача с прошлой недели', true), date: shiftDate(weekStart, -5) },
+    // На сегодня задачи есть всегда, в какой бы день недели ни открыли демо.
+    { ...task(0, 'Спланировать неделю', true), date: toISODate(new Date()) },
+    { ...task(0, 'Разобрать почту'), date: toISODate(new Date()) },
+    { ...task(0, 'Почитать перед сном'), date: toISODate(new Date()) },
   ]
   let goals: Goal[] = [
     goal('Подготовиться к др'),

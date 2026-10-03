@@ -1,6 +1,7 @@
 import { Check } from '@phosphor-icons/react'
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent, KeyboardEvent } from 'react'
+import { useNavigate } from 'react-router'
 import { isLocked, NO_ATTEMPTS, registerFailure } from '../../auth/validation'
 import type { LoginAttempts } from '../../auth/validation'
 import { Button } from '../../components/Button'
@@ -54,6 +55,7 @@ function writeAttempts(attempts: LoginAttempts) {
 
 export function Login() {
   const toast = useToast()
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<FieldErrors>({})
@@ -199,6 +201,10 @@ export function Login() {
             aria-label={success ? 'Вход выполнен' : undefined}
           >
             {success ? <Check aria-hidden /> : 'Войти'}
+          </Button>
+          {/* Настоящий трекер на демо-данных, без входа: проще показать, чем рассказать. */}
+          <Button variant="secondary" size="lg" fullWidth onClick={() => navigate('/demo')}>
+            Посмотреть демо
           </Button>
           <p className={styles.alt}>
             Нет аккаунта?{' '}
