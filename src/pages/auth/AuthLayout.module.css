@@ -31,8 +31,8 @@
 
 .mark {
   flex: none;
-  width: 0.7em;
-  height: 0.7em;
+  width: 0.95em;
+  height: 0.95em;
   border-radius: var(--radius-full);
   background: var(--highlight-default);
 }
@@ -73,13 +73,15 @@
 }
 
 .author {
-  /* Имя как маркером выделено: тёмный текст на лаймовой плашке, читается в обеих темах. */
-  padding: 2px 6px;
+  /* Имя тёмное, лаймовое только подчёркивание: плашка перетягивала внимание,
+     а лаймовый текст на белом не читался. */
   border-radius: var(--radius-xs);
-  background: var(--highlight-default);
-  color: var(--highlight-foreground);
+  color: var(--text-primary);
   font-weight: var(--typography-caption-font-weight);
-  text-decoration: none;
+  text-decoration: underline;
+  text-decoration-color: var(--highlight-default);
+  text-decoration-thickness: 3px;
+  text-underline-offset: 4px;
 }
 
 /* Телефон: блок ближе к верху, поля карточки меньше. */
