@@ -32,6 +32,7 @@ import { averageMood, moodInsights, moodLabel } from '../../lib/moods'
 import { habitsKept, recentWeeks, summarizeWeeks, weekSummary, weekVerdict } from '../../lib/stats'
 import { NETWORK_ERROR_MESSAGE } from '../../lib/supabase'
 import { useToday } from '../../lib/useToday'
+import { MonthView } from './MonthView'
 import { MoodHistory } from './MoodHistory'
 import styles from './Stats.module.css'
 
@@ -228,6 +229,14 @@ export function Stats() {
           {recapNote && <p className={styles.recapNote}>{recapNote}</p>}
         </Section>
       )}
+
+      <Section title="Месяц">
+        <p className={styles.hint}>
+          Кольцо показывает, какая доля задач дня выполнена, под ним настроение. Нажми на день,
+          чтобы открыть его неделю
+        </p>
+        <MonthView tasks={history.tasks} moods={moods ?? null} today={today} since={from} />
+      </Section>
 
       <Section title={`Задачи за ${WEEKS} недель`}>
         {!hasTasks ? (

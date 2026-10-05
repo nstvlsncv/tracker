@@ -1,4 +1,5 @@
 import type { Goal, HabitSchedule, Task } from '../data/types'
+import { getISODay, parseISO } from 'date-fns'
 import { weekStartISO } from './dates'
 import { percent, shiftDate } from './metrics'
 
@@ -80,4 +81,22 @@ export function habitsKept(
     }).length
     return done >= weeklyGoal(schedule)
   }).length
+}
+
+/** Соседний месяц: 'yyyy-MM' плюс `delta` месяцев. */
+export function shiftMonth(month: string, delta: number): string {
+  const index = Number(month.slice(0, 4)) * 12 + Number(month.slice(5)) - 1 + delta
+  return `${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}`
+}
+
+/**
+ * Ячейки календаря месяца 'yyyy-MM' по неделям с понедельника: даты месяца по порядку,
+ * перед первым числом null на месте дней прошлого месяца.
+ */
+export function monthDays(month: string): (string | null)[] {
+  const first = `${month}-01`
+  const next = `${shiftMonth(month, 1)}-01`
+  const days: (string | null)[] = Array.from({ length: getISODay(parseISO(first)) - 1 }, () => null)
+  for (let date = first; date < next; date = shiftDate(date, 1)) days.push(date)
+  return days
 }

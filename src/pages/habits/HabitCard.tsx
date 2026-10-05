@@ -8,8 +8,15 @@ import { IconButton } from '../../components/IconButton'
 import { StatCard } from '../../components/StatCard'
 import type { Habit } from '../../data/types'
 import { cx } from '../../lib/cx'
-import { toISODate } from '../../lib/dates'
-import { checkBlock, formatStreak, habitStreaks, scheduleLabel, scheduleOf } from '../../lib/habits'
+import { formatDayMonth, toISODate } from '../../lib/dates'
+import {
+  checkBlock,
+  currentPause,
+  formatStreak,
+  habitStreaks,
+  scheduleLabel,
+  scheduleOf,
+} from '../../lib/habits'
 import { totalChecks } from '../../lib/metrics'
 import { HabitHistory } from './HabitHistory'
 import styles from './HabitCard.module.css'
@@ -49,6 +56,7 @@ export function HabitCard({
   const doneToday = checks.has(today)
   const schedule = scheduleOf(habit)
   const { current, best } = habitStreaks(schedule, checks, today)
+  const pause = currentPause(schedule, today)
   // У привычек «N раз в неделю» серия считается в неделях: подпись говорит об этом прямо.
   const weeks = current.unit === 'weeks'
   const Caret = open ? CaretUp : CaretDown
@@ -79,7 +87,13 @@ export function HabitCard({
           </button>
           <span className={`t-body-md ${styles.streak}`}>
             {/* Неразрывные части: на компьютере строка переносится только между ними. */}
-            <span>{scheduleLabel(schedule)} ·</span>{' '}
+            {/* На паузе вместо расписания стоит, с какого дня она идёт. */}
+            <span>
+              {pause
+                ? `На паузе с ${formatDayMonth(parseISO(pause.from))}`
+                : scheduleLabel(schedule)}{' '}
+              ·
+            </span>{' '}
             <span>текущая серия {formatStreak(current)} ·</span>{' '}
             <span>лучшая {formatStreak(best)}</span>
           </span>

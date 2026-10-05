@@ -22,6 +22,9 @@ export type HabitsValue = {
   /** Задать порядок активных привычек: id сверху вниз. */
   reorderHabits: (ids: string[]) => void
   /** Убрать в архив. Показывает тост с «Отменить». */
+  /** Поставить привычку на паузу с сегодняшнего дня или снять с неё. */
+  pauseHabit: (id: string, today: string) => void
+  resumeHabit: (id: string, today: string) => void
   archiveHabit: (id: string) => void
   restoreHabit: (id: string) => void
   /** Удалить навсегда вместе с историей. */

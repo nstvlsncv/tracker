@@ -6,6 +6,7 @@ import type {
   Habit,
   HabitCheck,
   HabitFrequency,
+  HabitPause,
   ItemPatch,
   Mood,
   PlannerApi,
@@ -104,6 +105,7 @@ type HabitRow = {
   position?: number | null
   days?: number[] | null
   times_per_week?: number | null
+  pauses?: HabitPause[] | null
 }
 
 // Все колонки, а не список: так чтение работает и до того, как в базе появилась position.
@@ -118,6 +120,7 @@ const toHabit = (row: HabitRow): Habit => ({
   archivedAt: row.archived_at,
   position: row.position ?? null,
   createdAt: row.created_at,
+  pauses: row.pauses ?? [],
 })
 
 /** Supabase отдаёт не больше 1000 строк за запрос. */
@@ -363,6 +366,7 @@ export const supabaseApi: PlannerApi = {
           ...(patch.frequency !== undefined && { frequency: patch.frequency }),
           ...(patch.days !== undefined && { days: patch.days }),
           ...(patch.timesPerWeek !== undefined && { times_per_week: patch.timesPerWeek }),
+          ...(patch.pauses !== undefined && { pauses: patch.pauses }),
         })
         .eq('id', id),
     )

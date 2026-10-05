@@ -1,3 +1,4 @@
+import { parseISO } from 'date-fns'
 import { Plus } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
@@ -18,7 +19,7 @@ import { useToast } from '../../components/useToast'
 import { useHabits } from '../../data/useHabits'
 import { usePlanner } from '../../data/usePlanner'
 import { cx } from '../../lib/cx'
-import { formatWeekdayAndDay, weekStartISO } from '../../lib/dates'
+import { formatDayMonth, formatWeekdayAndDay, weekStartISO } from '../../lib/dates'
 import {
   countDone,
   greeting,
@@ -28,6 +29,7 @@ import {
   shiftDate,
 } from '../../lib/metrics'
 import { onNewItem } from '../../lib/hotkeys'
+import { parseQuickDate } from '../../lib/quickDate'
 import { moodLabel } from '../../lib/moods'
 import { formatStreak, habitStreaks, isDueOn, scheduleOf, weekCount } from '../../lib/habits'
 import { useNow } from '../../lib/useNow'
@@ -97,6 +99,14 @@ export function Home() {
   const day = formatWeekdayAndDay(now)
   const hours = String(now.getHours()).padStart(2, '0')
   const minutes = String(now.getMinutes()).padStart(2, '0')
+
+  /** Новая задача из поля на Главной. Если в конце названия назван день, она встаёт на него. */
+  const addTask = (text: string) => {
+    const quick = parseQuickDate(text, today)
+    if (!quick || quick.date === today) return planner.addTask(today, quick?.title ?? text)
+    planner.addTask(quick.date, quick.title)
+    toast({ message: `Задача добавлена на ${formatDayMonth(parseISO(quick.date))}` })
+  }
 
   /** Справа в заголовке секции: маленькая кнопка с плюсом. */
   const addButton = (label: string, kind: 'goal' | 'task' | 'habit', title?: string) => (
@@ -253,7 +263,9 @@ export function Home() {
         {adding === 'task' && (
           <AddItemField
             label="Добавить задачу"
-            onAdd={(title) => planner.addTask(today, title)}
+            // День можно назвать словами в конце: задача сама встанет на него.
+            placeholder="Задача. Можно с днём: «…завтра», «…в пт»"
+            onAdd={addTask}
             onClose={() => setAdding(undefined)}
           />
         )}

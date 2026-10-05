@@ -18,6 +18,10 @@ type Props = {
   onSave: (title: string, schedule: HabitSchedule) => void
   /** Убрать в архив (только при редактировании). */
   onArchive?: () => void
+  /** Поставить на паузу или снять с неё (только при редактировании). */
+  onPause?: () => void
+  /** Привычка сейчас на паузе: кнопка предлагает её снять. */
+  paused?: boolean
 }
 
 const FREQUENCIES: Array<{ value: HabitFrequency; label: string }> = [
@@ -33,9 +37,9 @@ const TIMES = [1, 2, 3, 4, 5, 6].map((count) => ({
 
 /**
  * Модалка «Добавить привычку» и «Изменить привычку»: название и как часто её отмечать.
- * При редактировании слева ещё «Архивировать».
+ * При редактировании слева ещё «Архивировать» и «На паузу».
  */
-export function HabitModal({ habit, onClose, onSave, onArchive }: Props) {
+export function HabitModal({ habit, onClose, onSave, onArchive, onPause, paused }: Props) {
   const formId = useId()
   const [title, setTitle] = useState(habit?.title ?? '')
   const [frequency, setFrequency] = useState<HabitFrequency>(habit?.frequency ?? 'daily')
@@ -69,10 +73,20 @@ export function HabitModal({ habit, onClose, onSave, onArchive }: Props) {
       title={habit ? 'Изменить привычку' : 'Добавить привычку'}
       onClose={onClose}
       footerStart={
-        onArchive && (
-          <Button variant="ghost" onClick={onArchive}>
-            Архивировать
-          </Button>
+        (onArchive || onPause) && (
+          <>
+            {onArchive && (
+              <Button variant="ghost" onClick={onArchive}>
+                Архивировать
+              </Button>
+            )}
+            {/* Пауза: отпуск или болезнь. Дни паузы не ждут отметки и не рвут серию. */}
+            {onPause && (
+              <Button variant="ghost" onClick={onPause}>
+                {paused ? 'Снять с паузы' : 'На паузу'}
+              </Button>
+            )}
+          </>
         )
       }
       footer={

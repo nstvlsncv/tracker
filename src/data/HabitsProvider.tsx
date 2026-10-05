@@ -1,3 +1,4 @@
+import { withoutPause, withPause } from '../lib/habits'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useToast } from '../components/useToast'
@@ -132,6 +133,14 @@ export function HabitsProvider({ api, children }: { api: PlannerApi; children: R
         )
       },
 
+      pauseHabit: (id, today) => {
+        const habit = latest.current.all.find((item) => item.id === id)
+        if (habit) patchHabit(id, { pauses: withPause(habit.pauses, today) })
+      },
+      resumeHabit: (id, today) => {
+        const habit = latest.current.all.find((item) => item.id === id)
+        if (habit) patchHabit(id, { pauses: withoutPause(habit.pauses, today) })
+      },
       archiveHabit: (id) => {
         patchHabit(id, { archivedAt: new Date().toISOString() })
         toast({

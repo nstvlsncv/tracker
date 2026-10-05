@@ -58,7 +58,12 @@ export type Habit = {
   /** Место в списке, меньше значит выше. null: порядок не задан, идёт по времени создания. */
   position: number | null
   createdAt: string
+  /** Паузы: отпуск, болезнь. В эти дни привычка не ждёт отметки, и серию они не рвут. */
+  pauses?: HabitPause[]
 }
+
+/** Пауза привычки: с какого дня по какой включительно. `to` null: пауза ещё идёт. */
+export type HabitPause = { from: string; to: string | null }
 
 /** Настроение дня: от 1 (плохой день) до 5 (отличный). */
 export type Mood = 1 | 2 | 3 | 4 | 5
@@ -69,12 +74,13 @@ export type HabitCheck = { habitId: string; date: string }
 export type HabitFrequency = 'daily' | 'days' | 'weekly'
 
 /** Расписание привычки: как часто её нужно отмечать. */
-export type HabitSchedule = Pick<Habit, 'frequency' | 'days' | 'timesPerWeek'>
+export type HabitSchedule = Pick<Habit, 'frequency' | 'days' | 'timesPerWeek' | 'pauses'>
 
 export type HabitPatch = Partial<HabitSchedule> & {
   title?: string
   archivedAt?: string | null
   position?: number
+  pauses?: HabitPause[]
 }
 
 /** `date` и `ruleId` меняются только у задач: перенос на другой день отвязывает от повтора. */

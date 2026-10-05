@@ -268,3 +268,8 @@ create policy "own avatar: remove" on storage.objects for delete to authenticate
 -- Порядок задач в дне: место задачи, если её двигали вручную. Пусто: по времени создания.
 alter table public.tasks
   add column if not exists position integer;
+
+-- Паузы привычки (отпуск, болезнь): список отрезков {"from": "2026-10-05", "to": null}.
+-- В эти дни привычка не ждёт отметки, и серию они не рвут.
+alter table public.habits
+  add column if not exists pauses jsonb not null default '[]'::jsonb;

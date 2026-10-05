@@ -1,5 +1,5 @@
 import { getISODay, parseISO } from 'date-fns'
-import type { Habit, HabitSchedule } from '../data/types'
+import type { Habit, HabitPause, HabitSchedule } from '../data/types'
 import { weekStartISO } from './dates'
 import { pluralize, shiftDate } from './metrics'
 
@@ -13,13 +13,47 @@ export const EVERY_DAY: HabitSchedule = { frequency: 'daily', days: [], timesPer
 export type Streak = { value: number; unit: 'days' | 'weeks' }
 
 export function scheduleOf(habit: Habit): HabitSchedule {
-  return { frequency: habit.frequency, days: habit.days, timesPerWeek: habit.timesPerWeek }
+  return {
+    frequency: habit.frequency,
+    days: habit.days,
+    timesPerWeek: habit.timesPerWeek,
+    pauses: habit.pauses,
+  }
+}
+
+/** Стоит ли привычка на паузе в этот день. */
+export function isPaused(schedule: HabitSchedule, date: string): boolean {
+  return (schedule.pauses ?? []).some((pause) => date >= pause.from && (!pause.to || date <= pause.to))
+}
+
+/** Пауза, которая идёт сейчас (ещё не закрыта и уже началась). */
+export function currentPause(schedule: HabitSchedule, today: string) {
+  return (schedule.pauses ?? []).find((pause) => !pause.to && pause.from <= today)
+}
+
+/** Поставить на паузу с сегодняшнего дня. Если пауза уже идёт, ничего не меняется. */
+export function withPause(pauses: HabitPause[] | undefined, today: string): HabitPause[] {
+  const list = pauses ?? []
+  return list.some((pause) => !pause.to) ? list : [...list, { from: today, to: null }]
+}
+
+/**
+ * Снять с паузы: она заканчивается вчера, сегодня привычка снова ждёт отметки.
+ * Пауза, поставленная и снятая в один день, исчезает совсем.
+ */
+export function withoutPause(pauses: HabitPause[] | undefined, today: string): HabitPause[] {
+  const yesterday = shiftDate(today, -1)
+  return (pauses ?? []).flatMap((pause) => {
+    if (pause.to) return [pause]
+    return pause.from > yesterday ? [] : [{ ...pause, to: yesterday }]
+  })
 }
 
 const weekday = (date: string) => getISODay(parseISO(date))
 
-/** Стоит ли день в расписании. У «N раз в неделю» подходит любой день. */
+/** Стоит ли день в расписании. У «N раз в неделю» подходит любой день. Дни паузы не в расписании. */
 export function isScheduled(schedule: HabitSchedule, date: string): boolean {
+  if (isPaused(schedule, date)) return false
   return schedule.frequency !== 'days' || schedule.days.includes(weekday(date))
 }
 
@@ -35,6 +69,8 @@ export function weekCount(checks: ReadonlySet<string>, weekStart: string): numbe
  * пока норма недели не набрана (а если сегодня уже отмечено, она остаётся в списке отмеченной).
  */
 export function isDueOn(schedule: HabitSchedule, checks: ReadonlySet<string>, date: string): boolean {
+  // На паузе отметка не нужна (но уже стоящая остаётся в списке отмеченной).
+  if (isPaused(schedule, date)) return checks.has(date)
   if (schedule.frequency === 'days') return isScheduled(schedule, date) || checks.has(date)
   if (schedule.frequency === 'weekly') {
     return checks.has(date) || weekCount(checks, weekStartISO(date)) < (schedule.timesPerWeek ?? 1)
@@ -51,6 +87,7 @@ export function checkBlock(
   checks: ReadonlySet<string>,
   date: string,
 ): string | null {
+  if (isPaused(schedule, date)) return 'Привычка на паузе: в эти дни её не отмечают'
   if (schedule.frequency === 'days' && !isScheduled(schedule, date)) {
     return `Эта привычка по дням: ${scheduleLabel(schedule).toLowerCase()}. В другие дни её не отмечают`
   }
@@ -78,6 +115,10 @@ function weeklyRuns(schedule: HabitSchedule, checks: ReadonlySet<string>, today:
       const met = weekCount(checks, week) >= goal
       // Текущая неделя ещё идёт: пока норма не набрана, серию она не рвёт.
       if (week === thisWeek && !met) break
+      // Неделя, задетая паузой, без нормы серию тоже не рвёт: её просто нет в счёте.
+      if (!met && [0, 1, 2, 3, 4, 5, 6].some((offset) => isPaused(schedule, shiftDate(week, offset)))) {
+        continue
+      }
       run = met ? run + 1 : 0
       best = Math.max(best, run)
     }
@@ -158,6 +199,7 @@ export function completionRate(
     if (checks.has(day)) done++
     if (isScheduled(schedule, day)) due++
   }
-  if (schedule.frequency === 'weekly') due = Math.round(((schedule.timesPerWeek ?? 1) * days) / 7)
+  // У «N раз в неделю» норма пересчитывается на число дней без паузы (due здесь как раз оно).
+  if (schedule.frequency === 'weekly') due = Math.round(((schedule.timesPerWeek ?? 1) * due) / 7)
   return due === 0 ? 0 : Math.min(100, Math.round((done / due) * 100))
 }

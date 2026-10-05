@@ -9,7 +9,7 @@ import { useToast } from '../../components/useToast'
 import type { Habit, HabitSchedule } from '../../data/types'
 import { useHabits } from '../../data/useHabits'
 import { PageHeader } from '../../layout/PageHeader'
-import { checkBlock, isDueOn, scheduleOf } from '../../lib/habits'
+import { checkBlock, currentPause, isDueOn, scheduleOf } from '../../lib/habits'
 import { useSessionState } from '../../lib/sessionState'
 import { useToday } from '../../lib/useToday'
 import { HabitCard } from './HabitCard'
@@ -198,6 +198,21 @@ export function Habits() {
               ? undefined
               : () => {
                   store.archiveHabit(editing.id)
+                  setEditing(undefined)
+                }
+          }
+          paused={editing !== 'new' && Boolean(currentPause(scheduleOf(editing), today))}
+          onPause={
+            editing === 'new'
+              ? undefined
+              : () => {
+                  if (currentPause(scheduleOf(editing), today)) {
+                    store.resumeHabit(editing.id, today)
+                    toast({ message: 'Привычка снова в деле' })
+                  } else {
+                    store.pauseHabit(editing.id, today)
+                    toast({ message: 'Привычка на паузе: серия подождёт' })
+                  }
                   setEditing(undefined)
                 }
           }

@@ -36,6 +36,8 @@ export function AddItem({ label, onAdd, onClick }: Props) {
 type FieldProps = {
   /** Подпись и плейсхолдер поля: «Добавить цель». */
   label: string
+  /** Свой плейсхолдер, если он должен подсказывать больше, чем подпись. */
+  placeholder?: string
   onAdd: (title: string) => void
   /** Поле пора убрать: ввод закончен или отменён. */
   onClose: () => void
@@ -46,13 +48,13 @@ type FieldProps = {
  * для следующего, уход из поля сохраняет набранное и закрывает его, Escape отменяет.
  * Отдельно используется там, где добавление запускает кнопка в заголовке секции (Главная).
  */
-export function AddItemField({ label, onAdd, onClose }: FieldProps) {
+export function AddItemField({ label, placeholder, onAdd, onClose }: FieldProps) {
   return (
     <div className={styles.field}>
       <Plus aria-hidden />
       <InlineInput
         aria-label={label}
-        placeholder={label}
+        placeholder={placeholder ?? label}
         onEnter={(title) => {
           onAdd(title)
           return true
