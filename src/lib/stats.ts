@@ -1,4 +1,4 @@
-import type { Goal, Task } from '../data/types'
+import type { Goal, HabitSchedule, Task } from '../data/types'
 import { weekStartISO } from './dates'
 import { percent, shiftDate } from './metrics'
 
@@ -52,4 +52,32 @@ export function weekSummary(done: number, total: number): string {
   return total === 0
     ? 'На этой неделе пока нет задач'
     : `На этой неделе выполнено ${done} из ${total} задач`
+}
+
+/**
+ * Сколько раз привычку нужно было отметить за неделю по её расписанию:
+ * каждый день 7, по дням недели столько, сколько дней выбрано, N раз в неделю N.
+ */
+export function weeklyGoal(schedule: HabitSchedule): number {
+  if (schedule.frequency === 'days') return schedule.days.length
+  if (schedule.frequency === 'weekly') return schedule.timesPerWeek ?? 1
+  return 7
+}
+
+/**
+ * Сколько привычек «удержались» на неделе: отмечены столько раз, сколько требует расписание.
+ * У привычек по дням недели считаются только отметки в дни расписания.
+ */
+export function habitsKept(
+  habits: Array<{ schedule: HabitSchedule; checks: ReadonlySet<string> }>,
+  weekStart: string,
+): number {
+  const days = Array.from({ length: 7 }, (_, offset) => shiftDate(weekStart, offset))
+  return habits.filter(({ schedule, checks }) => {
+    const done = days.filter((date, index) => {
+      if (!checks.has(date)) return false
+      return schedule.frequency !== 'days' || schedule.days.includes(index + 1)
+    }).length
+    return done >= weeklyGoal(schedule)
+  }).length
 }

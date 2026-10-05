@@ -6,6 +6,7 @@ import { AddItem } from '../../components/AddItem'
 import { Button } from '../../components/Button'
 import { CalendarPicker } from '../../components/CalendarPicker'
 import { ItemList } from '../../components/ItemList'
+import { Kbd } from '../../components/Kbd'
 import { PageLoader } from '../../components/PageLoader'
 import { Section } from '../../components/Section'
 import { StatCard } from '../../components/StatCard'
@@ -21,7 +22,8 @@ import {
   toWeekParam,
   weekStartISO,
 } from '../../lib/dates'
-import { shiftDate, weekAnalytics } from '../../lib/metrics'
+import { onNewItem } from '../../lib/hotkeys'
+import { pluralize, shiftDate, weekAnalytics } from '../../lib/metrics'
 import { recall, remember } from '../../lib/sessionState'
 import { NETWORK_ERROR_MESSAGE } from '../../lib/supabase'
 import { useToday } from '../../lib/useToday'
@@ -62,6 +64,15 @@ export function Week() {
     if (weekStart) loadWeek(weekStart)
   }, [weekStart, loadWeek])
 
+  // N на клавиатуре: окно новой задачи.
+  useEffect(() => onNewItem(() => setAddingTask(true)), [])
+
+  // На текущей неделе нужны и цели прошлой: невыполненные можно перенести сюда.
+  const previousWeek = weekStart === currentWeek ? shiftDate(currentWeek, -7) : null
+  useEffect(() => {
+    if (previousWeek) loadWeek(previousWeek)
+  }, [previousWeek, loadWeek])
+
   // Ряд дней открывается там, где его оставили. Если неделю ещё не листали,
   // текущая неделя открывается прокрученной к сегодняшнему дню.
   const daysScrollKey = `week.days.${weekStart}`
@@ -78,6 +89,7 @@ export function Week() {
 
   const tasks = planner.tasks.filter((task) => weekStartISO(task.date) === weekStart)
   const goals = planner.goals.filter((goal) => goal.weekStart === weekStart)
+  const leftGoals = planner.goals.filter((goal) => goal.weekStart === previousWeek && !goal.isDone)
 
   const weekLabel = formatWeekRange(parseISO(weekStart), {
     year: !weekStart.startsWith(today.slice(0, 4)),
@@ -117,7 +129,10 @@ export function Week() {
               aria-label="Добавить задачу"
               onClick={() => setAddingTask(true)}
             >
-              <span data-label>Добавить задачу</span>
+              <span data-label>
+                Добавить задачу
+                <Kbd>N</Kbd>
+              </span>
             </Button>
             <CalendarPicker
               aria-label="Неделя"
@@ -176,6 +191,21 @@ export function Week() {
               <p className={styles.placeholder}>Поставь 1–3 цели на неделю</p>
             )}
             <AddItem label="Добавить цель" onAdd={(title) => planner.addGoal(weekStart, title)} />
+            {leftGoals.length > 0 && (
+              <div className={styles.left}>
+                <span className={styles.leftText}>
+                  С прошлой недели {pluralize(leftGoals.length, 'осталась', 'остались', 'осталось')}{' '}
+                  {leftGoals.length} {pluralize(leftGoals.length, 'цель', 'цели', 'целей')}
+                </span>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => planner.moveGoals(leftGoals.map((goal) => goal.id), weekStart)}
+                >
+                  Перенести на эту неделю
+                </Button>
+              </div>
+            )}
           </Section>
 
           {/* Обёртка нужна сетке: число столбцов зависит от её ширины, а не от ширины окна. */}

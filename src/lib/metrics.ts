@@ -3,7 +3,7 @@
 
 export type Checkable = { isDone: boolean }
 export type DatedTask = Checkable & { date: string }
-export type SortableItem = Checkable & { createdAt: string }
+export type SortableItem = Checkable & { createdAt: string; position?: number | null }
 
 export function shiftDate(iso: string, days: number): string {
   const d = new Date(`${iso}T00:00:00Z`)
@@ -120,10 +120,17 @@ export function totalChecks(checks: Iterable<string>): number {
   return new Set(checks).size
 }
 
-/** Невыполненные сверху, выполненные снизу. Внутри группы по времени создания. */
+/**
+ * Невыполненные сверху, выполненные снизу. Внутри группы сначала те, что расставлены вручную
+ * (по своему месту), за ними остальные по времени создания: новая задача встаёт в конец.
+ */
 export function sortItems<T extends SortableItem>(items: T[]): T[] {
+  const placed = (item: SortableItem) => item.position ?? Number.MAX_SAFE_INTEGER
   return [...items].sort(
-    (a, b) => Number(a.isDone) - Number(b.isDone) || a.createdAt.localeCompare(b.createdAt),
+    (a, b) =>
+      Number(a.isDone) - Number(b.isDone) ||
+      placed(a) - placed(b) ||
+      a.createdAt.localeCompare(b.createdAt),
   )
 }
 

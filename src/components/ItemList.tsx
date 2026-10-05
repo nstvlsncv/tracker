@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import { sortItems } from '../lib/metrics'
 import { dissolve } from '../lib/dissolve'
+import { canDragTasks, registerList, watchDrag } from '../lib/dragTasks'
 import { ListItem } from './ListItem'
 import type { MoveAction } from './ListItem'
 import styles from './ItemList.module.css'
@@ -12,6 +13,8 @@ export type Item = {
   createdAt: string
   /** Задача из правила повтора: у строки значок «повторяется». */
   ruleId?: string | null
+  /** Место в списке, если строки двигали вручную. */
+  position?: number | null
 }
 
 type Props = {
@@ -28,6 +31,11 @@ type Props = {
    * только когда вызовут `proceed`.
    */
   confirmDelete?: (id: string, proceed: () => void) => void
+  /**
+   * Строки можно перетаскивать. Приходит новый порядок невыполненных строк сверху вниз;
+   * среди них может быть строка из другого списка (задачу перетащили из другого дня).
+   */
+  onArrange?: (ids: string[]) => void
 }
 
 const MOVE_DURATION_MS = 200
@@ -37,8 +45,35 @@ const FADE_DURATION_MS = 180
  * Список задач или целей. Невыполненные сверху. Строки не прыгают: при отметке элемент
  * переезжает на новое место, новая строка проявляется, удалённая рассыпается в пыль.
  */
-export function ItemList({ items, onToggle, onRename, onDelete, moveOf, burst, confirmDelete }: Props) {
+export function ItemList({
+  items,
+  onToggle,
+  onRename,
+  onDelete,
+  moveOf,
+  burst,
+  confirmDelete,
+  onArrange,
+}: Props) {
   const listRef = useRef<HTMLUListElement>(null)
+
+  // Перетаскивание: список сообщает о себе, порядок и обработчик берутся свежие.
+  const arrangeRef = useRef({ items, onArrange })
+  useEffect(() => {
+    arrangeRef.current = { items, onArrange }
+  })
+  const arrangeable = Boolean(onArrange)
+  useEffect(() => {
+    const list = listRef.current
+    if (!list || !arrangeable) return
+    return registerList(list, {
+      ids: () =>
+        sortItems(arrangeRef.current.items)
+          .filter((item) => !item.isDone)
+          .map((item) => item.id),
+      arrange: (ids) => arrangeRef.current.onArrange?.(ids),
+    })
+  }, [arrangeable])
   // Где стояла каждая строка при прошлой отрисовке: от этого считается сдвиг.
   const tops = useRef<Map<string, number> | null>(null)
   // Положения из отрисовки перед последней: к моменту, когда замечено удаление строки,
@@ -139,7 +174,24 @@ export function ItemList({ items, onToggle, onRename, onDelete, moveOf, burst, c
   return (
     <ul ref={listRef} className={styles.list}>
       {sortItems(items).map((item) => (
-        <li key={item.id} data-id={item.id}>
+        <li
+          key={item.id}
+          data-id={item.id}
+          onPointerDown={(event) => {
+            // Тянуть можно невыполненную строку, левой кнопкой мыши и не за кнопки с иконками,
+            // чекбокс или поле переименования.
+            if (!onArrange || item.isDone || event.button !== 0 || event.pointerType !== 'mouse') return
+            if (!canDragTasks()) return
+            const target = event.target as Element
+            if (target.closest('[role="checkbox"], textarea, input, [data-no-drag]')) return
+            watchDrag(event.nativeEvent, event.currentTarget, item.id, {
+              ghost: styles.ghost,
+              source: styles.source,
+              before: styles.dropBefore,
+              after: styles.dropAfter,
+            })
+          }}
+        >
           <ListItem
             title={item.title}
             done={item.isDone}

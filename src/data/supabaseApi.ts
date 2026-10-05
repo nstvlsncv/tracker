@@ -23,8 +23,9 @@ type TaskRow = {
   created_at: string
   /** Колонки может ещё не быть в базе (её добавляет свежая версия schema.sql). */
   rule_id?: string | null
+  position?: number | null
 }
-type GoalRow = Omit<TaskRow, 'date' | 'rule_id'> & { week_start: string }
+type GoalRow = Omit<TaskRow, 'date' | 'rule_id' | 'position'> & { week_start: string }
 
 type RuleRow = {
   id: string
@@ -48,6 +49,7 @@ const toTask = (row: TaskRow): Task => ({
   doneAt: row.done_at,
   createdAt: row.created_at,
   ruleId: row.rule_id ?? null,
+  position: row.position ?? null,
 })
 
 const toTaskRow = (task: Task) => ({
@@ -59,6 +61,8 @@ const toTaskRow = (task: Task) => ({
   created_at: task.createdAt,
   // Поле уходит в базу только у задач из правил: обычные сохраняются и без колонки rule_id.
   ...(task.ruleId && { rule_id: task.ruleId }),
+  // То же с местом в списке: колонка position нужна только задачам, которые двигали.
+  ...(task.position != null && { position: task.position }),
 })
 
 const toRule = (row: RuleRow): TaskRule => ({
@@ -86,6 +90,8 @@ const toRowPatch = (patch: ItemPatch) => ({
   ...(patch.doneAt !== undefined && { done_at: patch.doneAt }),
   ...(patch.date !== undefined && { date: patch.date }),
   ...(patch.ruleId !== undefined && { rule_id: patch.ruleId }),
+  ...(patch.weekStart !== undefined && { week_start: patch.weekStart }),
+  ...(patch.position !== undefined && { position: patch.position }),
 })
 
 type HabitRow = {
@@ -265,16 +271,26 @@ export const supabaseApi: PlannerApi = {
   },
 
   async loadWeeksWithData() {
-    // TODO(open): Supabase отдаёт не больше 1000 строк за запрос. Когда задач станет больше,
-    // список недель нужно считать в базе (представление или функция).
-    const [tasks, goals] = await Promise.all([
-      unwrap(supabase.from('tasks').select('date')),
-      unwrap(supabase.from('goals').select('week_start')),
-    ])
-    const weeks = new Set<string>()
-    for (const row of tasks ?? []) weeks.add(weekStartISO(row.date))
-    for (const row of goals ?? []) weeks.add(row.week_start)
-    return [...weeks]
+    // Supabase отдаёт не больше 1000 строк за запрос, а задач за год больше:
+    // даты читаются страницами, пока не кончатся.
+    const column = async (table: 'tasks' | 'goals', name: 'date' | 'week_start') => {
+      const values: string[] = []
+      for (let from = 0; ; from += PAGE_SIZE) {
+        const page =
+          (await unwrap(
+            supabase
+              .from(table)
+              .select(name)
+              .order(name)
+              .order('id')
+              .range(from, from + PAGE_SIZE - 1),
+          )) ?? []
+        for (const row of page as unknown as Record<string, string>[]) values.push(row[name])
+        if (page.length < PAGE_SIZE) return values
+      }
+    }
+    const [dates, starts] = await Promise.all([column('tasks', 'date'), column('goals', 'week_start')])
+    return [...new Set([...dates.map((date) => weekStartISO(date)), ...starts])]
   },
 
   async insertTask(task) {

@@ -34,6 +34,13 @@ export type PlannerValue = {
   deleteTask: (id: string) => void
   /** Перенести задачи на другой день (невыполненное с прошлых дней на сегодня). */
   moveTasks: (ids: string[], date: string) => void
+  /**
+   * Расставить невыполненные задачи дня в этом порядке (перетаскивание). Задача из другого дня
+   * заодно переносится на этот.
+   */
+  arrangeTasks: (date: string, ids: string[]) => void
+  /** Сделать уже существующую задачу повторяющейся начиная с её дня. */
+  repeatTask: (id: string, repeat: Repeat) => void
   /** Перестать повторять: убрать эту задачу и все следующие по её правилу. */
   endRepeat: (taskId: string) => void
 
@@ -41,6 +48,8 @@ export type PlannerValue = {
   toggleGoal: (id: string, done: boolean) => void
   renameGoal: (id: string, title: string) => void
   deleteGoal: (id: string) => void
+  /** Перенести цели на другую неделю (невыполненное с прошлой недели на эту). */
+  moveGoals: (ids: string[], weekStart: string) => void
 }
 
 export const PlannerContext = createContext<PlannerValue | null>(null)

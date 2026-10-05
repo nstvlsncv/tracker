@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { forgetSessionState } from '../lib/sessionState'
 import { supabase } from '../lib/supabase'
 import { createSupabaseAccount } from './account'
+import { useAppearanceSync } from './useAppearanceSync'
 import { AuthContext } from './useAuth'
 import type { AuthStatus, Profile } from './useAuth'
 
@@ -77,6 +78,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const user = session?.user
   const userId = user?.id
   const profile = userId && loaded?.userId === userId ? loaded.profile : undefined
+  // Тема и акцентный цвет хранятся в аккаунте и одинаковы на всех устройствах.
+  useAppearanceSync(userId)
 
   // Сессия обновляется при каждом продлении токена, а профиль нужен один раз на пользователя.
   const userRef = useRef(user)

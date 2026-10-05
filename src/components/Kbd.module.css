@@ -1,0 +1,13 @@
+/* Цвет берётся у подписи и приглушается: работает и на серой кнопке, и на чёрной. */
+.kbd {
+  flex: none;
+  margin-left: var(--space-sm);
+  font: inherit;
+  opacity: 0.45;
+}
+
+@media (max-width: 1024px), (hover: none) {
+  .kbd {
+    display: none;
+  }
+}

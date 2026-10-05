@@ -10,7 +10,7 @@ const REVEAL_MS = 500
 const TOUCH_QUERY = '(max-width: 1024px), (pointer: coarse)'
 const listeners = new Set<() => void>()
 
-function getTheme(): Theme {
+export function getTheme(): Theme {
   return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
 }
 
@@ -71,14 +71,15 @@ export function setTheme(theme: Theme, origin?: { x: number; y: number }) {
   transition.finished.finally(() => delete root.dataset.themeReveal)
 }
 
-function subscribe(listener: () => void) {
+/** Узнавать о смене темы. Возвращает функцию отписки. */
+export function onThemeChange(listener: () => void) {
   listeners.add(listener)
   return () => listeners.delete(listener)
 }
 
 /** Текущая тема оформления. Выбор запоминается в браузере на этом устройстве. */
 export function useTheme(): Theme {
-  return useSyncExternalStore(subscribe, getTheme)
+  return useSyncExternalStore(onThemeChange, getTheme)
 }
 
 syncBrowserColor()

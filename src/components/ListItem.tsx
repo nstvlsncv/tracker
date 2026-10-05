@@ -5,11 +5,18 @@ import { cx } from '../lib/cx'
 import { Checkbox } from './Checkbox'
 import { IconButton } from './IconButton'
 import { InlineInput } from './InlineInput'
+import type { Repeat as RepeatKind } from '../data/types'
 import { MoveMenu } from './MoveMenu'
 import styles from './ListItem.module.css'
 
 /** Перенос задачи на другой день: где она стоит сейчас и что сделать с выбранным днём. */
-export type MoveAction = { date: string; today: string; onPick: (date: string) => void }
+export type MoveAction = {
+  date: string
+  today: string
+  onPick: (date: string) => void
+  /** Сделать задачу повторяющейся. Нет функции: повторять нельзя (уже повторяется, нет правил в базе). */
+  onRepeat?: (repeat: RepeatKind) => void
+}
 
 type Props = {
   title: string
@@ -205,7 +212,8 @@ export function ListItem({ title, done, onToggle, onRename, onDelete, move, burs
           <Repeat className={styles.repeat} role="img" aria-label="Повторяется" />
         )}
         {!editing && (
-          <div className={styles.actions}>
+          // data-no-drag: за кнопки строку не тянут (см. перетаскивание в ItemList).
+          <div className={styles.actions} data-no-drag>
             {move && (
               <IconButton
                 variant="ghost"
@@ -243,6 +251,13 @@ export function ListItem({ title, done, onToggle, onRename, onDelete, move, burs
             setMoveMenu(null)
             move.onPick(date)
           }}
+          onRepeat={
+            move.onRepeat &&
+            ((repeat) => {
+              setMoveMenu(null)
+              move.onRepeat?.(repeat)
+            })
+          }
         />
       )}
     </div>

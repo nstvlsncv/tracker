@@ -120,3 +120,10 @@ button:disabled {
   animation: none;
   mix-blend-mode: normal;
 }
+
+/* Пока задачу тянут мышью: курсор-«лапка» над чем угодно, текст на странице не выделяется. */
+html.dragging-task,
+html.dragging-task * {
+  cursor: grabbing !important;
+  user-select: none !important;
+}

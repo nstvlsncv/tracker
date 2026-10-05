@@ -186,3 +186,29 @@ describe('greeting', () => {
     expect(greeting(4)).toBe('Доброй ночи')
   })
 })
+
+describe('sortItems: порядок вручную', () => {
+  const item = (id: string, createdAt: string, position?: number, isDone = false) => ({
+    id,
+    isDone,
+    createdAt,
+    position,
+  })
+
+  it('расставленные вручную идут по своим местам, новые встают в конец', () => {
+    const sorted = sortItems([
+      item('new', '2026-10-05T10:00:00Z'),
+      item('second', '2026-10-01T10:00:00Z', 2),
+      item('first', '2026-10-03T10:00:00Z', 1),
+    ])
+    expect(sorted.map((entry) => entry.id)).toEqual(['first', 'second', 'new'])
+  })
+
+  it('выполненные всё равно ниже невыполненных', () => {
+    const sorted = sortItems([
+      item('done', '2026-10-01T10:00:00Z', 1, true),
+      item('open', '2026-10-05T10:00:00Z', 5),
+    ])
+    expect(sorted.map((entry) => entry.id)).toEqual(['open', 'done'])
+  })
+})

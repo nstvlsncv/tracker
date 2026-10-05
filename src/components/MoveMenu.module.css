@@ -76,3 +76,11 @@ svg.day {
     animation: none;
   }
 }
+
+/* Подпись группы «Повторять» над пунктами повтора, отделена тонкой линией. */
+.group {
+  margin-top: var(--space-xs);
+  padding: var(--space-sm) var(--space-md) var(--space-xs);
+  border-top: 1px solid var(--border-subtle);
+  color: var(--text-tertiary);
+}

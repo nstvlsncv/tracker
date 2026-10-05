@@ -229,3 +229,32 @@
     display: flex;
   }
 }
+
+/* --- Итоги прошлой недели и выводы по настроению: ряд белых карточек внутри секции --- */
+
+.recap {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+/* Лицо настроения и его название в одну строку. */
+.recapMood {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Заметка прошлой недели: как написана, с переносами строк. */
+.recapNote {
+  margin: 0;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1024px) {
+  .recap {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

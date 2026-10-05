@@ -264,3 +264,7 @@ create policy "own avatar: replace" on storage.objects for update to authenticat
 drop policy if exists "own avatar: remove" on storage.objects;
 create policy "own avatar: remove" on storage.objects for delete to authenticated
   using (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+-- Порядок задач в дне: место задачи, если её двигали вручную. Пусто: по времени создания.
+alter table public.tasks
+  add column if not exists position integer;

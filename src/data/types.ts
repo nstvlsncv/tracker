@@ -8,6 +8,8 @@ export type Task = {
   createdAt: string
   /** Правило повтора, из которого появилась задача. null или нет поля: обычная задача. */
   ruleId?: string | null
+  /** Место в списке дня, если задачи двигали вручную. null или нет поля: по времени создания. */
+  position?: number | null
 }
 
 /** daily: каждый день. weekdays: с понедельника по пятницу. weekly: в день недели начала. */
@@ -82,6 +84,10 @@ export type ItemPatch = {
   doneAt?: string | null
   date?: string
   ruleId?: string | null
+  /** Только у целей: перенос на другую неделю. */
+  weekStart?: string
+  /** Только у задач: место в списке дня. */
+  position?: number | null
 }
 
 /**

@@ -8,3 +8,53 @@
   padding: 0;
   list-style: none;
 }
+
+/* Перетаскивание: линия показывает, куда встанет строка. */
+.list > li {
+  position: relative;
+}
+
+.dropBefore::before,
+.dropAfter::after {
+  position: absolute;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: var(--accent-default);
+  content: '';
+  pointer-events: none;
+}
+
+.dropBefore::before {
+  top: -3px;
+}
+
+.dropAfter::after {
+  bottom: -3px;
+}
+
+/* Копия строки, которая едет за курсором: непрозрачная белая плашка со скруглением и тенью.
+   У строки отрицательные поля по бокам (подсветка выступает за текст), поэтому плашке
+   нужны свои поля, иначе текст стоял бы вплотную к краям. */
+.ghost {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  box-sizing: content-box;
+  /* Сдвиг на свои поля: текст плашки остаётся ровно там, где его схватили. */
+  margin: calc(-1 * var(--space-xs)) 0 0 calc(-1 * var(--space-md));
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  box-shadow: 0 8px 24px var(--effects-shadow-md);
+  list-style: none;
+  pointer-events: none;
+}
+
+/* Строка, которую тянут, остаётся на месте бледной. */
+.source {
+  opacity: 0.35;
+}

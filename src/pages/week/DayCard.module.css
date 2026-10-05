@@ -52,6 +52,11 @@
   color: var(--text-primary);
 }
 
+/* Над карточкой тянут задачу: рамка показывает, что её можно бросить сюда. */
+.dropping {
+  box-shadow: inset 0 0 0 2px var(--accent-default);
+}
+
 .donut {
   display: flex;
   justify-content: center;

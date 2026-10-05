@@ -67,9 +67,17 @@ export function createMemoryApi(): PlannerApi {
     goal('Три тренировки'),
     goal('Разобрать гардероб'),
     goal('Прочитать две главы книги', true),
+    // С прошлой недели: её можно перенести на эту одним нажатием.
+    { ...goal('Записаться в бассейн'), weekStart: shiftDate(weekStart, -7) },
   ]
 
   const today = toISODate(new Date())
+  // Гость не должен начинать с долгов (и с грустного маскота): всё за последние семь дней
+  // до сегодняшнего в демо уже сделано.
+  const weekAgo = shiftDate(today, -7)
+  tasks = tasks.map((item) =>
+    item.date < today && item.date >= weekAgo ? { ...item, isDone: true, doneAt: item.createdAt } : item,
+  )
   const habit = (title: string, archived = false): Habit => ({
     id: newId(),
     title,

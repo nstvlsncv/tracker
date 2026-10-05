@@ -27,6 +27,7 @@ import {
   progress,
   shiftDate,
 } from '../../lib/metrics'
+import { onNewItem } from '../../lib/hotkeys'
 import { moodLabel } from '../../lib/moods'
 import { formatStreak, habitStreaks, isDueOn, scheduleOf, weekCount } from '../../lib/habits'
 import { useNow } from '../../lib/useNow'
@@ -62,6 +63,9 @@ export function Home() {
     loadWeek(lastWeek)
   }, [loadWeek, currentWeek, lastWeek])
 
+  // N на клавиатуре: новая задача на сегодня.
+  useEffect(() => onNewItem(() => setAdding('task')), [])
+
   // Привычка, отмеченная последней: если ею закрыты все привычки дня, её чекбокс празднует.
   const [lastChecked, setLastChecked] = useState<string>()
 
@@ -87,18 +91,21 @@ export function Home() {
   // Повторяющиеся задачи не в счёт: у них и так есть своя задача на сегодня.
   const overdue = overdueTasks(planner.tasks, today)
   const repeatDelete = useRepeatDelete()
+  // Цели, не закрытые на прошлой неделе: их можно одним нажатием перенести на эту.
+  const leftGoals = planner.goals.filter((goal) => goal.weekStart === lastWeek && !goal.isDone)
 
   const day = formatWeekdayAndDay(now)
   const hours = String(now.getHours()).padStart(2, '0')
   const minutes = String(now.getMinutes()).padStart(2, '0')
 
   /** Справа в заголовке секции: маленькая кнопка с плюсом. */
-  const addButton = (label: string, kind: 'goal' | 'task' | 'habit') => (
+  const addButton = (label: string, kind: 'goal' | 'task' | 'habit', title?: string) => (
     <IconButton
       variant="secondary"
       size="sm"
       icon={<Plus aria-hidden />}
       aria-label={label}
+      title={title}
       onClick={() => setAdding(kind)}
     />
   )
@@ -139,6 +146,20 @@ export function Home() {
   return (
     <>
       {header}
+
+      {/* Совсем пусто (новый аккаунт): одна плашка подсказывает, с чего начать. */}
+      {goals.length === 0 && tasks.length === 0 && habitsStore.habits.length === 0 && (
+        <section className={styles.welcome}>
+          <Mascot size={48} mood="happy" interactive={false} still />
+          <div className={styles.summaryText}>
+            <h2 className="t-heading-5">С чего начать</h2>
+            <p className={styles.summaryHint}>
+              Поставь цель на неделю, добавь задачу на сегодня и заведи одну привычку. Дальше
+              трекер сам посчитает прогресс
+            </p>
+          </div>
+        </section>
+      )}
 
       <div className={styles.stats}>
         <StatCard
@@ -185,11 +206,27 @@ export function Home() {
             onClose={() => setAdding(undefined)}
           />
         )}
+        {leftGoals.length > 0 && (
+          <div className={styles.overdue}>
+            <span className={styles.overdueText}>
+              С прошлой недели {pluralize(leftGoals.length, 'осталась', 'остались', 'осталось')}{' '}
+              {leftGoals.length} {pluralize(leftGoals.length, 'цель', 'цели', 'целей')}
+            </span>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => planner.moveGoals(leftGoals.map((goal) => goal.id), currentWeek)}
+            >
+              Перенести на эту неделю
+            </Button>
+          </div>
+        )}
       </Section>
 
       <Section
         title="Задачи на сегодня"
-        action={addButton('Добавить задачу', 'task')}
+        // У кнопки с одним плюсом подписи нет: клавиша N названа в подсказке при наведении.
+        action={addButton('Добавить задачу', 'task', 'Добавить задачу (N)')}
       >
         {tasks.length > 0 ? (
           <ItemList
@@ -198,7 +235,17 @@ export function Home() {
             onRename={planner.renameTask}
             onDelete={planner.deleteTask}
             confirmDelete={repeatDelete.confirmDelete}
-            moveOf={(id) => ({ date: today, today, onPick: (target) => planner.moveTasks([id], target) })}
+            onArrange={(ids) => planner.arrangeTasks(today, ids)}
+            moveOf={(id) => ({
+              date: today,
+              today,
+              onPick: (target) => planner.moveTasks([id], target),
+              // Обычную задачу можно сделать повторяющейся прямо из меню.
+              onRepeat:
+                planner.canRepeat && !tasks.find((task) => task.id === id)?.ruleId
+                  ? (repeat) => planner.repeatTask(id, repeat)
+                  : undefined,
+            })}
           />
         ) : (
           adding !== 'task' && <p className={styles.placeholder}>На сегодня пока свободно</p>

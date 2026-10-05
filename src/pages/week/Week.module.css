@@ -2,6 +2,21 @@
   color: var(--text-secondary);
 }
 
+/* Невыполненные цели прошлой недели: строка под списком целей, как «С прошлых дней» на Главной. */
+.left {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.leftText {
+  color: var(--text-tertiary);
+}
+
 /* Подсказки на месте пустых списков: цветом плейсхолдера. */
 .placeholder {
   color: var(--text-placeholder);

@@ -16,7 +16,7 @@ export const ACCENTS: Array<{ value: Accent; label: string }> = [
 const STORAGE_KEY = 'tracker.accent'
 const listeners = new Set<() => void>()
 
-function getAccent(): Accent {
+export function getAccent(): Accent {
   const value = document.documentElement.dataset.accent
   return ACCENTS.some((accent) => accent.value === value) ? (value as Accent) : 'lime'
 }
@@ -32,11 +32,12 @@ export function setAccent(accent: Accent) {
   for (const listener of listeners) listener()
 }
 
-function subscribe(listener: () => void) {
+/** Узнавать о смене акцентного цвета. Возвращает функцию отписки. */
+export function onAccentChange(listener: () => void) {
   listeners.add(listener)
   return () => listeners.delete(listener)
 }
 
 export function useAccent(): Accent {
-  return useSyncExternalStore(subscribe, getAccent)
+  return useSyncExternalStore(onAccentChange, getAccent)
 }

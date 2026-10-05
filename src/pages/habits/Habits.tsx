@@ -1,5 +1,5 @@
 import { Plus } from '@phosphor-icons/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '../../components/Button'
 import { ConfirmModal } from '../../components/ConfirmModal'
 import { Mascot } from '../../components/Mascot'
@@ -13,6 +13,8 @@ import { checkBlock, isDueOn, scheduleOf } from '../../lib/habits'
 import { useSessionState } from '../../lib/sessionState'
 import { useToday } from '../../lib/useToday'
 import { HabitCard } from './HabitCard'
+import { onNewItem } from '../../lib/hotkeys'
+import { Kbd } from '../../components/Kbd'
 import { HabitModal } from './HabitModal'
 import styles from './Habits.module.css'
 
@@ -29,6 +31,8 @@ export function Habits() {
   const [open, setOpen] = useSessionState<ReadonlySet<string>>('habits.open', NONE_OPEN)
   // Что открыто в модалке: новая привычка или редактирование существующей.
   const [editing, setEditing] = useState<Habit | 'new'>()
+  // N на клавиатуре: новая привычка.
+  useEffect(() => onNewItem(() => setEditing('new')), [])
   const [archiveOpen, setArchiveOpen] = useSessionState('habits.archiveOpen', false)
   const [deleting, setDeleting] = useState<Habit>()
   // Привычка, отмеченная последней: если ею закрыты все привычки дня, её чекбокс празднует.
@@ -94,6 +98,7 @@ export function Habits() {
         actions={
           <Button size="lg" icon={<Plus aria-hidden />} onClick={() => setEditing('new')}>
             Добавить привычку
+            <Kbd>N</Kbd>
           </Button>
         }
       />

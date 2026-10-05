@@ -234,7 +234,7 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
       save(api.insertGoal(goal), () => setGoals((current) => without(current, goal.id)))
     }
 
-    return {
+    const actions: PlannerValue = {
       tasks,
       goals,
       weekStatus,
@@ -354,6 +354,73 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
         })
       },
 
+      arrangeTasks: (date, ids) => {
+        const before = latest.current.tasks.filter((task) => ids.includes(task.id))
+        // Строку из другого дня сначала переносим: у переноса своя отмена в тосте.
+        const foreign = before.filter((task) => task.date !== date).map((task) => task.id)
+        if (foreign.length > 0) actions.moveTasks(foreign, date)
+        const changed = ids
+          .map((id, index) => ({ id, position: index + 1 }))
+          .filter(({ id, position }) => before.find((task) => task.id === id)?.position !== position)
+        if (changed.length === 0) return
+        const place = (positionOf: (id: string) => number | null | undefined) =>
+          setTasks((current) =>
+            current.map((task) => {
+              const position = positionOf(task.id)
+              return position === undefined ? task : { ...task, position }
+            }),
+          )
+        place((id) => changed.find((item) => item.id === id)?.position)
+        save(
+          Promise.all(
+            changed.map(({ id, position }) => api.updateTask(id, { position })),
+          ).then(() => {}),
+          () =>
+            place((id) =>
+              changed.some((item) => item.id === id)
+                ? (before.find((task) => task.id === id)?.position ?? null)
+                : undefined,
+            ),
+        )
+      },
+
+      repeatTask: (id, repeat) => {
+        const task = latest.current.tasks.find((item) => item.id === id)
+        if (!task || task.ruleId || !latest.current.rules) return
+        const rule: TaskRule = {
+          id: newId(),
+          title: task.title,
+          repeat,
+          startDate: task.date,
+          endDate: null,
+          skipped: [],
+          // То же время, что у задачи: в списке дня она и её повторы стоят на одном месте.
+          createdAt: task.createdAt,
+        }
+        const link = (ruleId: string | null) =>
+          setTasks((current) => current.map((item) => (item.id === id ? { ...item, ruleId } : item)))
+        setRules((current) => [...(current ?? []), rule])
+        link(rule.id)
+        // Сама задача уже занимает свой день: правило её там не дублирует.
+        latest.current.tasks = latest.current.tasks.map((item) =>
+          item.id === id ? { ...item, ruleId: rule.id } : item,
+        )
+        const added = fillFromRules([...filledWeeks.current], [rule])
+        const ids = new Set(added.map((item) => item.id))
+        save(
+          api
+            .insertRule(rule)
+            .then(() => api.updateTask(id, { ruleId: rule.id }))
+            .then(() => api.insertRuleTasks(added)),
+          () => {
+            setRules((current) => (current ?? []).filter((item) => item.id !== rule.id))
+            setTasks((current) => current.filter((item) => !ids.has(item.id)))
+            link(null)
+          },
+        )
+        toast({ message: 'Задача теперь повторяется' })
+      },
+
       endRepeat: (taskId) => {
         const task = latest.current.tasks.find((item) => item.id === taskId)
         const rule = latest.current.rules?.find((item) => item.id === task?.ruleId)
@@ -391,7 +458,37 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
           action: { label: 'Отменить', onClick: () => insertGoal(removed) },
         })
       },
+
+      moveGoals: (ids, weekStart) => {
+        const moved = latest.current.goals.filter((goal) => ids.includes(goal.id))
+        if (moved.length === 0) return
+        const place = (target: (goal: Goal) => string) =>
+          setGoals((current) =>
+            current.map((goal) => {
+              const original = moved.find((item) => item.id === goal.id)
+              return original ? { ...goal, weekStart: target(original) } : goal
+            }),
+          )
+        const send = (target: (goal: Goal) => string) =>
+          Promise.all(
+            moved.map((goal) => api.updateGoal(goal.id, { weekStart: target(goal) })),
+          ).then(() => {})
+        place(() => weekStart)
+        save(send(() => weekStart), () => place((goal) => goal.weekStart))
+        toast({
+          message: moved.length === 1 ? 'Цель перенесена на эту неделю' : `Перенесено целей: ${moved.length}`,
+          duration: UNDO_TOAST_DURATION_MS,
+          action: {
+            label: 'Отменить',
+            onClick: () => {
+              place((goal) => goal.weekStart)
+              save(send((goal) => goal.weekStart), () => place(() => weekStart))
+            },
+          },
+        })
+      },
     }
+    return actions
   }, [api, tasks, goals, weekStatus, storedWeeks, notes, rules, moods, loadWeek, fillFromRules, save, toast])
 
   return <PlannerContext.Provider value={value}>{children}</PlannerContext.Provider>

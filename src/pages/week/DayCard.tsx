@@ -1,13 +1,15 @@
 import { parseISO } from 'date-fns'
 import { AddItem } from '../../components/AddItem'
 import { Donut } from '../../components/Donut'
+import { useEffect, useRef } from 'react'
 import { ItemList } from '../../components/ItemList'
 import { useRepeatDelete } from '../../components/RepeatDelete'
 import type { Task } from '../../data/types'
 import { usePlanner } from '../../data/usePlanner'
 import { cx } from '../../lib/cx'
 import { formatDayMonth, formatWeekdayShort } from '../../lib/dates'
-import { progress } from '../../lib/metrics'
+import { registerZone } from '../../lib/dragTasks'
+import { progress, sortItems } from '../../lib/metrics'
 import { useToday } from '../../lib/useToday'
 import { MoodPicker } from './MoodPicker'
 import styles from './DayCard.module.css'
@@ -21,13 +23,27 @@ type Props = {
 
 /** Карточка дня на экране Недели: настроение дня, донат с процентом и список задач. */
 export function DayCard({ date, tasks, isToday }: Props) {
-  const { addTask, toggleTask, renameTask, deleteTask, moveTasks } = usePlanner()
+  const { addTask, toggleTask, renameTask, deleteTask, moveTasks, repeatTask, canRepeat, arrangeTasks } =
+    usePlanner()
+  // Задачу можно бросить на карточку мимо строк (и в пустой день): она встаёт в конец списка.
+  // Пока задачу тянут над карточкой, у неё рамка.
+  const cardRef = useRef<HTMLElement>(null)
+  const drop = useRef<(id: string) => void>(() => {})
+  useEffect(() => {
+    const undone = sortItems(tasks).filter((task) => !task.isDone).map((task) => task.id)
+    drop.current = (id) => arrangeTasks(date, [...undone.filter((item) => item !== id), id])
+  })
+  useEffect(() => {
+    const card = cardRef.current
+    if (card) return registerZone(card, (id) => drop.current(id), styles.dropping)
+  }, [])
   const today = useToday()
   const day = parseISO(date)
   const repeatDelete = useRepeatDelete()
 
   return (
     <article
+      ref={cardRef}
       className={cx(styles.card, isToday && styles.today)}
       aria-label={formatDayMonth(day)}
       aria-current={isToday ? 'date' : undefined}
@@ -52,7 +68,17 @@ export function DayCard({ date, tasks, isToday }: Props) {
           onRename={renameTask}
           onDelete={deleteTask}
           confirmDelete={repeatDelete.confirmDelete}
-          moveOf={(id) => ({ date, today, onPick: (target) => moveTasks([id], target) })}
+          onArrange={(ids) => arrangeTasks(date, ids)}
+          moveOf={(id) => ({
+            date,
+            today,
+            onPick: (target) => moveTasks([id], target),
+            // Обычную задачу можно сделать повторяющейся прямо из меню.
+            onRepeat:
+              canRepeat && !tasks.find((task) => task.id === id)?.ruleId
+                ? (repeat) => repeatTask(id, repeat)
+                : undefined,
+          })}
         />
       ) : (
         <p className={styles.empty}>Пока свободно</p>

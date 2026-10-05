@@ -5,7 +5,9 @@ import type { CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import { cx } from '../lib/cx'
 import { formatDayMonth } from '../lib/dates'
+import type { Repeat } from '../data/types'
 import { shiftDate } from '../lib/metrics'
+import { REPEAT_OPTIONS } from '../lib/repeat'
 import { Calendar } from './Calendar'
 import { Modal } from './Modal'
 import styles from './MoveMenu.module.css'
@@ -20,6 +22,8 @@ type Props = {
    */
   anchor: DOMRect | 'sheet'
   onPick: (date: string) => void
+  /** Сделать задачу повторяющейся начиная с её дня. Нет функции: пунктов повтора в меню нет. */
+  onRepeat?: (repeat: Repeat) => void
   onClose: () => void
 }
 
@@ -33,9 +37,10 @@ type Place = { top: number; left: number }
  * Меню «куда перенести задачу»: быстрые варианты и «Выбрать день». На компьютере это
  * выпадающий список, а календарь открывается рядом вложенным списком, когда на пункт
  * «Выбрать день» наводят курсор или нажимают. На сенсорных экранах меню показывается
- * модалкой (на телефоне шторкой), календарь встаёт на место списка.
+ * модалкой (на телефоне шторкой), календарь встаёт на место списка. Ниже, если задача ещё не
+ * повторяется, пункты «Повторять»: каждый день, по будням, раз в неделю.
  */
-export function MoveMenu({ date, today, anchor, onPick, onClose }: Props) {
+export function MoveMenu({ date, today, anchor, onPick, onRepeat, onClose }: Props) {
   const [picking, setPicking] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -84,6 +89,24 @@ export function MoveMenu({ date, today, anchor, onPick, onClose }: Props) {
           <CaretRight className={styles.day} aria-hidden />
         </button>
       </li>
+      {/* Задачу, которая ещё не повторяется, можно сделать повторяющейся прямо отсюда. */}
+      {onRepeat && (
+        <>
+          <li className={`t-caption ${styles.group}`}>Повторять</li>
+          {REPEAT_OPTIONS.filter((option) => option.value !== 'none').map((option) => (
+            <li key={option.value}>
+              <button
+                type="button"
+                className={`t-body-md ${styles.option}`}
+                onMouseEnter={() => setPicking(false)}
+                onClick={() => onRepeat(option.value as Repeat)}
+              >
+                <span>{option.label}</span>
+              </button>
+            </li>
+          ))}
+        </>
+      )}
     </ul>
   )
 

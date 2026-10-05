@@ -7,13 +7,15 @@ import {
   User,
 } from '@phosphor-icons/react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import { useAuth } from '../auth/useAuth'
 import { Avatar } from '../components/Avatar'
+import { Kbd } from '../components/Kbd'
 import { Mascot } from '../components/Mascot'
 import { usePlanner } from '../data/usePlanner'
 import { cx } from '../lib/cx'
 import { takeEntrance } from '../lib/entrance'
+import { emitNewItem, isHotkey } from '../lib/hotkeys'
 import { hasOverdue } from '../lib/metrics'
 import { useToday } from '../lib/useToday'
 import { recall, remember } from '../lib/sessionState'
@@ -107,6 +109,36 @@ export function AppShell({ basePath = '' }: Props) {
   // нажатии она создаётся заново, и анимация проигрывается снова, даже на уже открытом разделе.
   const [tap, setTap] = useState<{ to: string | null; count: number }>({ to: null, count: 0 })
 
+  // Горячие клавиши: цифры 1–4 открывают разделы по порядку меню, N начинает новую запись
+  // на текущем экране. По коду клавиши, а не по букве: раскладка может быть русской.
+  const navigate = useNavigate()
+  const hotkeys = useRef({ section, basePath, navigate })
+  useEffect(() => {
+    hotkeys.current = { section, basePath, navigate }
+  })
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!isHotkey(event)) return
+      if (event.code === 'KeyN') {
+        event.preventDefault()
+        emitNewItem()
+        return
+      }
+      const item = NAV[Number(event.code.replace('Digit', '')) - 1]
+      if (!event.code.startsWith('Digit') || !item) return
+      const current = hotkeys.current
+      event.preventDefault()
+      setTap((last) => ({ to: item.to, count: last.count + 1 }))
+      current.navigate(
+        (item.to !== current.section && recall<string>(`shell.path.${item.to}`)) ||
+          `${current.basePath}/${item.to}`,
+      )
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+
   return (
     <div className={cx(styles.shell, entering && styles.entering)}>
       <aside className={cx(styles.sidebar, collapsed && styles.collapsed)}>
@@ -116,7 +148,7 @@ export function AppShell({ basePath = '' }: Props) {
           <span className={styles.logoText}>Трекер</span>
         </div>
         <nav className={styles.nav} aria-label="Разделы">
-          {NAV.map(({ to, label, icon: Icon, end, motion }) => (
+          {NAV.map(({ to, label, icon: Icon, end, motion }, index) => (
             <NavLink
               key={to}
               // Из другого раздела возвращаемся туда, где были. Нажатие на уже открытый
@@ -149,9 +181,15 @@ export function AppShell({ basePath = '' }: Props) {
                 />
               )}
               <span className={styles.label}>{label}</span>
+              {/* Горячая клавиша раздела: справа от названия, бледнее. В свёрнутом меню она в подсказке. */}
+              <span className={styles.shortcut}>
+                <Kbd>{String(index + 1)}</Kbd>
+              </span>
               {/* Подсказка с названием: видна при наведении, пока от пункта осталась одна иконка. */}
               <span className={`t-body-sm ${styles.hint}`} aria-hidden>
                 {label}
+                {/* Цифра: горячая клавиша раздела. */}
+                <kbd className={styles.key}>{index + 1}</kbd>
               </span>
             </NavLink>
           ))}
