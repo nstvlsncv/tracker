@@ -3,9 +3,12 @@ import { ArrowBendUpRight, Repeat } from '@phosphor-icons/react'
 import { Checkbox } from '../../components/Checkbox'
 import { Donut } from '../../components/Donut'
 import { Mascot } from '../../components/Mascot'
+import { MoodFace } from '../../components/MoodFace'
 import { RollingNumber } from '../../components/RollingNumber'
 import { ACCENTS } from '../../lib/accent'
 import { cx } from '../../lib/cx'
+import { formatMoney } from '../../lib/finance'
+import { MOODS } from '../../lib/moods'
 import styles from './Showreel.module.css'
 
 // Ролик идёт шагами: у каждой сцены их поровну, на каждом шаге в сцене что-то происходит.
@@ -18,7 +21,8 @@ const SCENES = [
   { id: 'goals', title: 'Цели недели' },
   { id: 'repeat', title: 'Повтор и перенос' },
   { id: 'habits', title: 'Привычки и серии' },
-  { id: 'note', title: 'Заметка недели' },
+  { id: 'mood', title: 'Настроение дня' },
+  { id: 'finance', title: 'Платежи под присмотром' },
   { id: 'mascot', title: 'Свой цвет и тема' },
 ] as const
 
@@ -66,18 +70,66 @@ function WeekScene({ step }: { step: number }) {
   )
 }
 
-const NOTE = 'Хорошая неделя: закрыто почти всё. На следующей не забыть про отдых.'
+/** С какого шага настроение выбрано: до этого лица загораются по одному. */
+const MOOD_PICK_STEP = MOODS.length + 1
+/** Какое лицо выбирают в ролике: хороший день. */
+const PICKED_MOOD = MOODS[1]
 
-/** Сцена 6: заметка недели печатается сама, маскот читает. */
-function NoteScene({ step }: { step: number }) {
-  const typed = NOTE.slice(0, Math.round(NOTE.length * Math.min(1, step / 6)))
+/** Сцена 6: лица настроения загораются одно за другим, одно из них выбирают. */
+function MoodScene({ step }: { step: number }) {
+  const picked = step >= MOOD_PICK_STEP
   return (
-    <div className={styles.note}>
-      <Mascot size={40} interactive={false} still mood={step >= 6 ? 'happy' : 'calm'} />
-      <p className={styles.noteField}>
-        {typed}
-        <span className={styles.caret} />
-      </p>
+    <div className={styles.mood}>
+      <div className={styles.moodFaces}>
+        {MOODS.map((option, index) => (
+          <MoodFace
+            key={option.value}
+            size={44}
+            mood={index < step ? option.value : null}
+            className={cx(
+              styles.moodFace,
+              picked && (option === PICKED_MOOD ? styles.moodPicked : styles.moodRest),
+            )}
+          />
+        ))}
+      </div>
+      <span className={`t-body-sm ${styles.muted}`}>{picked ? PICKED_MOOD.label : 'Каким был день?'}</span>
+    </div>
+  )
+}
+
+const BILLS = [
+  { title: 'Аренда', amount: 40000 },
+  { title: 'Связь', amount: 650 },
+  { title: 'Подушка', amount: 7000 },
+]
+
+/** Сцена 7: платежи этапа отмечаются один за другим, сумма «осталось оплатить» тает до нуля. */
+function FinanceScene({ step }: { step: number }) {
+  const done = Math.min(BILLS.length, Math.floor(step / 2))
+  const left = BILLS.slice(done).reduce((sum, bill) => sum + bill.amount, 0)
+  return (
+    <div className={styles.goals}>
+      <span className={`t-body-sm ${styles.muted}`}>
+        осталось оплатить <RollingNumber value={formatMoney(left)} />
+      </span>
+      <ul className={cx(styles.tasks, styles.bills)}>
+        {BILLS.map(({ title, amount }, index) => (
+          <li key={title} className={cx(styles.task, index < done && styles.taskDone)}>
+            <Checkbox
+              checked={index < done}
+              onChange={noop}
+              burst
+              // Последний платёж закрывает этап: салют крупнее.
+              celebrate={index === BILLS.length - 1}
+              quiet
+              aria-label={title}
+            />
+            <span>{title}</span>
+            <span className={styles.amount}>{formatMoney(amount)}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
@@ -185,7 +237,7 @@ function RepeatScene({ step }: { step: number }) {
 const THEME_STEP = ACCENTS.length
 
 /**
- * Сцена 7: маскот перебирает акцентные цвета, каждый по одному разу, затем плашка
+ * Сцена 8: маскот перебирает акцентные цвета, каждый по одному разу, затем плашка
  * перекрашивается в другую тему, и маскот радуется.
  */
 function MascotScene({ step }: { step: number }) {
@@ -210,7 +262,7 @@ function MascotScene({ step }: { step: number }) {
 
 /**
  * Шоурил на экране входа: короткий ролик из настоящих деталей трекера, который сам играет
- * по кругу, как видео. Семь сцен: задачи дня, неделя, цели, повтор и перенос, привычки, заметка, маскот с цветами и темой.
+ * по кругу, как видео. Восемь сцен: задачи дня, неделя, цели, повтор и перенос, привычки, настроение, платежи, маскот с цветами и темой.
  * Нажимать в нём нечего: он неживой (inert) и для скринридера не существует.
  * При отключённых в системе анимациях стоит на первой сцене в её конечном виде.
  */
@@ -250,7 +302,8 @@ export function Showreel({ onThemeFlip }: { onThemeFlip?: (flipped: boolean) => 
         {scene.id === 'goals' && <GoalsScene step={step} />}
         {scene.id === 'repeat' && <RepeatScene step={step} />}
         {scene.id === 'habits' && <HabitsScene step={step} />}
-        {scene.id === 'note' && <NoteScene step={step} />}
+        {scene.id === 'mood' && <MoodScene step={step} />}
+        {scene.id === 'finance' && <FinanceScene step={step} />}
         {scene.id === 'mascot' && <MascotScene step={step} />}
       </div>
     </div>

@@ -138,6 +138,10 @@
   animation: nod 450ms ease-out;
 }
 
+.tilt {
+  animation: tilt 450ms ease-out;
+}
+
 .squeeze {
   animation: squeeze 400ms ease-out;
 }
@@ -190,6 +194,16 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Кошелёк качается, как будто в него что-то упало. */
+@keyframes tilt {
+  30% {
+    transform: rotate(10deg) translateY(1px);
+  }
+  65% {
+    transform: rotate(-6deg);
   }
 }
 
@@ -390,7 +404,9 @@
     padding: var(--space-xs) 0;
     border-radius: var(--radius-md);
     color: var(--text-placeholder);
-    font-size: var(--typography-tab-font-size);
+    /* Разделов пять: подписи мельче стиля tab (как в панелях iOS), иначе «Привычки»
+       и «Финансы» упираются друг в друга на узком телефоне. */
+    font-size: 10px;
     line-height: var(--typography-tab-line-height);
   }
 

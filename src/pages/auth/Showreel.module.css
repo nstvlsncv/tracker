@@ -143,43 +143,6 @@
   box-shadow: inset 0 0 0 1.5px var(--accent-default);
 }
 
-/* --- Заметка недели --- */
-
-.note {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-md);
-  width: 100%;
-}
-
-.noteField {
-  flex: 1;
-  min-height: 120px;
-  margin: 0;
-  padding: var(--space-md);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  background: var(--bg-surface);
-  color: var(--text-primary);
-}
-
-/* Курсор ввода в конце набранного текста. */
-.caret {
-  display: inline-block;
-  width: 2px;
-  height: 1.1em;
-  margin-left: 2px;
-  background: var(--accent-default);
-  vertical-align: text-bottom;
-  animation: caret 900ms steps(1) infinite;
-}
-
-@keyframes caret {
-  50% {
-    opacity: 0;
-  }
-}
-
 /* --- Цели недели --- */
 
 .goals {
@@ -276,8 +239,52 @@
 @media (prefers-reduced-motion: reduce) {
   .title,
   .scene,
-  .chip,
-  .caret {
+  .chip {
     animation: none;
+  }
+}
+
+/* Сцена «Настроение дня»: пять лиц в ряд. Пока день не отмечен, лица серые и загораются
+   по одному; выбранное подрастает, остальные бледнеют. */
+.mood {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.moodFaces {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.moodFace {
+  transition:
+    transform 260ms ease-out,
+    opacity 260ms ease-out;
+}
+
+.moodPicked {
+  transform: scale(1.25);
+}
+
+.moodRest {
+  opacity: 0.35;
+}
+
+/* Сцена «Платежи»: тот же список с чекбоксами, справа суммы. */
+.bills {
+  width: 260px;
+}
+
+.amount {
+  margin-left: auto;
+  padding-left: var(--space-md);
+  color: var(--text-tertiary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .moodFace {
+    transition: none;
   }
 }

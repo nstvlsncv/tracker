@@ -22,6 +22,7 @@ type Props<T extends string> = {
   variant?: 'secondary' | 'ghost'
   /** К какому краю кнопки прижато меню. */
   align?: 'start' | 'end'
+  className?: string
 }
 
 /**
@@ -36,6 +37,7 @@ export function Dropdown<T extends string>({
   variant = 'secondary',
   align = 'end',
   label,
+  className,
   ...rest
 }: Props<T>) {
   const [open, setOpen] = useState(false)
@@ -77,7 +79,7 @@ export function Dropdown<T extends string>({
   return (
     <div
       ref={rootRef}
-      className={cx(styles.root, label && styles.field)}
+      className={cx(styles.root, label && styles.field, className)}
       onKeyDown={(event) => {
         if (!open) return
         if (event.key === 'Escape') {
@@ -116,6 +118,8 @@ export function Dropdown<T extends string>({
           ref={listRef}
           id={listId}
           role="listbox"
+          // Пометка для закреплённых кнопок экрана на телефоне: там список открывается вверх.
+          data-popover
           className={cx(styles.list, label || align === 'start' ? styles.start : styles.end)}
           {...rest}
         >

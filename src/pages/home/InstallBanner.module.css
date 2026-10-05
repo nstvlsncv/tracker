@@ -1,0 +1,44 @@
+/* Баннер «Трекер как приложение»: иконка, пара строк, крестик в углу и кнопка во всю ширину.
+   Показывается только на телефоне, поэтому вёрстка одна. */
+.banner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+/* Иконка приложения: такая же, какая встанет на экран телефона. */
+.icon {
+  border-radius: var(--radius-lg);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  /* Место под крестик в правом верхнем углу. */
+  padding-right: var(--space-xl);
+}
+
+.text h2,
+.hint {
+  margin: 0;
+}
+
+.hint {
+  color: var(--text-tertiary);
+}
+
+.close {
+  position: absolute;
+  top: var(--space-sm);
+  right: var(--space-sm);
+}
+
+.banner > button:last-of-type {
+  grid-column: 1 / -1;
+}

@@ -98,6 +98,28 @@ describe('трекер на демо-данных', () => {
     ).toBeTruthy()
   })
 
+  it('Финансы: платёж добавляется в этап и отмечается', async () => {
+    const user = openTracker('/finance')
+    const stage = await screen.findByRole('region', { name: 'Зарплата' })
+
+    await user.click(within(stage).getByRole('button', { name: 'Добавить платёж: зарплата' }))
+    const dialog = await screen.findByRole('dialog')
+    await user.type(within(dialog).getByRole('textbox', { name: 'Название' }), 'Страховка')
+    await user.type(within(dialog).getByRole('textbox', { name: 'Сумма, ₽' }), '1 500')
+    await user.click(within(dialog).getByRole('button', { name: 'Добавить платёж' }))
+
+    expect(await within(stage).findByRole('button', { name: /^Изменить: Страховка, 1.500/ })).toBeTruthy()
+    await user.click(within(stage).getByRole('checkbox', { name: 'Отметить: Страховка' }))
+    expect(await within(stage).findByRole('checkbox', { name: 'Снять отметку: Страховка' })).toBeTruthy()
+  })
+
+  it('Справка раздела открывается кнопкой у названия', async () => {
+    const user = openTracker('/habits')
+    await user.click(await screen.findByRole('button', { name: 'Справка: Привычки' }))
+    const dialog = await screen.findByRole('dialog')
+    expect(within(dialog).getByText(/Дела, которые повторяются/)).toBeTruthy()
+  })
+
   it('Меню ведёт по разделам, в Профиле открываются пункты', async () => {
     const user = openTracker()
     await screen.findByRole('heading', { name: 'Задачи на сегодня' })
@@ -106,10 +128,15 @@ describe('трекер на демо-данных', () => {
     await user.click(within(menu).getByRole('link', { name: /Неделя/ }))
     expect(await screen.findByRole('heading', { name: 'Неделя', level: 1 })).toBeTruthy()
 
+    await user.click(within(menu).getByRole('link', { name: /Финансы/ }))
+    expect(await screen.findByRole('heading', { name: 'Финансы', level: 1 })).toBeTruthy()
+
     await user.click(within(menu).getByRole('link', { name: /Профиль/ }))
     expect(await screen.findByRole('heading', { name: 'Аккаунт' })).toBeTruthy()
 
     const settings = screen.getByRole('navigation', { name: 'Настройки профиля' })
+    await user.click(within(settings).getByRole('link', { name: /Помощь/ }))
+    expect(await screen.findByRole('heading', { name: 'Клавиши на компьютере' })).toBeTruthy()
     await user.click(within(settings).getByRole('link', { name: /Обратная связь/ }))
     expect(await screen.findByRole('link', { name: 'Напиши мне' })).toBeTruthy()
     // В демо для гостей пароль не меняют и аккаунт не удаляют.

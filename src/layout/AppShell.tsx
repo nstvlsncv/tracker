@@ -5,6 +5,7 @@ import {
   SidebarSimple,
   SignOut,
   User,
+  Wallet,
 } from '@phosphor-icons/react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
@@ -32,6 +33,7 @@ const NAV = [
   { to: '', label: 'Главная', icon: House, end: true, motion: 'bounce' },
   { to: 'week', label: 'Неделя', icon: CalendarDots, end: false, motion: 'flip' },
   { to: 'habits', label: 'Привычки', icon: ArrowsClockwise, end: false, motion: 'spin' },
+  { to: 'finance', label: 'Финансы', icon: Wallet, end: false, motion: 'tilt' },
   { to: 'profile', label: 'Профиль', icon: User, end: false, motion: 'nod' },
 ] as const
 
@@ -109,7 +111,7 @@ export function AppShell({ basePath = '' }: Props) {
   // нажатии она создаётся заново, и анимация проигрывается снова, даже на уже открытом разделе.
   const [tap, setTap] = useState<{ to: string | null; count: number }>({ to: null, count: 0 })
 
-  // Горячие клавиши: цифры 1–4 открывают разделы по порядку меню, N начинает новую запись
+  // Горячие клавиши: цифры 1–5 открывают разделы по порядку меню, N начинает новую запись
   // на текущем экране. По коду клавиши, а не по букве: раскладка может быть русской.
   const navigate = useNavigate()
   const hotkeys = useRef({ section, basePath, navigate })

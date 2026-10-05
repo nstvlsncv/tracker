@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 
 const WIDTH = 1200
+const TITLE = 'Трекер'
+const TAGLINE = 'Недели, задачи, привычки и финансы'
 const HEIGHT = 630
 /** Прогресс по дням недели на картинке: просто красивый пример. */
 const WEEK = [100, 100, 67, 100, 40, 0, 0]
@@ -30,9 +32,11 @@ export function OgImage() {
     if (!canvas || !pen) return
     let cancelled = false
 
+    // Вторым аргументом текст: шрифт разбит на части по алфавитам, и без русских букв в запросе
+    // браузер загрузил бы только латиницу, а надписи нарисовались бы запасным шрифтом.
     Promise.all([
-      document.fonts.load('600 148px Unbounded'),
-      document.fonts.load('400 36px Unbounded'),
+      document.fonts.load('600 148px Unbounded', TITLE),
+      document.fonts.load('400 36px Unbounded', TAGLINE),
     ]).then(() => {
       if (cancelled) return
       // Белый фон и маскот, как на иконке приложения.
@@ -65,13 +69,13 @@ export function OgImage() {
       pen.fillStyle = '#171717'
       pen.font = '600 148px Unbounded'
       pen.letterSpacing = '-3px'
-      pen.fillText('Трекер', 96 + size + 36, centerY + 6)
+      pen.fillText(TITLE, 96 + size + 36, centerY + 6)
 
       pen.textBaseline = 'top'
       pen.letterSpacing = '0px'
       pen.fillStyle = '#737373'
       pen.font = '400 36px Unbounded'
-      pen.fillText('Недели, задачи, цели и привычки', 96, 278)
+      pen.fillText(TAGLINE, 96, 278)
 
       // Семь колец недели: серая дорожка и лаймовая дуга по проценту.
       WEEK.forEach((value, index) => {

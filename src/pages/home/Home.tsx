@@ -8,6 +8,7 @@ import { Button } from '../../components/Button'
 import { buttonClassName } from '../../components/buttonStyles'
 import { Checkbox } from '../../components/Checkbox'
 import { IconButton } from '../../components/IconButton'
+import { HelpButton } from '../../components/Help'
 import { ItemList } from '../../components/ItemList'
 import { Mascot } from '../../components/Mascot'
 import { MoodRow } from '../../components/MoodMenu'
@@ -35,6 +36,7 @@ import { formatStreak, habitStreaks, isDueOn, scheduleOf, weekCount } from '../.
 import { useNow } from '../../lib/useNow'
 import { useToday } from '../../lib/useToday'
 import { HabitModal } from '../habits/HabitModal'
+import { InstallBanner } from './InstallBanner'
 import styles from './Home.module.css'
 
 const NO_CHECKS: ReadonlySet<string> = new Set()
@@ -46,7 +48,7 @@ const NO_CHECKS: ReadonlySet<string> = new Set()
  * отметка здесь сразу видна там, и наоборот.
  */
 export function Home() {
-  const { profile } = useAuth()
+  const { profile, demo } = useAuth()
   const planner = usePlanner()
   const habitsStore = useHabits()
   const toast = useToast()
@@ -122,6 +124,10 @@ export function Home() {
 
   const header = (
     <header className={styles.header}>
+      {/* Справка по разделу: в правом верхнем углу шапки. */}
+      <div className={styles.help}>
+        <HelpButton topic="home" />
+      </div>
       <h1 className={`t-heading-1 ${styles.title}`}>
         {/* На телефоне бокового меню нет: маскот живёт перед приветствием. */}
         <Mascot
@@ -170,6 +176,9 @@ export function Home() {
           </div>
         </section>
       )}
+
+      {/* На телефоне: как добавить иконку трекера на экран. В демо для гостей не нужно. */}
+      {!demo && <InstallBanner />}
 
       <div className={styles.stats}>
         <StatCard

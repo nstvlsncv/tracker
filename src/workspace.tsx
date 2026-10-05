@@ -2,11 +2,14 @@
 // Лежит отдельным куском: экран входа открывается, не дожидаясь этого кода (см. App.tsx).
 import { Outlet } from 'react-router'
 import { useAuth } from './auth/useAuth'
+import { FinanceProvider } from './data/FinanceProvider'
 import { HabitsProvider } from './data/HabitsProvider'
 import { PlannerProvider } from './data/PlannerProvider'
 import { supabaseApi } from './data/supabaseApi'
+import { supabaseFinance } from './data/supabaseFinance'
 
 export { AppShell } from './layout/AppShell'
+export { Finance } from './pages/finance/Finance'
 export { Habits } from './pages/habits/Habits'
 export { Home } from './pages/home/Home'
 export { Profile } from './pages/Profile'
@@ -19,7 +22,9 @@ export function Planner() {
   return (
     <PlannerProvider key={profile?.id} api={supabaseApi}>
       <HabitsProvider api={supabaseApi}>
-        <Outlet />
+        <FinanceProvider api={supabaseFinance}>
+          <Outlet />
+        </FinanceProvider>
       </HabitsProvider>
     </PlannerProvider>
   )

@@ -4,11 +4,14 @@ import { createDemoAccount } from '../auth/demoAccount'
 import { AuthContext } from '../auth/useAuth'
 import type { AuthContextValue, Profile as ProfileData } from '../auth/useAuth'
 import { useToast } from '../components/useToast'
+import { FinanceProvider } from '../data/FinanceProvider'
 import { createMemoryApi } from '../data/memoryApi'
+import { createMemoryFinance } from '../data/memoryFinance'
 import { HabitsProvider } from '../data/HabitsProvider'
 import { PlannerProvider } from '../data/PlannerProvider'
 import { AppShell } from '../layout/AppShell'
 import { forgetSessionState } from '../lib/sessionState'
+import { Finance } from './finance/Finance'
 import { Habits } from './habits/Habits'
 import { Home } from './home/Home'
 import { Profile } from './Profile'
@@ -46,6 +49,7 @@ export function DevPreview({ base = '/dev/app', visitor = false }: Props) {
   }, [visitor, toast])
 
   const api = useMemo(() => createMemoryApi(), [])
+  const finance = useMemo(() => createMemoryFinance(), [])
   const [profile, setProfile] = useState<ProfileData>(() => ({
     id: 'demo',
     name: visitor ? 'Гость' : 'Анастасия',
@@ -81,15 +85,18 @@ export function DevPreview({ base = '/dev/app', visitor = false }: Props) {
     <AuthContext.Provider value={auth}>
       <PlannerProvider api={api}>
         <HabitsProvider api={api}>
+          <FinanceProvider api={finance}>
           <Routes>
             <Route element={<AppShell basePath={base} />}>
               <Route index element={<Home />} />
               <Route path="week/:isoWeek?" element={<Week />} />
               <Route path="habits" element={<Habits />} />
+              <Route path="finance" element={<Finance />} />
               <Route path="stats" element={<Stats />} />
               <Route path="profile/:section?" element={<Profile />} />
             </Route>
           </Routes>
+          </FinanceProvider>
         </HabitsProvider>
       </PlannerProvider>
     </AuthContext.Provider>

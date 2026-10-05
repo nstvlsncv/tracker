@@ -118,6 +118,7 @@ export function Week() {
     <>
       <PageHeader
         title="Неделя"
+        help="week"
         actions={
           <>
             <Button

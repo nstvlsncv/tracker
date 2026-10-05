@@ -273,3 +273,59 @@ alter table public.tasks
 -- В эти дни привычка не ждёт отметки, и серию они не рвут.
 alter table public.habits
   add column if not exists pauses jsonb not null default '[]'::jsonb;
+
+-- Финансы: обязательные траты месяца. Месяц делится на два этапа, аванс и зарплату.
+-- Строка этапа (поступление, платёж или накопление) повторяется из месяца в месяц:
+-- живёт с месяца start_month по end_month. Месяц записан текстом, '2026-10'.
+create table if not exists public.finance_items (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  stage text not null check (stage in ('advance', 'salary')),
+  -- income: поступление, bill: обязательный платёж, saving: накопление
+  kind text not null check (kind in ('income', 'bill', 'saving')),
+  title text not null check (char_length(title) between 1 and 60),
+  amount numeric(11, 2) not null check (amount > 0),
+  start_month text not null check (start_month ~ '^\d{4}-(0[1-9]|1[0-2])$'),
+  -- null = без конца
+  end_month text check (end_month ~ '^\d{4}-(0[1-9]|1[0-2])$'),
+  created_at timestamptz not null default now()
+);
+
+alter table public.finance_items enable row level security;
+drop policy if exists "own finance items" on public.finance_items;
+create policy "own finance items" on public.finance_items for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+grant select, insert, update, delete on public.finance_items to authenticated;
+
+-- Отметка «оплачено» или «отложено» за месяц.
+create table if not exists public.finance_checks (
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  item_id uuid not null references public.finance_items on delete cascade,
+  month text not null check (month ~ '^\d{4}-(0[1-9]|1[0-2])$'),
+  primary key (item_id, month)
+);
+
+alter table public.finance_checks enable row level security;
+drop policy if exists "own finance checks" on public.finance_checks;
+create policy "own finance checks" on public.finance_checks for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+grant select, insert, update, delete on public.finance_checks to authenticated;
+
+-- Число месяца, в которое приходит аванс или зарплата. Действует с месяца month и дальше,
+-- пока в более позднем месяце не записано другое.
+create table if not exists public.finance_days (
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  stage text not null check (stage in ('advance', 'salary')),
+  month text not null check (month ~ '^\d{4}-(0[1-9]|1[0-2])$'),
+  day smallint not null check (day between 1 and 31),
+  primary key (user_id, stage, month)
+);
+
+alter table public.finance_days enable row level security;
+drop policy if exists "own finance days" on public.finance_days;
+create policy "own finance days" on public.finance_days for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+grant select, insert, update, delete on public.finance_days to authenticated;

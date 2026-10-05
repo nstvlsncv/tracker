@@ -1,0 +1,102 @@
+/* Кнопка с вопросом у названия раздела: маленький серый квадрат, как плюсы в заголовках блоков. */
+.button {
+  flex: none;
+}
+
+.intro,
+.note {
+  margin: 0;
+}
+
+.intro {
+  color: var(--text-primary);
+}
+
+.note {
+  color: var(--text-tertiary);
+}
+
+/* Как пользоваться: список с лаймовыми точками. */
+.tips {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--text-secondary);
+}
+
+.tips li {
+  position: relative;
+  padding-left: var(--space-lg);
+}
+
+.tips li::before {
+  position: absolute;
+  top: 0.55em;
+  left: var(--space-xs);
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--highlight-default);
+  content: '';
+}
+
+/* Горячие клавиши: клавиша в рамке и что она делает. */
+.keys {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin: 0;
+}
+
+.key {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+}
+
+.key dd {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.keyName {
+  flex: none;
+  min-width: 48px;
+  padding: 2px var(--space-sm);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  text-align: center;
+}
+
+/* Шаги с номерами в кружках. */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  color: var(--text-primary);
+}
+
+.number {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: var(--highlight-default);
+  color: var(--highlight-foreground);
+}

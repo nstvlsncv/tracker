@@ -16,6 +16,11 @@
   gap: var(--space-md);
 }
 
+/* Кнопка справки стоит ближе к названию, чем остальное. */
+.title h1 + button {
+  margin-left: calc(-1 * var(--space-xs));
+}
+
 .actions {
   display: flex;
   gap: var(--space-sm);

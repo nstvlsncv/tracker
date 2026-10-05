@@ -1,0 +1,345 @@
+/* Выбор месяца: серая кнопка со списком слева от «Добавить платёж». На телефоне кнопки
+   экрана закреплены внизу и идут справа налево: месяц встаёт слева на всю свободную
+   ширину, а «Добавить платёж» справа квадратом с плюсом. */
+@media (max-width: 640px) {
+  .month {
+    order: 1;
+  }
+}
+
+/* Подпись кнопки в шапке: полная и короткая для планшета. */
+.short {
+  display: none;
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .full {
+    display: none;
+  }
+
+  .short {
+    display: inline;
+  }
+}
+
+/* Показатели месяца: как на Главной, четыре в ряд, на телефоне в два столбца. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+/* Суммы длиннее процентов и не переносятся («1 250 000»), поэтому значение сжимается
+   вместе с карточкой: в узкой оно мельче, в широкой обычного размера. */
+.stats > * {
+  container-type: inline-size;
+}
+
+.stats > * > :first-child {
+  font-size: min(var(--typography-heading-2-font-size), 15cqw);
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* Среди сумм есть миллионы: все значения ряда становятся ещё мельче, чтобы поместиться. */
+.long > * > :first-child {
+  font-size: min(var(--typography-heading-2-font-size), 12cqw);
+}
+
+/* Два этапа рядом, когда каждому хватает места, иначе друг под другом. Считается от ширины
+   самого блока, а не окна: свёрнутое меню добавляет места, как на Неделе. */
+.board {
+  container-type: inline-size;
+}
+
+.stages {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-md);
+}
+
+@container (min-width: 760px) {
+  .stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Карточка этапа. Обе одной высоты, итог прижат к низу: итоги этапов стоят на одной линии. */
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+/* Этап, который идёт сейчас: карточка на ступень контрастнее, тем же цветом, что сегодняшний
+   день на Неделе (см. DayCard.module.css). */
+.now {
+  background: var(--bg-secondary);
+  --accent-subtle: var(--bg-tertiary);
+}
+
+/* Кнопка с датой лежит прямо на карточке и тоже сдвигается на ступень, иначе слилась бы
+   с фоном. Переназначение стоит на детях, а не на самой карточке: иначе сдвинулся бы и её фон.
+   Белых плашек со списками это не касается: внутри них всё как обычно. */
+.now > :not(.group) {
+  --bg-secondary: var(--accent-subtle);
+  --bg-tertiary: var(--border-default);
+}
+
+/* На узком телефоне названию с пометкой «Сейчас» и дате тесно в одной строке:
+   дата уходит на строку ниже. */
+.stageHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.stageTitle {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.stageTitle h2 {
+  margin: 0;
+}
+
+/* Пометка текущего этапа: лаймовая, как «Текущая» у сессии в Профиле. */
+.badge {
+  flex: none;
+  padding: 2px var(--space-sm);
+  border-radius: var(--radius-full);
+  background: var(--highlight-default);
+  color: var(--highlight-foreground);
+}
+
+/* Список внутри этапа: поступления, платежи или накопления. Каждый в своей белой плашке,
+   как вложенные карточки на остальных экранах: так списки не сливаются друг с другом. */
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.groupTitle {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Строка: чекбокс и кнопка с названием и суммой. Как строки привычек на Главной. */
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: 40px;
+}
+
+/* Название слева, сумма справа. Фон при наведении выступает за край текста. */
+.row {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  min-width: 0;
+  margin: 0 calc(-1 * var(--space-sm));
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  text-align: left;
+  transition: background-color var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .row:hover {
+    background: var(--bg-secondary);
+  }
+}
+
+.title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sum {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* Оплачено: строка гаснет, как выполненная задача. */
+.done {
+  color: var(--text-disabled);
+}
+
+.done .title {
+  text-decoration: line-through;
+}
+
+.hint {
+  margin: 0;
+  color: var(--text-tertiary);
+}
+
+.group > .hint {
+  color: var(--text-placeholder);
+}
+
+/* Итог этапа: сколько свободно и сколько осталось оплатить. */
+.total {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin: auto 0 0;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.totalRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0 var(--space-md);
+}
+
+.totalRow dt,
+.totalRow dd {
+  margin: 0;
+}
+
+.totalRow dd {
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* Поля модалок друг под другом. */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Числа месяца в модалке даты: семь в ряд, выбранное залито основным акцентом,
+   как дни недели в модалке привычки. */
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-xs);
+}
+
+.dayButton {
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-press);
+}
+
+.dayButton:active {
+  transform: scale(0.96);
+}
+
+.selected {
+  background: var(--accent-default);
+  color: var(--accent-foreground);
+}
+
+@media (hover: hover) {
+  .dayButton:hover:not(.selected) {
+    background: var(--bg-tertiary);
+  }
+}
+
+/* Подсказка новичку: маскот и пара строк, пока в разделе ничего нет. */
+.welcome {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.welcomeText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.welcomeText h2 {
+  margin: 0;
+}
+
+/* Ошибка загрузки. */
+.error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+/* Раздел ещё не готов в базе: одна фраза по центру свободного места экрана. */
+.placeholder {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-md);
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  color: var(--text-placeholder);
+  text-align: center;
+}
+
+.placeholder p {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-sm);
+  }
+
+  .stages {
+    gap: var(--space-sm);
+  }
+
+  .stage,
+  .welcome,
+  .error {
+    padding: var(--space-md);
+  }
+}

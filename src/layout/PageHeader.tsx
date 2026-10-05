@@ -3,11 +3,15 @@ import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { buttonClassName } from '../components/buttonStyles'
+import { HelpButton } from '../components/Help'
+import type { HelpTopic } from '../data/help'
 import { cx } from '../lib/cx'
 import styles from './PageHeader.module.css'
 
 type Props = {
   title: string
+  /** Справка раздела: у названия появляется кнопка с вопросом. */
+  help?: HelpTopic
   /** Стоит сразу за названием, с отступом 16px (выбор недели). */
   aside?: ReactNode
   /** Кнопки у правого края. */
@@ -25,7 +29,7 @@ type Props = {
  * Шапка экрана: название раздела и кнопки. До основного содержимого от неё 24px.
  * На телефоне кнопки не стоят в шапке, а закреплены внизу экрана, над нижней панелью.
  */
-export function PageHeader({ title, aside, actions, backTo, backAlways }: Props) {
+export function PageHeader({ title, help, aside, actions, backTo, backAlways }: Props) {
   const actionsRef = useRef<HTMLDivElement>(null)
   const hasActions = Boolean(actions)
 
@@ -59,6 +63,7 @@ export function PageHeader({ title, aside, actions, backTo, backAlways }: Props)
           </Link>
         )}
         <h1 className="t-heading-1">{title}</h1>
+        {help && <HelpButton topic={help} />}
         {aside}
       </div>
       {actions && (

@@ -95,6 +95,7 @@ export function Habits() {
     <>
       <PageHeader
         title="Привычки"
+        help="habits"
         actions={
           <Button size="lg" icon={<Plus aria-hidden />} onClick={() => setEditing('new')}>
             Добавить привычку

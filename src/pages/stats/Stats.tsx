@@ -82,7 +82,7 @@ export function Stats() {
   if (history === 'error') {
     return (
       <>
-        <PageHeader title="Итоги" backTo=".." backAlways />
+        <PageHeader title="Итоги" help="stats" backTo=".." backAlways />
         <Section title="Не получилось загрузить итоги">
           <p className={styles.hint}>{NETWORK_ERROR_MESSAGE}</p>
           <div>
@@ -106,7 +106,7 @@ export function Stats() {
   if (history === null || habitsLoading) {
     return (
       <>
-        <PageHeader title="Итоги" backTo=".." backAlways />
+        <PageHeader title="Итоги" help="stats" backTo=".." backAlways />
         <PageLoader />
       </>
     )
@@ -150,7 +150,7 @@ export function Stats() {
 
   return (
     <>
-      <PageHeader title="Итоги" backTo=".." backAlways />
+      <PageHeader title="Итоги" help="stats" backTo=".." backAlways />
 
       <div className={styles.verdict}>
           <Mascot size={72} mood={verdict.mood} />

@@ -8,6 +8,7 @@ import {
   LockKey,
   Moon,
   Palette,
+  Question,
   SignOut,
   Sun,
   UserCircle,
@@ -33,6 +34,7 @@ import { PageHeader } from '../layout/PageHeader'
 import { SignOutModal } from '../layout/SignOutModal'
 import { AccountSection } from './profile/AccountSection'
 import { DangerZone } from './profile/DangerZone'
+import { HelpSection } from './profile/HelpSection'
 import { PasswordSection } from './profile/PasswordSection'
 import { SessionsSection } from './profile/SessionsSection'
 import { useAccount } from './profile/useAccount'
@@ -90,6 +92,7 @@ export function Profile() {
       render: () => <SessionsSection key={profile?.passwordChangedAt} />,
     },
     { id: 'releases', label: 'История версий', icon: ClockCounterClockwise, render: () => <Releases /> },
+    { id: 'help', label: 'Помощь', icon: Question, render: () => <HelpSection /> },
     { id: 'feedback', label: 'Обратная связь', icon: ChatCircleDots, render: () => <Feedback /> },
   ]
 
