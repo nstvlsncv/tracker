@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Goal, Task } from '../data/types'
-import { habitsKept, monthDays, recentWeeks, shiftMonth, summarizeWeeks, weeklyGoal } from './stats'
+import { habitsKept, recentWeeks, summarizeWeeks, weeklyGoal } from './stats'
 
 const task = (date: string, isDone: boolean): Task => ({
   id: date + isDone,
@@ -71,23 +71,5 @@ describe('habitsKept', () => {
       },
     ]
     expect(habitsKept(habits, WEEK)).toBe(2)
-  })
-})
-
-describe('месяц', () => {
-  it('листает месяцы через границу года', () => {
-    expect(shiftMonth('2026-10', -1)).toBe('2026-09')
-    expect(shiftMonth('2026-12', 1)).toBe('2027-01')
-    expect(shiftMonth('2026-01', -1)).toBe('2025-12')
-  })
-
-  it('раскладывает дни по неделям с понедельника', () => {
-    // 1 октября 2026 это четверг: перед ним три пустые ячейки.
-    const days = monthDays('2026-10')
-    expect(days.slice(0, 4)).toEqual([null, null, null, '2026-10-01'])
-    expect(days).toHaveLength(3 + 31)
-    expect(days[days.length - 1]).toBe('2026-10-31')
-    // Июнь 2026 начинается с понедельника: пустых ячеек нет.
-    expect(monthDays('2026-06')[0]).toBe('2026-06-01')
   })
 })

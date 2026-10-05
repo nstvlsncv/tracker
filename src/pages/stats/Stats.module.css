@@ -1,9 +1,3 @@
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-md);
-}
-
 /* Маскот с настроением недели и одна фраза рядом. */
 .verdict {
   display: flex;

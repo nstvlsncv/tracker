@@ -27,12 +27,11 @@ import {
   scheduleOf,
 } from '../../lib/habits'
 import { WEEKDAY_LABELS } from '../../lib/habits'
-import { pluralize, shiftDate } from '../../lib/metrics'
+import { shiftDate } from '../../lib/metrics'
 import { averageMood, moodInsights, moodLabel } from '../../lib/moods'
 import { habitsKept, recentWeeks, summarizeWeeks, weekSummary, weekVerdict } from '../../lib/stats'
 import { NETWORK_ERROR_MESSAGE } from '../../lib/supabase'
 import { useToday } from '../../lib/useToday'
-import { MonthView } from './MonthView'
 import { MoodHistory } from './MoodHistory'
 import styles from './Stats.module.css'
 
@@ -114,9 +113,6 @@ export function Stats() {
   }
 
   const summary = summarizeWeeks(history.tasks, history.goals, weeks)
-  const tasksDone = summary.reduce((sum, week) => sum + week.done, 0)
-  const goalsDone = summary.reduce((sum, week) => sum + week.goalsDone, 0)
-  const bestWeek = Math.max(0, ...summary.map((week) => week.percent ?? 0))
   const hasTasks = summary.some((week) => week.total > 0)
 
   // Настроение недели: по доле выполненных задач текущей недели.
@@ -152,12 +148,6 @@ export function Stats() {
   // Что видно по настроению за последние 30 дней. Пока отметок мало, выводов нет.
   const insights = moods ? moodInsights(moods, history.tasks, today, MOOD_DAYS) : null
 
-  // Рекорд среди серий в днях: недельные серии с ними не сравниваются.
-  const bestStreak = Math.max(
-    0,
-    ...habits.filter((item) => item.best.unit === 'days').map((item) => item.best.value),
-  )
-
   return (
     <>
       <PageHeader title="Итоги" backTo=".." backAlways />
@@ -170,16 +160,6 @@ export function Stats() {
               {weekSummary(thisWeek.done, thisWeek.total)}
             </p>
           </div>
-      </div>
-
-      <div className={styles.stats}>
-        <StatCard variant="highlight" value={tasksDone} label="задач выполнено" />
-        <StatCard value={goalsDone} label="целей выполнено" />
-        <StatCard value={`${bestWeek}%`} label="лучшая неделя" />
-        <StatCard
-          value={bestStreak}
-          label={`${pluralize(bestStreak, 'день', 'дня', 'дней')}, лучшая серия`}
-        />
       </div>
 
       {hasRecap && (
@@ -230,12 +210,32 @@ export function Stats() {
         </Section>
       )}
 
-      <Section title="Месяц">
-        <p className={styles.hint}>
-          Кольцо показывает, какая доля задач дня выполнена, под ним настроение. Нажми на день,
-          чтобы открыть его неделю
-        </p>
-        <MonthView tasks={history.tasks} moods={moods ?? null} today={today} since={from} />
+      <Section title={`Привычки за ${HABIT_DAYS} дней`}>
+        {habits.length === 0 ? (
+          <p className={styles.hint}>Здесь появятся привычки, когда заведёшь первую</p>
+        ) : (
+          <ul className={styles.habits}>
+            {habits.map(({ habit, schedule, rate, current, best }) => (
+              <li key={habit.id} className={styles.habit}>
+                <div className={styles.habitHead}>
+                  <span className={styles.habitTitle}>{habit.title}</span>
+                  <span className="t-number-sm">{rate}%</span>
+                </div>
+                <div
+                  className={styles.meter}
+                  role="img"
+                  aria-label={`Выполнено ${rate}% за ${HABIT_DAYS} дней`}
+                >
+                  <span className={styles.meterFill} style={{ width: `${rate}%` }} />
+                </div>
+                <span className={`t-body-sm ${styles.habitNote}`}>
+                  {scheduleLabel(schedule)} · серия {formatStreak(current)} · лучшая{' '}
+                  {formatStreak(best)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </Section>
 
       <Section title={`Задачи за ${WEEKS} недель`}>
@@ -323,34 +323,6 @@ export function Stats() {
           <MoodHistory moods={moods} today={today} onPick={setMood} />
         </Section>
       )}
-
-      <Section title={`Привычки за ${HABIT_DAYS} дней`}>
-        {habits.length === 0 ? (
-          <p className={styles.hint}>Здесь появятся привычки, когда заведёшь первую</p>
-        ) : (
-          <ul className={styles.habits}>
-            {habits.map(({ habit, schedule, rate, current, best }) => (
-              <li key={habit.id} className={styles.habit}>
-                <div className={styles.habitHead}>
-                  <span className={styles.habitTitle}>{habit.title}</span>
-                  <span className="t-number-sm">{rate}%</span>
-                </div>
-                <div
-                  className={styles.meter}
-                  role="img"
-                  aria-label={`Выполнено ${rate}% за ${HABIT_DAYS} дней`}
-                >
-                  <span className={styles.meterFill} style={{ width: `${rate}%` }} />
-                </div>
-                <span className={`t-body-sm ${styles.habitNote}`}>
-                  {scheduleLabel(schedule)} · серия {formatStreak(current)} · лучшая{' '}
-                  {formatStreak(best)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Section>
     </>
   )
 }
