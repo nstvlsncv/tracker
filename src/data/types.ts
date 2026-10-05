@@ -58,6 +58,9 @@ export type Habit = {
   createdAt: string
 }
 
+/** Настроение дня: от 1 (плохой день) до 5 (отличный). */
+export type Mood = 1 | 2 | 3 | 4 | 5
+
 /** Отметка «привычка выполнена в этот день». */
 export type HabitCheck = { habitId: string; date: string }
 
@@ -90,6 +93,11 @@ export type PlannerApi = {
   loadWeek: (weekStart: string) => Promise<{ tasks: Task[]; goals: Goal[]; note?: string }>
   /** Сохранить заметку недели. Пустой текст убирает её. */
   saveNote: (weekStart: string, text: string) => Promise<void>
+
+  /** Настроение по дням ('yyyy-MM-dd'). null: его в этой базе нет (не применена свежая схема). */
+  loadMoods: () => Promise<Record<string, Mood> | null>
+  /** Записать настроение дня. null убирает отметку. */
+  saveMood: (date: string, mood: Mood | null) => Promise<void>
 
   /** Правила повторяющихся задач. null: повтора в этой базе нет (не применена свежая схема). */
   loadRules: () => Promise<TaskRule[] | null>

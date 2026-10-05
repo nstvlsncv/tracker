@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties } from 'react'
+import type { CSSProperties, RefObject } from 'react'
 import { onCheer } from '../lib/cheer'
 import { cx } from '../lib/cx'
 import { fireBurst } from './fireBurst'
@@ -22,6 +22,11 @@ type Props = {
    * есть другой, главный (в «Итогах»): двое, синхронно водящих глазами, выглядят странно.
    */
   still?: boolean
+  /**
+   * На что маскот поглядывает от скуки, когда курсор давно не двигался и никто не печатает
+   * (ролик на экране входа). Пока этого элемента не видно, маскот никуда не поглядывает.
+   */
+  idleTarget?: RefObject<Element | null>
   className?: string
 }
 
@@ -40,6 +45,9 @@ const LOOK = 0.11
  * на экране входа курсор почти всегда рядом с маскотом, и с большим порогом глаза едва двигались.
  */
 const FAR_PX = 70
+/** Сколько курсор должен простоять, чтобы маскот отвлёкся, и на сколько он отводит взгляд. */
+const IDLE_MS = 4000
+const GLANCE_MS = 1800
 /** Поля, в которые маскот заглядывает, пока в них печатают. В пароли не подглядывает. */
 const FIELDS = 'input:not([type="password"]), textarea'
 
@@ -73,6 +81,7 @@ export function Mascot({
   mood = 'calm',
   interactive = true,
   still = false,
+  idleTarget,
   className,
 }: Props) {
   const ref = useRef<HTMLElement>(null)
@@ -108,10 +117,12 @@ export function Mascot({
     let frame = 0
     let pointer: Point | null = null
     let typing: Point | null = null
+    let glance: Point | null = null
+    let idle = 0
 
     const look = () => {
       frame = 0
-      const point = typing ?? pointer
+      const point = typing ?? glance ?? pointer
       if (!point) {
         node.style.setProperty('--look-x', '0px')
         node.style.setProperty('--look-y', '0px')
@@ -129,8 +140,29 @@ export function Mascot({
       if (!frame) frame = requestAnimationFrame(look)
     }
 
+    // Курсор стоит: маскот ненадолго отводит взгляд на соседний блок, потом возвращается,
+    // и так раз за разом, пока курсор не сдвинется.
+    const rest = () => {
+      clearTimeout(idle)
+      if (!idleTarget || !hasPointer) return
+      idle = window.setTimeout(() => {
+        const rect = idleTarget.current?.getBoundingClientRect()
+        if (rect && rect.width > 0 && !document.hidden) {
+          glance = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+          schedule()
+        }
+        idle = window.setTimeout(() => {
+          glance = null
+          schedule()
+          rest()
+        }, GLANCE_MS)
+      }, IDLE_MS)
+    }
+
     const onMove = (event: PointerEvent) => {
       pointer = { x: event.clientX, y: event.clientY }
+      glance = null
+      rest()
       // Курсор главнее: стоит ему сдвинуться, взгляд возвращается к нему, даже если поле
       // ввода ещё в фокусе. Иначе после нажатия в поле маскот «залипал» на нём.
       typing = null
@@ -148,6 +180,7 @@ export function Mascot({
       schedule()
     }
 
+    rest()
     if (hasPointer) window.addEventListener('pointermove', onMove)
     // За текстом он смотрит, только пока печатают: фокус в поле сам по себе взгляд не забирает.
     // На сенсорных экранах курсора нет, там хватает и фокуса.
@@ -156,12 +189,13 @@ export function Mascot({
     document.addEventListener('focusout', onLeaveField)
     return () => {
       cancelAnimationFrame(frame)
+      clearTimeout(idle)
       window.removeEventListener('pointermove', onMove)
       document.removeEventListener('focusin', onType)
       document.removeEventListener('input', onType)
       document.removeEventListener('focusout', onLeaveField)
     }
-  }, [still])
+  }, [still, idleTarget])
 
   const poke = () => {
     taps.current++

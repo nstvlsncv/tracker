@@ -154,6 +154,13 @@
       "default": { "value": "{core.Lime.500}", "type": "color", "note": "Achievement colour: donut fill, checked checkbox. Never for buttons, navigation or text." },
       "foreground": { "value": "{core.Neutral.900}", "type": "color", "note": "Marks drawn on top of highlight (the check mark). Dark in both themes: lime is always light." }
     },
+    "mood": {
+      "great": { "value": "{core.Green.600}", "type": "color", "note": "Mood of the day faces: a fixed green-to-red scale, independent of the accent colour." },
+      "good": { "value": "{core.Lime.500}", "type": "color" },
+      "okay": { "value": "{core.Yellow.500}", "type": "color" },
+      "low": { "value": "{core.Orange.600}", "type": "color" },
+      "bad": { "value": "{core.Red.600}", "type": "color" }
+    },
     "effects": {
       "focus-ring": { "value": "{core.Neutral.900}", "type": "color" },
       "overlay": { "value": "rgba(23, 23, 23, 0.5)", "type": "color" },
@@ -260,6 +267,13 @@
     "highlight": {
       "default": { "value": "{core.Lime.500}", "type": "color" },
       "foreground": { "value": "{core.Neutral.900}", "type": "color" }
+    },
+    "mood": {
+      "great": { "value": "{core.Green.600}", "type": "color" },
+      "good": { "value": "{core.Lime.500}", "type": "color" },
+      "okay": { "value": "{core.Yellow.500}", "type": "color" },
+      "low": { "value": "{core.Orange.600}", "type": "color" },
+      "bad": { "value": "{core.Red.600}", "type": "color" }
     },
     "effects": {
       "focus-ring": { "value": "{core.Neutral.100}", "type": "color" },

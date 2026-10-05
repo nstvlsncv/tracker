@@ -6,6 +6,8 @@
   flex: none;
   align-items: center;
   justify-content: center;
+  /* Кнопкой бывает и ссылка: подчёркивания у кнопок нет. */
+  text-decoration: none;
   white-space: nowrap;
   transition:
     background-color var(--transition-fast),

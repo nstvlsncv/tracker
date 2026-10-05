@@ -9,7 +9,7 @@ import { useToast } from '../../components/useToast'
 import type { Habit, HabitSchedule } from '../../data/types'
 import { useHabits } from '../../data/useHabits'
 import { PageHeader } from '../../layout/PageHeader'
-import { isDueOn, scheduleOf } from '../../lib/habits'
+import { checkBlock, isDueOn, scheduleOf } from '../../lib/habits'
 import { useSessionState } from '../../lib/sessionState'
 import { useToday } from '../../lib/useToday'
 import { HabitCard } from './HabitCard'
@@ -129,6 +129,12 @@ export function Habits() {
             onOpenChange={(next) => setCardOpen(habit.id, next)}
             celebrate={allDoneToday && lastChecked === habit.id}
             onToggle={(date, done) => {
+              // Поставить отметку можно не всегда; снять можно любую.
+              const block = done ? checkBlock(scheduleOf(habit), checksOf(habit), date) : null
+              if (block) {
+                toast({ message: block })
+                return
+              }
               if (date === today) setLastChecked(habit.id)
               store.toggleCheck(habit.id, date, done)
             }}

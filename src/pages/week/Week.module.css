@@ -20,39 +20,65 @@
   }
 }
 
-/* Карточки дней листаются по горизонтали и уходят под правый край окна. */
+/* Дни стоят сеткой: вся неделя видна сразу, прокрутка только вниз. Число столбцов зависит
+   от ширины самого блока (меню может быть свёрнуто), поэтому обёртка объявлена контейнером.
+   Ряд растёт по самому длинному дню. Свободное место после воскресенья занимает заметка недели. */
+.board {
+  container-type: inline-size;
+}
+
 .days {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
   gap: var(--space-md);
-  margin-right: calc(-1 * var(--page-pad));
-  padding-right: var(--page-pad);
-  /* Место под полосу прокрутки. Отрицательный отступ возвращает его обратно, чтобы
-     до статистики оставалось ровно 16px, как между остальными блоками. */
-  padding-bottom: var(--space-sm);
-  margin-bottom: calc(-1 * var(--space-sm));
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
 }
 
-.daySkeleton {
+/* Заметка в сетке: растягивается на всю высоту ряда, поле занимает всё свободное место. */
+.noteCell {
   display: flex;
-  flex: none;
-  flex-direction: column;
-  gap: var(--space-md);
-  width: 300px;
-  padding: var(--space-lg);
-  border-radius: var(--radius-xl);
-  background: var(--bg-primary);
+  min-width: 0;
 }
 
-.donutSkeleton {
-  display: flex;
-  justify-content: center;
-  padding: var(--space-sm) 0;
+.noteCell > * {
+  flex: 1;
+  min-width: 0;
 }
 
-/* Телефон: статистика в два столбца. */
+/* Поле заметки тянется до низа ячейки, а не стоит маленьким под заголовком. */
+.noteCell > * > :last-child {
+  flex: 1;
+}
+
+.noteCell textarea {
+  flex-grow: 1;
+}
+
+/* Пороги подобраны так, чтобы карточка не становилась уже 255px: иначе кнопка
+   «Добавить задачу» в ней не помещается.
+   Три столбца: 3 + 3 + воскресенье, заметка занимает два оставшихся места. */
+@container (min-width: 800px) {
+  .days {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .noteCell {
+    grid-column: span 2;
+  }
+}
+
+/* Четыре столбца: 4 + 3, заметка восьмой ячейкой. */
+@container (min-width: 1064px) {
+  .days {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .noteCell {
+    grid-column: span 1;
+  }
+}
+
+/* Телефон: статистика в два столбца, дни листаются лентой и уходят под правый край окна. */
 @media (max-width: 640px) {
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -60,10 +86,15 @@
   }
 
   .days {
+    display: flex;
     gap: var(--space-sm);
-  }
-
-  .daySkeleton {
-    width: 82vw;
+    margin-right: calc(-1 * var(--page-pad));
+    padding-right: var(--page-pad);
+    /* Место под полосу прокрутки. Отрицательный отступ возвращает его обратно, чтобы
+       до следующего блока оставалось ровно 16px, как между остальными блоками. */
+    padding-bottom: var(--space-sm);
+    margin-bottom: calc(-1 * var(--space-sm));
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
   }
 }

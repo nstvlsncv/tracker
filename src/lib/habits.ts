@@ -42,6 +42,27 @@ export function isDueOn(schedule: HabitSchedule, checks: ReadonlySet<string>, da
   return true
 }
 
+/**
+ * Почему в этот день привычку отметить нельзя; null, если можно. По дням недели: только в дни
+ * расписания. N раз в неделю: пока норма той недели не набрана. Снять отметку можно всегда.
+ */
+export function checkBlock(
+  schedule: HabitSchedule,
+  checks: ReadonlySet<string>,
+  date: string,
+): string | null {
+  if (schedule.frequency === 'days' && !isScheduled(schedule, date)) {
+    return `Эта привычка по дням: ${scheduleLabel(schedule).toLowerCase()}. В другие дни её не отмечают`
+  }
+  if (schedule.frequency === 'weekly') {
+    const goal = schedule.timesPerWeek ?? 1
+    if (weekCount(checks, weekStartISO(date)) >= goal) {
+      return `Норма недели уже набрана: ${goal} из ${goal}`
+    }
+  }
+  return null
+}
+
 const earliest = (checks: ReadonlySet<string>) => [...checks].sort()[0] as string | undefined
 
 /** Недельные серии: недели подряд, в которых норма выполнена. */

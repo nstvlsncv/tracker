@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { HabitSchedule } from '../data/types'
-import { completionRate, habitStreaks, isDueOn, scheduleLabel } from './habits'
+import { checkBlock, completionRate, habitStreaks, isDueOn, scheduleLabel } from './habits'
 
 // Суббота 3 октября 2026, неделя с понедельника 28 сентября.
 const TODAY = '2026-10-03'
@@ -56,6 +56,27 @@ describe('isDueOn', () => {
     expect(isDueOn(thrice, set('2026-09-28', '2026-09-29'), TODAY)).toBe(true)
     expect(isDueOn(thrice, set('2026-09-28', '2026-09-29', '2026-09-30'), TODAY)).toBe(false)
     expect(isDueOn(thrice, set('2026-09-28', '2026-09-29', TODAY), TODAY)).toBe(true)
+  })
+})
+
+describe('checkBlock', () => {
+  it('каждый день: отметить можно всегда', () => {
+    expect(checkBlock(daily, set(), TODAY)).toBeNull()
+  })
+
+  it('по дням недели: только в дни расписания', () => {
+    // 3 октября суббота, 2 октября пятница.
+    expect(checkBlock(monWedFri, set(), TODAY)).toContain('пн, ср, пт')
+    expect(checkBlock(monWedFri, set(), '2026-10-02')).toBeNull()
+  })
+
+  it('N раз в неделю: пока норма недели не набрана', () => {
+    expect(checkBlock(thrice, set('2026-09-28', '2026-09-29'), TODAY)).toBeNull()
+    expect(checkBlock(thrice, set('2026-09-28', '2026-09-29', '2026-09-30'), TODAY)).toBe(
+      'Норма недели уже набрана: 3 из 3',
+    )
+    // Норма считается по неделе самого дня, а не по текущей.
+    expect(checkBlock(thrice, set('2026-09-28', '2026-09-29', '2026-09-30'), '2026-09-25')).toBeNull()
   })
 })
 

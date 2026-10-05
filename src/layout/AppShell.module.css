@@ -16,7 +16,11 @@
   flex: none;
   flex-direction: column;
   gap: var(--space-lg);
+  /* Выше содержимого экрана: подсказки свёрнутого меню выходят за его край. */
+  z-index: 20;
   width: 300px;
+  /* Меню сворачивается и разворачивается плавно. */
+  transition: width 220ms cubic-bezier(0.22, 1, 0.36, 1);
   /* Высота окна минус отступы сверху и снизу. */
   height: calc(100vh - 2 * var(--page-pad));
   padding: var(--space-lg);
@@ -39,6 +43,7 @@
 }
 
 .item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-sm);
@@ -77,6 +82,9 @@
 }
 
 .bottom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
   margin-top: auto;
   padding-top: var(--space-md);
   border-top: 1px solid var(--border-subtle);
@@ -125,6 +133,34 @@
   animation: nod 450ms ease-out;
 }
 
+.squeeze {
+  animation: squeeze 400ms ease-out;
+}
+
+.leave {
+  animation: leave 450ms ease-out;
+}
+
+/* Панель сжимается и расправляется, как само меню. */
+@keyframes squeeze {
+  40% {
+    transform: scaleX(0.6);
+  }
+  75% {
+    transform: scaleX(1.08);
+  }
+}
+
+/* Стрелка выхода делает шаг наружу и возвращается. */
+@keyframes leave {
+  35% {
+    transform: translateX(5px);
+  }
+  70% {
+    transform: translateX(-2px);
+  }
+}
+
 /* Домик подпрыгивает. */
 @keyframes bounce {
   30% {
@@ -166,9 +202,87 @@
   .item svg {
     animation: none;
   }
+
+  .sidebar {
+    transition: none;
+  }
 }
 
-/* ---------- Планшет: меню сжимается в узкую полосу с иконками ---------- */
+/* ---------- Свёрнутое меню: полоса с иконками ----------
+   На компьютере меню сворачивает кнопка внизу (выбор запоминается), на планшете оно такое всегда.
+   Правила одни и те же, поэтому записаны дважды: для класса и для ширины экрана. */
+
+@media (min-width: 1025px) {
+  .collapsed {
+    width: 80px;
+    padding-right: var(--space-md);
+    padding-left: var(--space-md);
+  }
+
+  .collapsed .logo {
+    justify-content: center;
+  }
+
+  .collapsed .logoText,
+  .collapsed .label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .collapsed .item {
+    justify-content: center;
+    width: 48px;
+    padding: 0;
+  }
+
+  /* Пока меню разворачивается, подписи не вылезают за его край. В свёрнутом меню обрезать
+     нельзя: подсказки выходят за пределы полосы. */
+  .sidebar:not(.collapsed) :is(.logo, .nav, .bottom) {
+    overflow: hidden;
+  }
+}
+
+/* Подсказка с названием раздела: справа от иконки, появляется сразу при наведении. */
+.hint {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + var(--space-md));
+  z-index: 1;
+  display: none;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--accent-default);
+  color: var(--accent-foreground);
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+@media (min-width: 1025px) and (hover: hover) {
+  .collapsed .item:hover .hint {
+    display: block;
+    animation: hint-in 160ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+/* Выезжает от иконки и проявляется. */
+@keyframes hint-in {
+  from {
+    opacity: 0;
+    transform: translate(-6px, -50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hint {
+    animation: none !important;
+  }
+}
+
 @media (max-width: 1024px) {
   .shell {
     --page-pad: var(--space-md);
@@ -194,6 +308,18 @@
     justify-content: center;
     width: 48px;
     padding: 0;
+  }
+
+  /* Сворачивать здесь нечего. */
+  .toggle {
+    display: none;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) and (hover: hover) {
+  .item:hover .hint {
+    display: block;
+    animation: hint-in 160ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
@@ -274,14 +400,18 @@
     display: none;
   }
 
-  /* Профиль на телефоне открывается кнопкой на Главной, в панели остаются четыре раздела. */
-  .desktopOnly {
-    display: none;
-  }
-
   /* Выход на телефоне живёт на экране Профиля. */
   .bottom {
     display: none;
+  }
+
+  /* В нижней панели подписи видны всегда, подсказки не нужны. */
+  .item .hint {
+    display: none;
+  }
+
+  .sidebar {
+    transition: none;
   }
 }
 

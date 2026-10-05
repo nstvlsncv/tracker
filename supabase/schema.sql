@@ -187,6 +187,22 @@ create policy "own week notes" on public.week_notes for all to authenticated
   with check (user_id = (select auth.uid()));
 grant select, insert, update, delete on public.week_notes to authenticated;
 
+-- Настроение дня: одна отметка на день, от 1 (плохой день) до 5 (отличный).
+create table if not exists public.day_moods (
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  date date not null,
+  mood smallint not null check (mood between 1 and 5),
+  updated_at timestamptz not null default now(),
+  primary key (user_id, date)
+);
+
+alter table public.day_moods enable row level security;
+drop policy if exists "own day moods" on public.day_moods;
+create policy "own day moods" on public.day_moods for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+grant select, insert, update, delete on public.day_moods to authenticated;
+
 -- Повторяющиеся задачи: правило повтора. Задачи на каждый день обычные строки tasks,
 -- их ставит приложение, когда открывают неделю.
 create table if not exists public.task_rules (
@@ -221,3 +237,30 @@ alter table public.profiles
   drop column if exists consent_accepted_at,
   drop column if exists consent_version,
   add column if not exists last_name text check (char_length(last_name) <= 100);
+
+-- Фото профиля: адрес файла в профиле, сам файл в хранилище, в корзине avatars.
+-- У каждого своя папка с именем его id; читать фото по адресу может кто угодно (корзина публичная),
+-- а класть, заменять и удалять файлы можно только в своей папке.
+alter table public.profiles
+  add column if not exists avatar_url text check (char_length(avatar_url) <= 500);
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('avatars', 'avatars', true, 1048576, array['image/jpeg'])
+on conflict (id) do nothing;
+
+drop policy if exists "own avatar: read" on storage.objects;
+create policy "own avatar: read" on storage.objects for select to authenticated
+  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists "own avatar: add" on storage.objects;
+create policy "own avatar: add" on storage.objects for insert to authenticated
+  with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists "own avatar: replace" on storage.objects;
+create policy "own avatar: replace" on storage.objects for update to authenticated
+  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text)
+  with check (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists "own avatar: remove" on storage.objects;
+create policy "own avatar: remove" on storage.objects for delete to authenticated
+  using (bucket_id = 'avatars' and (storage.foldername(name))[1] = (select auth.uid())::text);

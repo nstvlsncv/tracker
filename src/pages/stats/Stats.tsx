@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { Button } from '../../components/Button'
 import { Mascot } from '../../components/Mascot'
-import type { MascotMood } from '../../components/Mascot'
 import { PageLoader } from '../../components/PageLoader'
 import { Section } from '../../components/Section'
 import { StatCard } from '../../components/StatCard'
@@ -26,9 +25,10 @@ import {
   scheduleOf,
 } from '../../lib/habits'
 import { pluralize } from '../../lib/metrics'
-import { recentWeeks, summarizeWeeks } from '../../lib/stats'
+import { recentWeeks, summarizeWeeks, weekSummary, weekVerdict } from '../../lib/stats'
 import { NETWORK_ERROR_MESSAGE } from '../../lib/supabase'
 import { useToday } from '../../lib/useToday'
+import { MoodHistory } from './MoodHistory'
 import styles from './Stats.module.css'
 
 /** За сколько недель показывается график и за сколько дней считаются привычки. */
@@ -38,20 +38,12 @@ const NO_CHECKS: ReadonlySet<string> = new Set()
 
 type History = { tasks: Task[]; goals: Goal[] }
 
-/** Что маскот думает о текущей неделе. */
-function weekVerdict(percent: number | null): { mood: MascotMood; title: string } {
-  if (percent === null) return { mood: 'calm', title: 'Неделя ещё чистый лист' }
-  if (percent >= 80) return { mood: 'happy', title: 'Отличная неделя' }
-  if (percent >= 40) return { mood: 'calm', title: 'Неделя идёт ровно' }
-  return { mood: 'sad', title: 'Неделя пока буксует' }
-}
-
 /**
  * Итоги (в коде stats): взгляд назад. Задачи и цели за последние 12 недель и привычки за 30 дней.
  * Данные читаются заново при каждом открытии экрана, в общем хранилище не лежат.
  */
 export function Stats() {
-  const { loadHistory } = usePlanner()
+  const { loadHistory, moods, setMood } = usePlanner()
   const habitsStore = useHabits()
   const today = useToday()
   const weeks = recentWeeks(today, WEEKS)
@@ -77,7 +69,7 @@ export function Stats() {
   if (history === 'error') {
     return (
       <>
-        <PageHeader title="Итоги" />
+        <PageHeader title="Итоги" backTo=".." backAlways />
         <Section title="Не получилось загрузить итоги">
           <p className={styles.hint}>{NETWORK_ERROR_MESSAGE}</p>
           <div>
@@ -101,7 +93,7 @@ export function Stats() {
   if (history === null || habitsLoading) {
     return (
       <>
-        <PageHeader title="Итоги" />
+        <PageHeader title="Итоги" backTo=".." backAlways />
         <PageLoader />
       </>
     )
@@ -135,16 +127,14 @@ export function Stats() {
 
   return (
     <>
-      <PageHeader title="Итоги" />
+      <PageHeader title="Итоги" backTo=".." backAlways />
 
       <div className={styles.verdict}>
           <Mascot size={72} mood={verdict.mood} />
           <div className={styles.verdictText}>
             <p className="t-heading-4">{verdict.title}</p>
             <p className={styles.hint}>
-              {thisWeek.percent === null
-                ? 'На этой неделе пока нет задач'
-                : `На этой неделе выполнено ${thisWeek.done} из ${thisWeek.total} задач`}
+              {weekSummary(thisWeek.done, thisWeek.total)}
             </p>
           </div>
       </div>
@@ -210,6 +200,16 @@ export function Stats() {
           </>
         )}
       </Section>
+
+      {/* Настроений может не быть в базе: тогда секции нет. */}
+      {moods && (
+        <Section title="Настроение по дням">
+          {Object.keys(moods).length === 0 && (
+            <p className={styles.hint}>Отмечай настроение дня, и здесь соберётся картина. Нажми на любой день</p>
+          )}
+          <MoodHistory moods={moods} today={today} onPick={setMood} />
+        </Section>
+      )}
 
       <Section title={`Привычки за ${HABIT_DAYS} дней`}>
         {habits.length === 0 ? (

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { ITEM_TITLE_MAX_LENGTH } from '../lib/constants'
 import styles from './InlineInput.module.css'
 
@@ -22,7 +22,12 @@ const REPEAT_GUARD_MS = 100
 /** Телефон или планшет: сенсорный экран либо узкое окно. */
 const isTouch = () => window.matchMedia('(pointer: coarse), (max-width: 640px)').matches
 
-/** Инлайн-поле для добавления и переименования задач и целей (SPEC.md, раздел 11). */
+/**
+ * Инлайн-поле для добавления и переименования задач и целей (SPEC.md, раздел 11).
+ * Растёт вниз: текст, который не помещается в строку, переносится на следующую, как в готовой
+ * строке списка. Название остаётся однострочным по смыслу: Enter подтверждает ввод,
+ * а переносы из вставленного текста заменяются пробелами.
+ */
 export function InlineInput({
   initialValue = '',
   maxLength = ITEM_TITLE_MAX_LENGTH,
@@ -34,8 +39,16 @@ export function InlineInput({
   const [value, setValue] = useState(initialValue)
   // Esc и Enter размонтируют поле. Флаг не даёт blur сработать после них второй раз.
   const settled = useRef(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
   const lastConfirm = useRef(0)
+
+  // Высота подгоняется под текст при каждом его изменении.
+  useLayoutEffect(() => {
+    const field = inputRef.current
+    if (!field) return
+    field.style.height = 'auto'
+    field.style.height = `${field.scrollHeight}px`
+  }, [value])
 
   // Сохранить введённое и закрыть поле: по потере фокуса и по кнопке «Готово» на телефоне.
   const commit = () => {
@@ -85,7 +98,7 @@ export function InlineInput({
     const timer = setTimeout(reveal, isTouch() ? KEYBOARD_DELAY_MS : 0)
 
     // Клавиатуры телефонов не всегда присылают нажатие Enter как клавишу (на Android оно
-    // может прийти «неопознанным»). Зато перенос строки в однострочном поле приходит
+    // может прийти «неопознанным»). Зато перенос строки приходит
     // событием beforeinput: ловим и его.
     const input = inputRef.current
     const onBeforeInput = (event: InputEvent) => {
@@ -110,14 +123,15 @@ export function InlineInput({
         confirm()
       }}
     >
-      <input
+      <textarea
         ref={inputRef}
+        rows={1}
         className={`t-body-md ${styles.input}`}
         autoFocus
         enterKeyHint="done"
         value={value}
         maxLength={maxLength}
-        onChange={(event) => setValue(event.target.value)}
+        onChange={(event) => setValue(event.target.value.replace(/\s*\n\s*/g, ' '))}
         onFocus={(event) => event.target.select()}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {

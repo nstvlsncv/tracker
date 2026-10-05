@@ -51,6 +51,7 @@ export function DevPreview({ base = '/dev/app', visitor = false }: Props) {
     name: visitor ? 'Гость' : 'Анастасия',
     lastName: visitor ? null : 'Власенкова',
     passwordChangedAt: new Date(Date.now() - 95 * 24 * 60 * 60 * 1000).toISOString(),
+    avatarUrl: null,
   }))
   const account = useMemo(
     () =>
@@ -86,7 +87,7 @@ export function DevPreview({ base = '/dev/app', visitor = false }: Props) {
               <Route path="week/:isoWeek?" element={<Week />} />
               <Route path="habits" element={<Habits />} />
               <Route path="stats" element={<Stats />} />
-              <Route path="profile" element={<Profile />} />
+              <Route path="profile/:section?" element={<Profile />} />
             </Route>
           </Routes>
         </HabitsProvider>

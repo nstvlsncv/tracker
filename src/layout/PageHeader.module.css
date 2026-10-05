@@ -26,6 +26,16 @@
   display: none;
 }
 
+/* У разделов, которых нет в меню, стрелка стоит всегда. */
+.withBack {
+  gap: var(--space-sm);
+}
+
+.withBack .back {
+  display: inline-flex;
+  flex: none;
+}
+
 /* Телефон: заголовок меньше, кнопки закреплены внизу экрана над нижней панелью. */
 @media (max-width: 640px) {
   .title h1 {

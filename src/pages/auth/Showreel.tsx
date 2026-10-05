@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { ArrowBendUpRight, Repeat } from '@phosphor-icons/react'
 import { Checkbox } from '../../components/Checkbox'
 import { Donut } from '../../components/Donut'
 import { Mascot } from '../../components/Mascot'
@@ -14,10 +15,11 @@ const STEPS_PER_SCENE = 8
 const SCENES = [
   { id: 'day', title: 'Задачи дня' },
   { id: 'week', title: 'Вся неделя на виду' },
+  { id: 'goals', title: 'Цели недели' },
+  { id: 'repeat', title: 'Повтор и перенос' },
   { id: 'habits', title: 'Привычки и серии' },
   { id: 'note', title: 'Заметка недели' },
-  { id: 'stats', title: 'Итоги недель' },
-  { id: 'mascot', title: 'Свой цвет' },
+  { id: 'mascot', title: 'Свой цвет и тема' },
 ] as const
 
 // Короткие: в ролике названия стоят в одну строку и не должны обрезаться.
@@ -66,7 +68,7 @@ function WeekScene({ step }: { step: number }) {
 
 const NOTE = 'Хорошая неделя: закрыто почти всё. На следующей не забыть про отдых.'
 
-/** Сцена 4: заметка недели печатается сама, маскот читает. */
+/** Сцена 6: заметка недели печатается сама, маскот читает. */
 function NoteScene({ step }: { step: number }) {
   const typed = NOTE.slice(0, Math.round(NOTE.length * Math.min(1, step / 6)))
   return (
@@ -83,7 +85,7 @@ function NoteScene({ step }: { step: number }) {
 const HISTORY = 14
 const HISTORY_FILLED = 9
 
-/** Сцена 3: точки истории заполняются, серия растёт. */
+/** Сцена 5: точки истории заполняются, серия растёт. */
 function HabitsScene({ step }: { step: number }) {
   const filled = HISTORY_FILLED + Math.min(HISTORY - HISTORY_FILLED, step)
   const today = filled === HISTORY
@@ -114,38 +116,85 @@ function HabitsScene({ step }: { step: number }) {
   )
 }
 
-const BARS = [35, 60, 55, 72, 48, 80, 66, 92]
+const GOALS = ['Дочитать книгу', 'Три тренировки', 'Сдать отчёт']
 
-/** Сцена 5: столбики недель вырастают один за другим, маскот доволен. */
-function StatsScene({ step }: { step: number }) {
-  const grown = step >= 1
+/** Сцена 3: цели недели закрываются одна за другой, каждая с салютом (последняя с большим). */
+function GoalsScene({ step }: { step: number }) {
+  const done = Math.min(GOALS.length, Math.floor(step / 2))
   return (
-    <div className={styles.stats}>
-      <div className={styles.verdict}>
-        <Mascot size={40} interactive={false} still mood={step >= 5 ? 'happy' : 'calm'} />
-        <span className="t-heading-5">Отличная неделя</span>
-      </div>
-      <div className={styles.bars}>
-        {BARS.map((height, index) => (
-          <span key={index} className={styles.barTrack}>
-            <span
-              className={styles.barFill}
-              style={{ height: grown ? `${height}%` : 0, transitionDelay: `${index * 70}ms` }}
+    <div className={styles.goals}>
+      <span className={`t-body-sm ${styles.muted}`}>
+        выполнено <RollingNumber value={done} /> из {GOALS.length}
+      </span>
+      <ul className={styles.tasks}>
+        {GOALS.map((title, index) => (
+          <li key={title} className={cx(styles.task, index < done && styles.taskDone)}>
+            <Checkbox
+              checked={index < done}
+              onChange={noop}
+              burst
+              // Последняя цель закрывает неделю: салют крупнее.
+              celebrate={index === GOALS.length - 1}
+              quiet
+              aria-label={title}
             />
-          </span>
+            <span>{title}</span>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   )
 }
 
-/** Сцена 6: маскот перебирает акцентные цвета и в конце радуется. */
+const REPEAT_DAYS = ['Пн', 'Вт', 'Ср']
+/** С какого шага задача уезжает на завтра; шагом раньше она «собирается». */
+const MOVE_STEP = 5
+
+/** Сцена 4: повторяющаяся задача сама встаёт в каждый день, а несделанная переезжает на завтра. */
+function RepeatScene({ step }: { step: number }) {
+  const moved = step >= MOVE_STEP
+  return (
+    <div className={styles.repeat}>
+      {REPEAT_DAYS.map((day, index) => (
+        <div key={day} className={styles.repeatDay}>
+          <span className={`t-body-sm ${styles.muted}`}>{day}</span>
+          {step >= index && (
+            <span className={styles.chip}>
+              <span className={styles.chipMark} />
+              Зарядка
+              <Repeat className={styles.chipIcon} />
+            </span>
+          )}
+          {index === (moved ? 1 : 0) && (
+            <span
+              key={moved ? 'moved' : 'home'}
+              className={cx(styles.chip, !moved && step === MOVE_STEP - 1 && styles.chipLeaving)}
+            >
+              <span className={styles.chipMark} />
+              Звонок
+              {!moved && step === MOVE_STEP - 1 && <ArrowBendUpRight className={styles.chipIcon} />}
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+/** Сколько шагов сцены уходит на цвета; дальше плашка показывает другую тему. */
+const THEME_STEP = ACCENTS.length
+
+/**
+ * Сцена 7: маскот перебирает акцентные цвета, каждый по одному разу, затем плашка
+ * перекрашивается в другую тему, и маскот радуется.
+ */
 function MascotScene({ step }: { step: number }) {
-  const accent = ACCENTS[step % ACCENTS.length]
+  // Цветов меньше, чем шагов: дойдя до последнего, маскот на нём и остаётся, а не идёт по кругу.
+  const accent = ACCENTS[Math.min(step, ACCENTS.length - 1)]
   return (
     <div className={styles.mascotScene} data-accent={accent.value}>
       {/* Прыгает один раз, в конце: прыжок на каждой смене цвета обрывался и дёргался. */}
-      <Mascot size={88} interactive={false} still mood={step >= 6 ? 'happy' : 'calm'} />
+      <Mascot size={88} interactive={false} still mood={step > THEME_STEP ? 'happy' : 'calm'} />
       <div className={styles.swatches}>
         {ACCENTS.map((option) => (
           <span
@@ -161,11 +210,11 @@ function MascotScene({ step }: { step: number }) {
 
 /**
  * Шоурил на экране входа: короткий ролик из настоящих деталей трекера, который сам играет
- * по кругу, как видео. Шесть сцен: задачи дня, неделя, привычки, заметка, итоги, маскот и цвета.
+ * по кругу, как видео. Семь сцен: задачи дня, неделя, цели, повтор и перенос, привычки, заметка, маскот с цветами и темой.
  * Нажимать в нём нечего: он неживой (inert) и для скринридера не существует.
  * При отключённых в системе анимациях стоит на первой сцене в её конечном виде.
  */
-export function Showreel() {
+export function Showreel({ onThemeFlip }: { onThemeFlip?: (flipped: boolean) => void }) {
   const [still] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [time, setTime] = useState(still ? STEPS_PER_SCENE - 1 : 0)
 
@@ -183,6 +232,12 @@ export function Showreel() {
   const step = time % STEPS_PER_SCENE
   const scene = SCENES[index]
 
+  // В конце последней сцены ролик показывает другую тему: перекрашивается вся плашка вокруг.
+  const flipped = !still && scene.id === 'mascot' && step >= THEME_STEP
+  useEffect(() => {
+    onThemeFlip?.(flipped)
+  }, [flipped, onThemeFlip])
+
   return (
     <div className={styles.reel} inert aria-hidden>
       <span key={scene.id} className={`t-heading-5 ${styles.title}`}>
@@ -192,9 +247,10 @@ export function Showreel() {
       <div key={loop} className={styles.scene}>
         {scene.id === 'day' && <DayScene step={step} />}
         {scene.id === 'week' && <WeekScene step={step} />}
+        {scene.id === 'goals' && <GoalsScene step={step} />}
+        {scene.id === 'repeat' && <RepeatScene step={step} />}
         {scene.id === 'habits' && <HabitsScene step={step} />}
         {scene.id === 'note' && <NoteScene step={step} />}
-        {scene.id === 'stats' && <StatsScene step={step} />}
         {scene.id === 'mascot' && <MascotScene step={step} />}
       </div>
     </div>

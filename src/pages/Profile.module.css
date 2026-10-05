@@ -1,3 +1,224 @@
+/* --- Каркас: слева шапка профиля и список пунктов, справа выбранный пункт --- */
+
+.layout {
+  display: grid;
+  /* До низа страницы: колонка с пунктами тянется на всю высоту экрана, как боковое меню. */
+  flex: 1;
+  grid-template-columns: 300px minmax(0, 1fr);
+  align-items: stretch;
+  gap: var(--space-md);
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+/* Содержимое пункта проявляется при каждой смене. */
+.pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+  animation: pane-in 180ms ease-out;
+}
+
+@keyframes pane-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Шапка: фото, имя и логин. */
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Фото-кнопка: нажатие открывает выбор файла. В углу значок камеры. */
+.photo {
+  position: relative;
+  display: flex;
+  flex: none;
+  border-radius: var(--radius-full);
+  transition:
+    transform var(--transition-press),
+    opacity var(--transition-fast);
+}
+
+.photo:active {
+  transform: scale(0.94);
+}
+
+.photo[aria-busy='true'] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.camera {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--bg-primary);
+  border-radius: var(--radius-full);
+  background: var(--accent-default);
+  color: var(--accent-foreground);
+}
+
+.camera svg {
+  width: 14px;
+  height: 14px;
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.name,
+.email {
+  overflow-wrap: anywhere;
+}
+
+.name {
+  color: var(--text-primary);
+}
+
+.email {
+  color: var(--text-tertiary);
+}
+
+/* Пункты: как пункты бокового меню трекера. */
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  height: 48px;
+  /* Вровень с краями шапки: подсветка пункта выступает за текст. */
+  margin: 0 calc(-1 * var(--space-sm));
+  padding: 0 var(--space-md);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.item svg {
+  flex: none;
+  width: 24px;
+  height: 24px;
+}
+
+.label {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Стрелка справа нужна только на телефоне: там пункт открывает отдельный экран. */
+/* Тот же вид, что у стрелки в карточке привычки: 20px, цветом основного текста. */
+.item .caret {
+  display: none;
+  width: 20px;
+  height: 20px;
+  color: var(--text-primary);
+}
+
+.current {
+  background: var(--bg-secondary);
+}
+
+@media (hover: hover) {
+  .item:hover {
+    background: var(--bg-secondary);
+  }
+}
+
+/* Выход в списке есть только на телефоне: на компьютере он в боковом меню. */
+.logout {
+  display: none;
+}
+
+/* Планшет: колонка пунктов уже. */
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+
+  .menu {
+    padding: var(--space-md);
+  }
+
+  .item {
+    margin: 0;
+  }
+}
+
+/* Телефон: две ступени. Сначала список, по нажатию один пункт на весь экран. */
+@media (max-width: 640px) {
+  /* Здесь список и пункт занимают столько, сколько им нужно. */
+  .layout {
+    flex: none;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pane {
+    display: none;
+  }
+
+  .opened .menu {
+    display: none;
+  }
+
+  .opened .pane {
+    display: flex;
+  }
+
+  .item .caret {
+    display: block;
+  }
+
+  /* На телефоне пункт не «выбран», он просто ведёт дальше. */
+  .current {
+    background: none;
+  }
+
+  .logout {
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--border-subtle);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pane {
+    animation: none;
+  }
+}
+
 .releases {
   display: flex;
   flex-direction: column;

@@ -130,6 +130,9 @@
     overflow: hidden;
     border-radius: var(--radius-xl);
     background: var(--bg-primary);
+    /* Свой цвет текста: когда ролик показывает другую тему, плашка перекрашивается целиком. */
+    color: var(--text-primary);
+    transition: background-color 400ms ease-out;
   }
 
   /* Ролик свёрстан небольшим и здесь увеличен целиком, вместе с текстом и кольцами. */

@@ -7,6 +7,8 @@ export type Profile = {
   name: string
   lastName: string | null
   passwordChangedAt: string | null
+  /** Адрес фото профиля. null: фото нет. undefined: фото в этой базе нет вовсе (не применена свежая схема). */
+  avatarUrl?: string | null
 }
 
 /** error: сессия есть, но профиль загрузить не удалось (нет сети). */

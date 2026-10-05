@@ -7,7 +7,7 @@ import { formatDayMonth, weekStartISO } from '../lib/dates'
 import { newId } from '../lib/id'
 import { shiftDate } from '../lib/metrics'
 import { ruleDatesInWeek } from '../lib/repeat'
-import type { Goal, ItemPatch, PlannerApi, Task, TaskRule } from './types'
+import type { Goal, ItemPatch, Mood, PlannerApi, Task, TaskRule } from './types'
 import { PlannerContext } from './usePlanner'
 import type { PlannerValue, WeekStatus } from './usePlanner'
 
@@ -35,10 +35,13 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
   // undefined: правила ещё грузятся. null: повтора в этой базе нет.
   const [rules, setRules] = useState<TaskRule[] | null | undefined>(undefined)
 
+  // undefined: настроения ещё грузятся. null: их в этой базе нет.
+  const [moods, setMoods] = useState<Record<string, Mood> | null | undefined>(undefined)
+
   // Актуальные значения для обработчиков, которые не должны пересоздаваться на каждое изменение.
-  const latest = useRef({ tasks, goals, weekStatus, notes, rules })
+  const latest = useRef({ tasks, goals, weekStatus, notes, rules, moods })
   useEffect(() => {
-    latest.current = { tasks, goals, weekStatus, notes, rules }
+    latest.current = { tasks, goals, weekStatus, notes, rules, moods }
   })
 
   useEffect(() => {
@@ -49,6 +52,21 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
       },
       () => {
         if (!cancelled) setRules(null)
+      },
+    )
+    return () => {
+      cancelled = true
+    }
+  }, [api])
+
+  useEffect(() => {
+    let cancelled = false
+    api.loadMoods().then(
+      (loaded) => {
+        if (!cancelled) setMoods(loaded)
+      },
+      () => {
+        if (!cancelled) setMoods(null)
       },
     )
     return () => {
@@ -239,6 +257,21 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
           setNotes((current) => ({ ...current, [weekStart]: before })),
         )
       },
+      moods,
+      setMood: (date, mood) => {
+        const before = latest.current.moods?.[date] ?? null
+        if (!latest.current.moods || mood === before) return
+        const put = (value: Mood | null) =>
+          setMoods((current) => {
+            if (!current) return current
+            const next = { ...current }
+            if (value) next[date] = value
+            else delete next[date]
+            return next
+          })
+        put(mood)
+        save(api.saveMood(date, mood), () => put(before))
+      },
       canRepeat: Boolean(rules),
 
       addTask: (date, title, repeat) => {
@@ -359,7 +392,7 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
         })
       },
     }
-  }, [api, tasks, goals, weekStatus, storedWeeks, notes, rules, loadWeek, fillFromRules, save, toast])
+  }, [api, tasks, goals, weekStatus, storedWeeks, notes, rules, moods, loadWeek, fillFromRules, save, toast])
 
   return <PlannerContext.Provider value={value}>{children}</PlannerContext.Provider>
 }

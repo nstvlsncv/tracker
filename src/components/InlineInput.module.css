@@ -5,10 +5,16 @@
 }
 
 .input {
+  display: block;
   flex: 1;
   min-width: 0;
   padding: 0;
+  /* Высоту ставит само поле по тексту: растёт вниз, своей прокрутки нет. */
+  overflow: hidden;
   border: 0;
+  font-family: inherit;
+  overflow-wrap: anywhere;
+  resize: none;
   background: none;
   color: var(--text-primary);
   outline: none;

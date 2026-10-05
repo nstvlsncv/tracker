@@ -1,7 +1,7 @@
 import { toISODate, weekStartISO } from '../lib/dates'
 import { newId } from '../lib/id'
 import { shiftDate } from '../lib/metrics'
-import type { Goal, Habit, HabitCheck, PlannerApi, Task, TaskRule } from './types'
+import type { Goal, Habit, HabitCheck, Mood, PlannerApi, Task, TaskRule } from './types'
 
 /**
  * Хранилище в памяти с демо-данными: экраны без входа и без базы. На нём работают
@@ -119,6 +119,14 @@ export function createMemoryApi(): PlannerApi {
   // Отметок в будущем не бывает: в начале недели часть демо-отметок ещё не наступила.
   checks = checks.filter((check) => check.date <= today)
 
+  // Настроение за последние месяцы: в основном ровное, с редкими плохими днями и пропусками.
+  const moods: Record<string, Mood> = {}
+  const MOOD_PATTERN: (Mood | null)[] = [4, 5, 3, 4, null, 4, 2, 5, 4, 3, 3, null, 5, 4, 1, 3, 4]
+  for (let back = 1; back <= 160; back++) {
+    const mood = MOOD_PATTERN[(back * 7) % MOOD_PATTERN.length]
+    if (mood) moods[shiftDate(today, -back)] = mood
+  }
+
   // Небольшая задержка, чтобы было видно состояние загрузки.
   const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 300))
 
@@ -135,6 +143,13 @@ export function createMemoryApi(): PlannerApi {
     async saveNote(start, text) {
       if (text) notes.set(start, text)
       else notes.delete(start)
+    },
+    async loadMoods() {
+      return { ...moods }
+    },
+    async saveMood(date, mood) {
+      if (mood) moods[date] = mood
+      else delete moods[date]
     },
     async loadRules() {
       return rules

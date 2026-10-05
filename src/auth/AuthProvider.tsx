@@ -9,13 +9,16 @@ import type { AuthStatus, Profile } from './useAuth'
 
 type ProfileResult = Profile | 'error'
 
-const PROFILE_COLUMNS = 'id, name, last_name, password_changed_at'
+const BASE_COLUMNS = 'id, name, last_name, password_changed_at'
+// Колонки с фото в базе может ещё не быть: тогда профиль читается без неё.
+let PROFILE_COLUMNS = `${BASE_COLUMNS}, avatar_url`
 
 type ProfileRow = {
   id: string
   name: string
   last_name: string | null
   password_changed_at: string | null
+  avatar_url?: string | null
 }
 
 const toProfile = (row: ProfileRow): Profile => ({
@@ -23,6 +26,8 @@ const toProfile = (row: ProfileRow): Profile => ({
   name: row.name,
   lastName: row.last_name,
   passwordChangedAt: row.password_changed_at,
+  // undefined, если колонки нет: тогда загрузить фото не предлагают.
+  avatarUrl: row.avatar_url,
 })
 
 const signOut = () => {
@@ -31,11 +36,14 @@ const signOut = () => {
 }
 
 async function loadProfile(user: User): Promise<ProfileResult> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select(PROFILE_COLUMNS)
-    .eq('id', user.id)
-    .maybeSingle()
+  const read = () =>
+    supabase.from('profiles').select(PROFILE_COLUMNS).eq('id', user.id).maybeSingle<ProfileRow>()
+  let { data, error } = await read()
+  // 42703: такой колонки нет. База старше кода: дальше работаем без фото профиля.
+  if (error?.code === '42703' && PROFILE_COLUMNS !== BASE_COLUMNS) {
+    PROFILE_COLUMNS = BASE_COLUMNS
+    ;({ data, error } = await read())
+  }
   if (error) return 'error'
   if (data) return toProfile(data)
 
@@ -49,7 +57,7 @@ async function loadProfile(user: User): Promise<ProfileResult> {
       password_changed_at: user.created_at,
     })
     .select(PROFILE_COLUMNS)
-    .single()
+    .single<ProfileRow>()
   return createError ? 'error' : toProfile(created)
 }
 

@@ -22,6 +22,9 @@ export type AccountApi = {
   /** Логин. Поменять его нельзя: почтовый сервис не подключён, подтвердить новый адрес нечем. */
   email: string
   saveName: (name: string, lastName: string) => Promise<void>
+  /** Сохранить фото профиля: уже обрезанную и сжатую картинку (см. `src/lib/avatar.ts`). */
+  saveAvatar: (image: Blob) => Promise<void>
+  removeAvatar: () => Promise<void>
   /** Меняет пароль и завершает все остальные сессии. */
   changePassword: (current: string, next: string) => Promise<PasswordResult>
   listSessions: () => Promise<AccountSession[]>
@@ -51,9 +54,40 @@ async function confirmPassword(email: string, password: string): Promise<boolean
   return false
 }
 
+/** Корзина хранилища с фото профиля. У каждого своя папка с именем его id. */
+const AVATARS = 'avatars'
+
 export function createSupabaseAccount({ userId, email }: Options): AccountApi {
+  // Файл всегда один и тот же: новое фото заменяет старое.
+  const avatarPath = `${userId}/avatar.jpg`
+
   return {
     email,
+
+    async saveAvatar(image) {
+      const bucket = supabase.storage.from(AVATARS)
+      const { error } = await bucket.upload(avatarPath, image, {
+        upsert: true,
+        contentType: 'image/jpeg',
+        cacheControl: '31536000',
+      })
+      if (error) throw error
+      // Адрес файла не меняется, поэтому к нему добавляется метка времени: иначе браузер
+      // показывал бы старое фото из кеша.
+      const url = `${bucket.getPublicUrl(avatarPath).data.publicUrl}?v=${Date.now()}`
+      const { error: saveError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: url })
+        .eq('id', userId)
+      if (saveError) throw saveError
+    },
+
+    async removeAvatar() {
+      const { error } = await supabase.from('profiles').update({ avatar_url: null }).eq('id', userId)
+      if (error) throw error
+      // Сам файл убирается следом: если не вышло, он просто останется лежать без дела.
+      await supabase.storage.from(AVATARS).remove([avatarPath])
+    },
 
     async saveName(name, lastName) {
       const { error } = await supabase
@@ -102,6 +136,8 @@ export function createSupabaseAccount({ userId, email }: Options): AccountApi {
 
     async deleteAccount(password) {
       if (!(await confirmPassword(email, password))) return 'wrong-password'
+      // Фото лежит в хранилище отдельно от таблиц: вместе с аккаунтом само оно не удалится.
+      await supabase.storage.from(AVATARS).remove([avatarPath])
       const { error } = await supabase.rpc('delete_account')
       if (error) throw error
       // Аккаунта уже нет, осталось забыть сессию в этом браузере.

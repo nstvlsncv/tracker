@@ -1,6 +1,6 @@
 import { Plus } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router'
 import { AddItem } from '../../components/AddItem'
 import { Button } from '../../components/Button'
@@ -32,6 +32,16 @@ import styles from './Week.module.css'
 
 const DAYS = [0, 1, 2, 3, 4, 5, 6]
 
+// Телефон: дни листаются лентой, а заметка стоит под ней. На экранах шире дни стоят сеткой,
+// и заметка занимает в ней свободное место после воскресенья.
+const PHONE = '(max-width: 640px)'
+function subscribePhone(onChange: () => void) {
+  const query = window.matchMedia(PHONE)
+  query.addEventListener('change', onChange)
+  return () => query.removeEventListener('change', onChange)
+}
+const isPhone = () => window.matchMedia(PHONE).matches
+
 export function Week() {
   const { isoWeek } = useParams()
   const navigate = useNavigate()
@@ -40,6 +50,7 @@ export function Week() {
   const daysRef = useRef<HTMLDivElement>(null)
   const toast = useToast()
   const [addingTask, setAddingTask] = useState(false)
+  const phone = useSyncExternalStore(subscribePhone, isPhone)
 
   const today = useToday()
   const currentWeek = weekStartISO(today)
@@ -87,6 +98,8 @@ export function Week() {
   }
 
   const stats = weekAnalytics(tasks, goals, weekStart, today)
+  // Заметка появляется, когда неделя загружена и в базе есть место для заметок.
+  const note = planner.notes && <WeekNote key={weekStart} weekStart={weekStart} />
   const ready = status === 'ready'
 
   return (
@@ -165,26 +178,29 @@ export function Week() {
             <AddItem label="Добавить цель" onAdd={(title) => planner.addGoal(weekStart, title)} />
           </Section>
 
-          <div
-            ref={daysRef}
-            className={styles.days}
-            onScroll={(event) => remember(daysScrollKey, event.currentTarget.scrollLeft)}
-          >
-            {DAYS.map((offset) => {
-              const date = shiftDate(weekStart, offset)
-              return (
-                <DayCard
-                  key={date}
-                  date={date}
-                  isToday={date === today}
-                  tasks={tasks.filter((task) => task.date === date)}
-                />
-              )
-            })}
+          {/* Обёртка нужна сетке: число столбцов зависит от её ширины, а не от ширины окна. */}
+          <div className={styles.board}>
+            <div
+              ref={daysRef}
+              className={styles.days}
+              onScroll={(event) => remember(daysScrollKey, event.currentTarget.scrollLeft)}
+            >
+              {DAYS.map((offset) => {
+                const date = shiftDate(weekStart, offset)
+                return (
+                  <DayCard
+                    key={date}
+                    date={date}
+                    isToday={date === today}
+                    tasks={tasks.filter((task) => task.date === date)}
+                  />
+                )
+              })}
+              {!phone && note && <div className={styles.noteCell}>{note}</div>}
+            </div>
           </div>
 
-          {/* Заметка появляется, когда неделя загружена и в базе есть место для заметок. */}
-          {planner.notes && <WeekNote key={weekStart} weekStart={weekStart} />}
+          {phone && note}
 
           <div className={styles.stats}>
             <StatCard value={stats.total} label="всего задач" />

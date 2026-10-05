@@ -1,4 +1,4 @@
-import { Plus, User } from '@phosphor-icons/react'
+import { Plus } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { useAuth } from '../../auth/useAuth'
@@ -9,6 +9,7 @@ import { Checkbox } from '../../components/Checkbox'
 import { IconButton } from '../../components/IconButton'
 import { ItemList } from '../../components/ItemList'
 import { Mascot } from '../../components/Mascot'
+import { MoodRow } from '../../components/MoodMenu'
 import { PageLoader } from '../../components/PageLoader'
 import { useRepeatDelete } from '../../components/RepeatDelete'
 import { Section } from '../../components/Section'
@@ -26,6 +27,7 @@ import {
   progress,
   shiftDate,
 } from '../../lib/metrics'
+import { moodLabel } from '../../lib/moods'
 import { formatStreak, habitStreaks, isDueOn, scheduleOf, weekCount } from '../../lib/habits'
 import { useNow } from '../../lib/useNow'
 import { useToday } from '../../lib/useToday'
@@ -103,15 +105,6 @@ export function Home() {
 
   const header = (
     <header className={styles.header}>
-      {/* Только на телефоне: Профиля нет в нижней панели, вход в него отсюда. */}
-      <Link
-        to="profile"
-        relative="path"
-        className={cx(buttonClassName({ variant: 'secondary', iconOnly: true }), styles.profile)}
-        aria-label="Профиль"
-      >
-        <User aria-hidden />
-      </Link>
       <h1 className={`t-heading-1 ${styles.title}`}>
         {/* На телефоне бокового меню нет: маскот живёт перед приветствием. */}
         <Mascot
@@ -275,6 +268,35 @@ export function Home() {
           </p>
         )}
       </Section>
+
+      {/* Настроение сегодняшнего дня: то же, что в шапке дня на Неделе. */}
+      {planner.moods && (
+        <section className={styles.summary}>
+          <div className={styles.summaryText}>
+            <h2 className="t-heading-5">Настроение дня</h2>
+            <p className={styles.summaryHint}>
+              {planner.moods[today] ? moodLabel(planner.moods[today]) : 'Каким был день?'}
+            </p>
+          </div>
+          <MoodRow
+            className={styles.moods}
+            size={36}
+            mood={planner.moods[today] ?? null}
+            onPick={(mood) => planner.setMood(today, mood)}
+          />
+        </section>
+      )}
+
+      {/* «Итогов» в меню нет: в них попадают отсюда. */}
+      <section className={styles.summary}>
+        <div className={styles.summaryText}>
+          <h2 className="t-heading-5">Итоги</h2>
+          <p className={styles.summaryHint}>Как шли задачи, цели и привычки за последние недели</p>
+        </div>
+        <Link to="stats" relative="path" className={buttonClassName({ variant: 'secondary' })}>
+          Смотреть итоги
+        </Link>
+      </section>
 
       {adding === 'habit' && (
         <HabitModal

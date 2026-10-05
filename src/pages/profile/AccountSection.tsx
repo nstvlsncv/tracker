@@ -1,27 +1,44 @@
-import { SignOut } from '@phosphor-icons/react'
 import { useId, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useAuth } from '../../auth/useAuth'
+import { Avatar } from '../../components/Avatar'
 import { Button } from '../../components/Button'
 import { Input } from '../../components/Input'
 import { Modal } from '../../components/Modal'
 import { Section } from '../../components/Section'
 import { useToast } from '../../components/useToast'
-import { SignOutModal } from '../../layout/SignOutModal'
 import { NAME_MAX_LENGTH } from '../../lib/constants'
 import { failureMessage, useAccount } from './useAccount'
+import { useAvatar } from './useAvatar'
 import styles from './profile.module.css'
 
-/** Блок «Аккаунт»: имя, фамилия и логин. Имя и фамилия меняются в модалке, логин в ней только показан. */
+/** Блок «Аккаунт»: фото, имя, фамилия и логин. Имя и фамилия меняются в модалке, логин в ней только показан. */
 export function AccountSection() {
   const { profile } = useAuth()
   const account = useAccount()
+  const avatar = useAvatar()
   const [editing, setEditing] = useState(false)
-  const [leaving, setLeaving] = useState(false)
 
   return (
     <>
       <Section title="Аккаунт">
+        {/* Фото профиля: пока его нет, в кружке маскот. Без места для фото в базе блока нет. */}
+        {avatar.available && (
+          <div className={styles.avatar}>
+            <Avatar url={profile?.avatarUrl} size={72} />
+            <div className={styles.actions}>
+              <Button variant="secondary" pending={avatar.busy} onClick={avatar.pick}>
+                {profile?.avatarUrl ? 'Изменить фото' : 'Загрузить фото'}
+              </Button>
+              {profile?.avatarUrl && (
+                <Button tone="danger" variant="ghost" onClick={avatar.remove}>
+                  Убрать фото
+                </Button>
+              )}
+            </div>
+            {avatar.input}
+          </div>
+        )}
         <dl className={styles.fields}>
           <Field label="Имя" value={profile?.name} />
           <Field label="Фамилия" value={profile?.lastName} />
@@ -31,14 +48,9 @@ export function AccountSection() {
           <Button variant="secondary" onClick={() => setEditing(true)}>
             Изменить
           </Button>
-          {/* Только на телефоне: в нижней панели кнопки выхода нет. */}
-          <Button tone="danger" className={styles.logout} icon={<SignOut aria-hidden />} onClick={() => setLeaving(true)}>
-            Выйти
-          </Button>
         </div>
       </Section>
       {editing && <EditAccountModal onClose={() => setEditing(false)} />}
-      {leaving && <SignOutModal onClose={() => setLeaving(false)} />}
     </>
   )
 }

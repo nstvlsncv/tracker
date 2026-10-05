@@ -82,6 +82,12 @@ for (const [style, props] of Object.entries(tokens['semantic-touch']?.typography
   }
 }
 
+// Тему можно включить и на отдельном блоке (ролик на экране входа показывает другую тему):
+// те же цвета, кроме акцентного, его блок берёт у страницы.
+const themed = (lines) => lines.filter((line) => !line.trim().startsWith('--highlight-'))
+const darkNames = new Set(dark.map((line) => line.trim().split(':')[0]))
+const light = semantic.filter((line) => darkNames.has(line.trim().split(':')[0]))
+
 const css = `/* Сгенерировано из design-tokens.json (npm run tokens). Не редактировать вручную. */
 
 :root {
@@ -97,6 +103,17 @@ ${semantic.join('\n')}
 :root[data-theme='dark'] {
   color-scheme: dark;
 ${dark.join('\n')}
+}
+
+/* Тема на отдельном блоке внутри страницы, какой бы ни была тема самой страницы */
+:root [data-theme='dark'] {
+  color-scheme: dark;
+${themed(dark).join('\n')}
+}
+
+:root [data-theme='light'] {
+  color-scheme: light;
+${themed(light).join('\n')}
 }
 
 /* semantic-touch: планшет и телефон (экран до 1024px или сенсорный), текст на ступень крупнее */

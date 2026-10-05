@@ -9,7 +9,7 @@ import { StatCard } from '../../components/StatCard'
 import type { Habit } from '../../data/types'
 import { cx } from '../../lib/cx'
 import { toISODate } from '../../lib/dates'
-import { formatStreak, habitStreaks, scheduleLabel, scheduleOf } from '../../lib/habits'
+import { checkBlock, formatStreak, habitStreaks, scheduleLabel, scheduleOf } from '../../lib/habits'
 import { totalChecks } from '../../lib/metrics'
 import { HabitHistory } from './HabitHistory'
 import styles from './HabitCard.module.css'
@@ -60,6 +60,8 @@ export function HabitCard({
       <div className={styles.head} onClick={() => onOpenChange(!open)}>
         <Checkbox
           checked={doneToday}
+          // Не свой день или норма недели набрана: отметить нельзя, нажатие объяснит почему.
+          locked={checkBlock(schedule, checks, today) !== null}
           burst
           celebrate={celebrate}
           onChange={(done) => onToggle(today, done)}
@@ -76,8 +78,8 @@ export function HabitCard({
             {habit.title}
           </button>
           <span className={`t-body-md ${styles.streak}`}>
-            {/* Две неразрывные части: на компьютере строка переносится только между ними. */}
-            {habit.frequency !== 'daily' && <span>{scheduleLabel(schedule)} ·</span>}{' '}
+            {/* Неразрывные части: на компьютере строка переносится только между ними. */}
+            <span>{scheduleLabel(schedule)} ·</span>{' '}
             <span>текущая серия {formatStreak(current)} ·</span>{' '}
             <span>лучшая {formatStreak(best)}</span>
           </span>

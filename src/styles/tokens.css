@@ -107,6 +107,11 @@
   --status-danger-foreground: var(--core-base-white);
   --highlight-default: var(--core-lime-500);
   --highlight-foreground: var(--core-neutral-900);
+  --mood-great: var(--core-green-600);
+  --mood-good: var(--core-lime-500);
+  --mood-okay: var(--core-yellow-500);
+  --mood-low: var(--core-orange-600);
+  --mood-bad: var(--core-red-600);
   --effects-focus-ring: var(--core-neutral-900);
   --effects-overlay: rgba(23, 23, 23, 0.5);
   --effects-shadow-sm: rgba(23, 23, 23, 0.08);
@@ -217,11 +222,111 @@
   --status-danger-foreground: var(--core-base-white);
   --highlight-default: var(--core-lime-500);
   --highlight-foreground: var(--core-neutral-900);
+  --mood-great: var(--core-green-600);
+  --mood-good: var(--core-lime-500);
+  --mood-okay: var(--core-yellow-500);
+  --mood-low: var(--core-orange-600);
+  --mood-bad: var(--core-red-600);
   --effects-focus-ring: var(--core-neutral-100);
   --effects-overlay: rgba(0, 0, 0, 0.6);
   --effects-shadow-sm: rgba(0, 0, 0, 0.4);
   --effects-shadow-md: rgba(0, 0, 0, 0.5);
   --effects-shadow-lg: rgba(0, 0, 0, 0.6);
+}
+
+/* Тема на отдельном блоке внутри страницы, какой бы ни была тема самой страницы */
+:root [data-theme='dark'] {
+  color-scheme: dark;
+  --bg-primary: var(--core-neutral-875);
+  --bg-secondary: var(--core-neutral-850);
+  --bg-tertiary: var(--core-neutral-780);
+  --bg-surface: var(--core-neutral-890);
+  --bg-inverse: var(--core-neutral-100);
+  --border-subtle: var(--core-neutral-780);
+  --border-default: var(--core-neutral-700);
+  --border-strong: var(--core-neutral-500);
+  --text-primary: var(--core-neutral-100);
+  --text-secondary: var(--core-neutral-400);
+  --text-tertiary: var(--core-neutral-500);
+  --text-disabled: var(--core-neutral-600);
+  --text-placeholder: var(--core-neutral-600);
+  --text-inverse: var(--core-neutral-900);
+  --accent-default: var(--core-neutral-100);
+  --accent-hover: var(--core-neutral-300);
+  --accent-pressed: var(--core-neutral-400);
+  --accent-subtle: var(--core-neutral-850);
+  --accent-disabled: var(--core-neutral-780);
+  --accent-foreground: var(--core-neutral-900);
+  --status-success-bg: var(--core-green-900);
+  --status-success-text: var(--core-green-600);
+  --status-success-border: var(--core-green-600);
+  --status-success-icon: var(--core-green-600);
+  --status-warning-bg: var(--core-orange-900);
+  --status-warning-text: var(--core-orange-600);
+  --status-warning-border: var(--core-orange-600);
+  --status-warning-icon: var(--core-orange-600);
+  --status-danger-bg: var(--core-red-900);
+  --status-danger-text: var(--core-red-600);
+  --status-danger-border: var(--core-red-600);
+  --status-danger-icon: var(--core-red-600);
+  --status-danger-foreground: var(--core-base-white);
+  --mood-great: var(--core-green-600);
+  --mood-good: var(--core-lime-500);
+  --mood-okay: var(--core-yellow-500);
+  --mood-low: var(--core-orange-600);
+  --mood-bad: var(--core-red-600);
+  --effects-focus-ring: var(--core-neutral-100);
+  --effects-overlay: rgba(0, 0, 0, 0.6);
+  --effects-shadow-sm: rgba(0, 0, 0, 0.4);
+  --effects-shadow-md: rgba(0, 0, 0, 0.5);
+  --effects-shadow-lg: rgba(0, 0, 0, 0.6);
+}
+
+:root [data-theme='light'] {
+  color-scheme: light;
+  --bg-primary: var(--core-neutral-100);
+  --bg-secondary: var(--core-neutral-200);
+  --bg-tertiary: var(--core-neutral-300);
+  --bg-surface: var(--core-base-white);
+  --bg-inverse: var(--core-neutral-900);
+  --border-subtle: var(--core-neutral-300);
+  --border-default: var(--core-neutral-400);
+  --border-strong: var(--core-neutral-600);
+  --text-primary: var(--core-neutral-900);
+  --text-secondary: var(--core-neutral-700);
+  --text-tertiary: var(--core-neutral-600);
+  --text-disabled: var(--core-neutral-500);
+  --text-placeholder: var(--core-neutral-500);
+  --text-inverse: var(--core-neutral-100);
+  --accent-default: var(--core-neutral-900);
+  --accent-hover: var(--core-neutral-800);
+  --accent-pressed: var(--core-neutral-700);
+  --accent-subtle: var(--core-neutral-200);
+  --accent-disabled: var(--core-neutral-300);
+  --accent-foreground: var(--core-neutral-100);
+  --status-success-bg: var(--core-green-100);
+  --status-success-text: var(--core-green-600);
+  --status-success-border: var(--core-green-600);
+  --status-success-icon: var(--core-green-600);
+  --status-warning-bg: var(--core-orange-100);
+  --status-warning-text: var(--core-orange-600);
+  --status-warning-border: var(--core-orange-600);
+  --status-warning-icon: var(--core-orange-600);
+  --status-danger-bg: var(--core-red-100);
+  --status-danger-text: var(--core-red-600);
+  --status-danger-border: var(--core-red-600);
+  --status-danger-icon: var(--core-red-600);
+  --status-danger-foreground: var(--core-base-white);
+  --mood-great: var(--core-green-600);
+  --mood-good: var(--core-lime-500);
+  --mood-okay: var(--core-yellow-500);
+  --mood-low: var(--core-orange-600);
+  --mood-bad: var(--core-red-600);
+  --effects-focus-ring: var(--core-neutral-900);
+  --effects-overlay: rgba(23, 23, 23, 0.5);
+  --effects-shadow-sm: rgba(23, 23, 23, 0.08);
+  --effects-shadow-md: rgba(23, 23, 23, 0.14);
+  --effects-shadow-lg: rgba(23, 23, 23, 0.22);
 }
 
 /* semantic-touch: планшет и телефон (экран до 1024px или сенсорный), текст на ступень крупнее */

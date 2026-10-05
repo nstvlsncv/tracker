@@ -52,6 +52,17 @@ export function createDemoAccount({ update, onDeleted }: Options): AccountApi {
       update({ name, lastName: lastName || null })
     },
 
+    async saveAvatar(image) {
+      await pause()
+      // В демо фото живёт в памяти вкладки, до обновления страницы.
+      update({ avatarUrl: URL.createObjectURL(image) })
+    },
+
+    async removeAvatar() {
+      await pause()
+      update({ avatarUrl: null })
+    },
+
     async changePassword(current, next) {
       await pause()
       if (current !== password) return 'wrong-password'

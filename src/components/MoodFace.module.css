@@ -1,0 +1,125 @@
+/* Лицо маскота с настроением дня. Пропорции те же, что у Mascot. */
+.face {
+  /* У каждого настроения свой цвет, от зелёного к красному. От акцентного цвета он не зависит:
+     иначе соседние настроения в истории сливались. */
+  --tone: var(--mood-great);
+
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--size);
+  height: var(--size);
+  border-radius: var(--radius-full);
+  background: var(--tone);
+}
+
+.eyes {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--size) * 0.16);
+  margin-top: calc(var(--size) * -0.08);
+}
+
+.eye {
+  width: calc(var(--size) * 0.13);
+  height: calc(var(--size) * 0.22);
+  border-radius: var(--radius-full);
+  background: var(--highlight-foreground);
+}
+
+/* Отличный день: глаза-дуги, улыбаются. */
+.great .eyes {
+  gap: calc(var(--size) * 0.12);
+}
+
+.great .eye {
+  width: calc(var(--size) * 0.2);
+  height: calc(var(--size) * 0.12);
+  border: calc(var(--size) * 0.07) solid var(--highlight-foreground);
+  border-bottom: 0;
+  border-radius: var(--size) var(--size) 0 0;
+  background: none;
+}
+
+/* Хороший: обычные спокойные глаза, как у маскота. */
+.good {
+  --tone: var(--mood-good);
+}
+
+/* Обычный: глаза-чёрточки. */
+.okay {
+  --tone: var(--mood-okay);
+}
+
+.okay .eye {
+  width: calc(var(--size) * 0.17);
+  height: calc(var(--size) * 0.07);
+}
+
+/* Так себе: глаза ниже и домиком, как у грустного маскота. */
+.low {
+  --tone: var(--mood-low);
+}
+
+.low .eyes,
+.bad .eyes {
+  margin-top: calc(var(--size) * 0.06);
+}
+
+.low .eye {
+  height: calc(var(--size) * 0.18);
+}
+
+.low .eye:first-child {
+  transform: rotate(24deg);
+}
+
+.low .eye:last-child {
+  transform: rotate(-24deg);
+}
+
+/* Плохой: глаза крестиками. */
+.bad {
+  --tone: var(--mood-bad);
+}
+
+.bad .eyes {
+  gap: calc(var(--size) * 0.14);
+}
+
+.bad .eye {
+  position: relative;
+  width: calc(var(--size) * 0.2);
+  height: calc(var(--size) * 0.2);
+  background: none;
+}
+
+.bad .eye::before,
+.bad .eye::after {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: calc(var(--size) * 0.07);
+  border-radius: var(--radius-full);
+  background: var(--highlight-foreground);
+  content: '';
+}
+
+.bad .eye::before {
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.bad .eye::after {
+  transform: translateY(-50%) rotate(-45deg);
+}
+
+/* День без отметки: серый круг с бледными глазами. */
+.none {
+  background: var(--bg-secondary);
+}
+
+.none .eye {
+  background: var(--text-placeholder);
+}

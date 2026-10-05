@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Mascot } from '../../components/Mascot'
+import { AUTHOR_URL } from '../../lib/constants'
 import { cx } from '../../lib/cx'
 import { DotField } from './DotField'
 import { Showreel } from './Showreel'
@@ -23,13 +24,21 @@ type Props = {
 /** Карточка «качает головой»: размах затухает. */
 const SHAKE_PX = [-10, 9, -7, 5, -3]
 
-export const AUTHOR_URL = 'https://t.me/nst_vlsncv'
+export { AUTHOR_URL }
 
 /** Каркас экрана входа: без сайдбара, логотип и карточка 450px на 120px ниже верхнего края. */
 export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, children }: Props) {
   const cardRef = useRef<HTMLDivElement>(null)
   // Пятно точек стоит под серединой колонки с формой и карточкой демо.
   const cardsRef = useRef<HTMLDivElement>(null)
+  // Левая половина: на неё маскот поглядывает, когда курсор стоит.
+  const stageRef = useRef<HTMLElement>(null)
+  // Ролик в конце показывает другую тему: на это время перекрашивается вся плашка.
+  const [stageTheme, setStageTheme] = useState<'light' | 'dark'>()
+  const flipTheme = useCallback((flipped: boolean) => {
+    const dark = document.documentElement.dataset.theme === 'dark'
+    setStageTheme(flipped ? (dark ? 'light' : 'dark') : undefined)
+  }, [])
 
   useEffect(() => {
     if (!shake || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -53,9 +62,9 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
     <main className={cx(styles.page, leaving && styles.leaving)} data-accent="lime">
       <DotField anchorRef={cardsRef} />
       {/* Компьютер: левая половина экрана отдана ролику, справа название, форма и подпись. */}
-      <aside className={styles.stage}>
+      <aside ref={stageRef} className={styles.stage} data-theme={stageTheme}>
         <div className={styles.stageReel}>
-          <Showreel />
+          <Showreel onThemeFlip={flipTheme} />
         </div>
         {/* Карточка демо на компьютере живёт здесь, под роликом. */}
         <div className={styles.stagePromo}>{promo}</div>
@@ -63,7 +72,7 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
       <div className={styles.side}>
       <div className={styles.content}>
         <div className={`t-heading-2 ${styles.logo}`}>
-          <Mascot size="1.3em" mood={mood} />
+          <Mascot size="1.3em" mood={mood} idleTarget={stageRef} />
           Трекер
         </div>
         <div ref={cardsRef} className={styles.cards}>

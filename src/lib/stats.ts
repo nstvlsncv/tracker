@@ -35,3 +35,21 @@ export function summarizeWeeks(tasks: Task[], goals: Goal[], weeks: string[]): W
     }
   })
 }
+
+/** Что трекер (и маскот) думает о неделе, в которой выполнено `percent` процентов задач. */
+export function weekVerdict(percent: number | null): {
+  mood: 'calm' | 'happy' | 'sad'
+  title: string
+} {
+  if (percent === null) return { mood: 'calm', title: 'Неделя ещё чистый лист' }
+  if (percent >= 80) return { mood: 'happy', title: 'Отличная неделя' }
+  if (percent >= 40) return { mood: 'calm', title: 'Неделя идёт ровно' }
+  return { mood: 'sad', title: 'Неделя пока буксует' }
+}
+
+/** Строка под вердиктом: сколько задач недели выполнено. */
+export function weekSummary(done: number, total: number): string {
+  return total === 0
+    ? 'На этой неделе пока нет задач'
+    : `На этой неделе выполнено ${done} из ${total} задач`
+}

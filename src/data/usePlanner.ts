@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import type { Goal, Repeat, Task } from './types'
+import type { Goal, Mood, Repeat, Task } from './types'
 
 export type WeekStatus = 'loading' | 'ready' | 'error'
 
@@ -20,6 +20,10 @@ export type PlannerValue = {
   notes: Record<string, string> | undefined
   /** Сохранить заметку недели. Пустой текст убирает её. */
   saveNote: (weekStart: string, text: string) => void
+  /** Настроение по дням. undefined: ещё грузится. null: настроений в этой базе нет. */
+  moods: Record<string, Mood> | null | undefined
+  /** Отметить настроение дня. null убирает отметку. */
+  setMood: (date: string, mood: Mood | null) => void
   /** Можно ли ставить задачам повтор (в базе есть правила повтора). */
   canRepeat: boolean
 

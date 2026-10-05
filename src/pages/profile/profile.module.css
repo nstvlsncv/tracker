@@ -52,9 +52,12 @@
   gap: var(--space-sm);
 }
 
-/* На планшете и компьютере выход есть в боковом меню, в блоке «Аккаунт» он только на телефоне. */
-.actions .logout {
-  display: none;
+/* Фото профиля и кнопки рядом с ним. */
+.avatar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
 }
 
 /* --- Пароль: чеклист требований --- */
@@ -182,13 +185,19 @@
 }
 
 @media (max-width: 640px) {
-  /* Кнопки блока «Аккаунт» друг под другом: сверху «Изменить», ниже «Выйти». */
+  /* Кнопки блока друг под другом, во всю ширину. */
   .actions {
     flex-direction: column;
   }
 
-  .actions .logout {
-    display: inline-flex;
+  /* Фото над своими кнопками. */
+  .avatar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .avatar > :first-child {
+    align-self: center;
   }
 
   /* В узкой строке сессии тексту нужно больше места: отступы меньше. */

@@ -53,7 +53,7 @@ export default function App() {
                     <Route path="/week/:isoWeek?" element={<Week />} />
                     <Route path="/habits" element={<Habits />} />
                     <Route path="/stats" element={<Stats />} />
-                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/profile/:section?" element={<Profile />} />
                   </Route>
                 </Route>
               </Route>

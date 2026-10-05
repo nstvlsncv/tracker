@@ -6,7 +6,7 @@ import { cx } from '../../lib/cx'
 import { formatDayMonth } from '../../lib/dates'
 import type { HabitSchedule } from '../../data/types'
 import { habitHistory, historyYears } from '../../lib/habitHistory'
-import { isScheduled } from '../../lib/habits'
+import { checkBlock } from '../../lib/habits'
 import type { HistoryPeriod } from '../../lib/habitHistory'
 import { recall, remember, useSessionState } from '../../lib/sessionState'
 import styles from './HabitHistory.module.css'
@@ -15,7 +15,7 @@ type Props = {
   /** id привычки: по нему запоминаются выбранный период и прокрутка истории. */
   habitId: string
   checks: ReadonlySet<string>
-  /** Расписание: дни вне его (у привычки «по дням недели») нарисованы бледнее. */
+  /** Расписание: дни, которые по нему отметить нельзя, нарисованы бледнее. */
   schedule: HabitSchedule
   today: string
   /** Самый ранний день, с которого у привычки может быть история: создание или первая отметка. */
@@ -102,6 +102,8 @@ export function HabitHistory({ habitId, checks, schedule, today, since, onToggle
                 {week.days.map((date, index) => {
                   if (!date) return <span key={index} className={styles.blank} />
                   const done = checks.has(date)
+                  // Не день расписания или норма той недели уже набрана: отметить нельзя.
+                  const blocked = !done && checkBlock(schedule, checks, date) !== null
                   const label = `${formatDayMonth(parseISO(date))} · ${done ? 'выполнено' : 'не выполнено'}`
                   return (
                     <button
@@ -111,14 +113,14 @@ export function HabitHistory({ habitId, checks, schedule, today, since, onToggle
                         styles.dot,
                         done && styles.done,
                         date === today && styles.today,
-                        !done && !isScheduled(schedule, date) && styles.off,
+                        blocked && styles.off,
                       )}
                       aria-label={label}
                       aria-pressed={done}
                       title={label}
                       onClick={(event) => {
                         // Отметили день: маленький салют из точки.
-                        if (!done) fireBurst(event.currentTarget, 10, 24)
+                        if (!done && !blocked) fireBurst(event.currentTarget, 10, 24)
                         onToggle(date, !done)
                       }}
                     />

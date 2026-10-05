@@ -7,6 +7,7 @@ import type {
   HabitCheck,
   HabitFrequency,
   ItemPatch,
+  Mood,
   PlannerApi,
   Repeat,
   Task,
@@ -175,6 +176,35 @@ export const supabaseApi: PlannerApi = {
               { onConflict: 'user_id,week_start' },
             )
         : supabase.from('week_notes').delete().eq('week_start', weekStart),
+    )
+  },
+
+  async loadMoods() {
+    const moods: Record<string, Mood> = {}
+    // По строке на день: читаем страницами, за три года их уже больше тысячи.
+    for (let from = 0; ; from += PAGE_SIZE) {
+      const { data, error } = await supabase
+        .from('day_moods')
+        .select('date, mood')
+        .order('date')
+        .range(from, from + PAGE_SIZE - 1)
+      // Таблицы настроений может ещё не быть: тогда трекер работает без них.
+      if (error) return null
+      for (const row of data ?? []) moods[row.date as string] = row.mood as Mood
+      if ((data ?? []).length < PAGE_SIZE) return moods
+    }
+  },
+
+  async saveMood(date, mood) {
+    await unwrap(
+      mood
+        ? supabase
+            .from('day_moods')
+            .upsert(
+              { date, mood, updated_at: new Date().toISOString() },
+              { onConflict: 'user_id,date' },
+            )
+        : supabase.from('day_moods').delete().eq('date', date),
     )
   },
 

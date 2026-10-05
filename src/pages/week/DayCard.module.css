@@ -1,9 +1,9 @@
 .card {
   display: flex;
-  flex: none;
   flex-direction: column;
   gap: var(--space-md);
-  width: 300px;
+  /* Ширину задаёт сетка дней на Неделе; на телефоне карточка сама держит свою (см. ниже). */
+  min-width: 0;
   padding: var(--space-lg);
   border-radius: var(--radius-xl);
   background: var(--bg-primary);
@@ -14,6 +14,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  /* Высота лица настроения: шапки дней с ним и без него одного роста. */
+  min-height: 28px;
+}
+
+/* Настроение дня и число. */
+.side {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
 }
 
 .number {
@@ -56,6 +65,7 @@
 /* Телефон: карточка почти во весь экран, край следующей виден и подсказывает, что можно листать. */
 @media (max-width: 640px) {
   .card {
+    flex: none;
     width: 82vw;
     padding: var(--space-md);
   }

@@ -1,13 +1,15 @@
 import {
   ArrowsClockwise,
   CalendarDots,
-  ChartBar,
   House,
+  SidebarSimple,
   SignOut,
   User,
 } from '@phosphor-icons/react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router'
+import { useAuth } from '../auth/useAuth'
+import { Avatar } from '../components/Avatar'
 import { Mascot } from '../components/Mascot'
 import { usePlanner } from '../data/usePlanner'
 import { cx } from '../lib/cx'
@@ -28,10 +30,19 @@ const NAV = [
   { to: '', label: 'Главная', icon: House, end: true, motion: 'bounce' },
   { to: 'week', label: 'Неделя', icon: CalendarDots, end: false, motion: 'flip' },
   { to: 'habits', label: 'Привычки', icon: ArrowsClockwise, end: false, motion: 'spin' },
-  { to: 'stats', label: 'Итоги', icon: ChartBar, end: false, motion: 'bounce' },
-  // На телефоне Профиля в нижней панели нет: туда ведёт кнопка в правом верхнем углу Главной.
-  { to: 'profile', label: 'Профиль', icon: User, end: false, motion: 'nod', desktopOnly: true },
+  { to: 'profile', label: 'Профиль', icon: User, end: false, motion: 'nod' },
 ] as const
+
+// Свёрнуто ли меню на компьютере. Выбор хранится в браузере, как тема и акцентный цвет.
+const MENU_KEY = 'tracker.menu'
+
+function readCollapsed(): boolean {
+  try {
+    return localStorage.getItem(MENU_KEY) === 'collapsed'
+  } catch {
+    return false
+  }
+}
 
 /** Раздел, к которому относится адрес: 'week' для /week/2026-W38, '' для Главной. */
 function sectionOf(pathname: string, basePath: string): string {
@@ -44,6 +55,18 @@ function sectionOf(pathname: string, basePath: string): string {
  */
 export function AppShell({ basePath = '' }: Props) {
   const [leaving, setLeaving] = useState(false)
+  const { profile } = useAuth()
+  // На компьютере меню можно свернуть в полосу с иконками; на планшете оно такое всегда.
+  const [collapsed, setCollapsed] = useState(readCollapsed)
+  const toggleMenu = () => {
+    const next = !collapsed
+    setCollapsed(next)
+    try {
+      localStorage.setItem(MENU_KEY, next ? 'collapsed' : 'open')
+    } catch {
+      // Хранилище недоступно (приватный режим): выбор просто не запомнится.
+    }
+  }
   // Маскот грустит, пока с прошлых дней остаются невыполненные задачи.
   const { tasks } = usePlanner()
   const today = useToday()
@@ -86,14 +109,14 @@ export function AppShell({ basePath = '' }: Props) {
 
   return (
     <div className={cx(styles.shell, entering && styles.entering)}>
-      <aside className={styles.sidebar}>
+      <aside className={cx(styles.sidebar, collapsed && styles.collapsed)}>
         <div className={`t-heading-3 ${styles.logo}`}>
           {/* В «Итогах» за курсором следит большой маскот экрана, этот смотрит прямо. */}
           <Mascot size={32} mood={overdue ? 'sad' : 'calm'} still={section === 'stats'} />
           <span className={styles.logoText}>Трекер</span>
         </div>
         <nav className={styles.nav} aria-label="Разделы">
-          {NAV.map(({ to, label, icon: Icon, end, motion, ...item }) => (
+          {NAV.map(({ to, label, icon: Icon, end, motion }) => (
             <NavLink
               key={to}
               // Из другого раздела возвращаемся туда, где были. Нажатие на уже открытый
@@ -104,26 +127,74 @@ export function AppShell({ basePath = '' }: Props) {
                 cx(
                   't-button',
                   styles.item,
-                  isActive && styles.active,
-                  'desktopOnly' in item && styles.desktopOnly,
+                  // «Итоги» открываются с Главной и в меню считаются её частью.
+                  (isActive || (to === '' && section === 'stats')) && styles.active,
                 )
               }
               onClick={() => setTap((last) => ({ to, count: last.count + 1 }))}
             >
-              <Icon
-                key={tap.to === to ? tap.count : 0}
-                className={tap.to === to ? styles[motion] : undefined}
-                aria-hidden
-              />
+              {to === 'profile' && profile?.avatarUrl ? (
+                // Есть фото профиля: оно стоит на месте иконки и оживает так же.
+                <Avatar
+                  key={tap.to === to ? tap.count : 0}
+                  url={profile.avatarUrl}
+                  size={24}
+                  className={tap.to === to ? styles[motion] : undefined}
+                />
+              ) : (
+                <Icon
+                  key={tap.to === to ? tap.count : 0}
+                  className={tap.to === to ? styles[motion] : undefined}
+                  aria-hidden
+                />
+              )}
               <span className={styles.label}>{label}</span>
+              {/* Подсказка с названием: видна при наведении, пока от пункта осталась одна иконка. */}
+              <span className={`t-body-sm ${styles.hint}`} aria-hidden>
+                {label}
+              </span>
             </NavLink>
           ))}
         </nav>
         {/* На телефоне этой кнопки в меню нет: выход там на экране Профиля. */}
         <div className={styles.bottom}>
-          <button type="button" className={cx('t-button', styles.item, styles.logout)} onClick={() => setLeaving(true)}>
-            <SignOut aria-hidden />
+          {/* Только на компьютере: на планшете меню и так полоса с иконками. */}
+          <button
+            type="button"
+            className={cx('t-button', styles.item, styles.toggle)}
+            aria-expanded={!collapsed}
+            onClick={() => {
+              setTap((last) => ({ to: 'toggle', count: last.count + 1 }))
+              toggleMenu()
+            }}
+          >
+            <SidebarSimple
+              key={tap.to === 'toggle' ? tap.count : 0}
+              className={tap.to === 'toggle' ? styles.squeeze : undefined}
+              aria-hidden
+            />
+            <span className={styles.label}>{collapsed ? 'Развернуть меню' : 'Свернуть меню'}</span>
+            <span className={`t-body-sm ${styles.hint}`} aria-hidden>
+              Развернуть меню
+            </span>
+          </button>
+          <button
+            type="button"
+            className={cx('t-button', styles.item, styles.logout)}
+            onClick={() => {
+              setTap((last) => ({ to: 'logout', count: last.count + 1 }))
+              setLeaving(true)
+            }}
+          >
+            <SignOut
+              key={tap.to === 'logout' ? tap.count : 0}
+              className={tap.to === 'logout' ? styles.leave : undefined}
+              aria-hidden
+            />
             <span className={styles.label}>Выйти</span>
+            <span className={`t-body-sm ${styles.hint}`} aria-hidden>
+              Выйти
+            </span>
           </button>
         </div>
       </aside>

@@ -56,6 +56,13 @@
   transform: scale(0.9);
 }
 
+/* Отметить сейчас нельзя: кружок бледнее и на наведение не отвечает. */
+.locked,
+.locked:hover:not(:disabled) {
+  border-color: var(--border-subtle);
+  background: var(--bg-secondary);
+}
+
 .checked {
   border-color: var(--highlight-default);
 }

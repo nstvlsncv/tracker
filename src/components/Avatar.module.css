@@ -1,0 +1,10 @@
+.avatar {
+  display: block;
+  flex: none;
+  width: var(--size);
+  height: var(--size);
+  border-radius: var(--radius-full);
+  /* Пока фото грузится, на его месте серый круг, а не дыра. */
+  background: var(--bg-secondary);
+  object-fit: cover;
+}
