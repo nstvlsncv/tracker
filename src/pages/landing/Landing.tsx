@@ -114,7 +114,7 @@ const STEPS = [
     text: 'Это настоящий трекер с примером данных. Нажимай что угодно: после обновления страницы всё вернётся как было',
   },
   {
-    title: 'Напиши мне в Телеграм',
+    title: 'Напиши мне',
     text: 'Регистрации на сайте нет. Я сама заведу тебе аккаунт и пришлю логин с паролем',
   },
   {
@@ -351,10 +351,20 @@ export function Landing() {
       <DotField anchorRef={demoRef} />
 
       <header className={styles.top}>
-        <Link to="/" className={`t-heading-5 ${styles.logo}`} aria-label="Трекер">
+        {/* Название возвращает в начало страницы: мы и так на главной, перезагружать нечего. */}
+        <a
+          href="/"
+          className={`t-heading-5 ${styles.logo}`}
+          aria-label="Трекер: в начало страницы"
+          onClick={(event) => {
+            event.preventDefault()
+            const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' })
+          }}
+        >
           <Mascot size={32} mood={celebrating ? 'happy' : 'calm'} />
           Трекер
-        </Link>
+        </a>
         <nav className={styles.topNav}>
           <Link to="/demo" className={cx(buttonClassName({ variant: 'ghost' }), styles.topDemo)}>
             Демо

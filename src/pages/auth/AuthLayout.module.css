@@ -19,6 +19,18 @@
   min-width: 0;
   /* Блок с названием и формой стоит на 120px ниже верхнего края, подпись на 24px выше нижнего. */
   padding: 120px var(--space-md) var(--space-lg);
+  /* Точка отсчёта для ссылки «О трекере» в углу колонки. */
+  position: relative;
+}
+
+/* Ссылка обратно на лендинг: в левом верхнем углу колонки с формой, вёрстку не двигает. */
+.back {
+  position: absolute;
+  top: var(--space-lg);
+  left: var(--space-lg);
+  z-index: 1;
+  gap: var(--space-xs);
+  width: auto;
 }
 
 /* Над канвасом с точками. */
@@ -231,5 +243,13 @@
   .leaving {
     opacity: 1;
     transition: none;
+  }
+}
+
+/* Телефон: ссылка «О трекере» стоит выше и ближе к краю, чтобы не прижиматься к названию. */
+@media (max-width: 640px) {
+  .back {
+    top: var(--space-sm);
+    left: var(--space-sm);
   }
 }
