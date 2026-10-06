@@ -7,6 +7,7 @@ import { ToastProvider } from '../components/Toast'
 import { toISODate, toWeekParam, weekStartISO } from '../lib/dates'
 import { shiftDate } from '../lib/metrics'
 import { DevPreview } from './DevPreview'
+import { Landing } from './landing/Landing'
 
 // Сквозные проверки главных сценариев на демо-данных в памяти: трекер открывается целиком,
 // как у гостя на /demo, без входа и без базы. Ловят поломки экранов, которых не видят
@@ -56,6 +57,28 @@ function openTracker(path = '') {
   )
   return userEvent.setup()
 }
+
+describe('лендинг', () => {
+  it('рассказывает о трекере и ведёт на вход и в демо', async () => {
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter>
+        <Landing />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { level: 1, name: /Вся неделя в одном трекере/ })).toBeTruthy()
+    expect(screen.getByRole('link', { name: 'Войти' }).getAttribute('href')).toBe('/login')
+    expect(screen.getAllByRole('link', { name: /Посмотреть демо/ })[0].getAttribute('href')).toBe('/demo')
+
+    // Живая карточка: отметка задачи двигает кольцо прогресса.
+    expect(screen.getByText('попробуй отметить')).toBeTruthy()
+    for (const title of ['Позвонить маме', 'Пробежка 20 минут', 'Почитать перед сном']) {
+      await user.click(screen.getByRole('checkbox', { name: title }))
+    }
+    expect(screen.getByText('всё сделано')).toBeTruthy()
+  })
+})
 
 describe('трекер на демо-данных', () => {
   it('Главная: открывается и принимает новую задачу', async () => {

@@ -1,10 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ReelScene } from '../pages/auth/Showreel'
 import type { ReelSceneId } from '../pages/auth/Showreel'
 import { cx } from '../lib/cx'
 import { Button } from './Button'
 import { Mascot } from './Mascot'
+import { SceneFit } from './SceneFit'
 import styles from './Onboarding.module.css'
 
 type Slide = {
@@ -58,15 +58,6 @@ const SLIDES: Slide[] = [
   },
 ]
 
-/** В какой ширине сцена раскладывается: та же, что в ролике на экране входа. */
-const SCENE_WIDTH = 360
-/** Какую долю плашки сцена занимает по ширине и по высоте. */
-const FILL_X = 0.86
-const FILL_Y = 0.72
-/** Границы увеличения: мельче сцена нечитаема, крупнее выглядит грубо. */
-const MIN_SCALE = 0.6
-const MAX_SCALE = 1.6
-
 type Props = {
   /** Знакомство пройдено до конца или пропущено. */
   onClose: () => void
@@ -83,29 +74,6 @@ export function Onboarding({ onClose }: Props) {
   const slide = SLIDES[index]
   const last = index === SLIDES.length - 1
   const dialogRef = useRef<HTMLDivElement>(null)
-
-  // Сцены разного размера, а плашка под них на каждом экране своя. Каждая сцена
-  // увеличивается или уменьшается так, чтобы занять плашку целиком и не обрезаться.
-  const stageRef = useRef<HTMLDivElement>(null)
-  const [scale, setScale] = useState(1)
-  useLayoutEffect(() => {
-    const stage = stageRef.current
-    if (!stage) return
-    const fit = () => {
-      const content = stage.querySelector<HTMLElement>('[data-reel-scene] > *')
-      if (!content || !content.offsetWidth || !content.offsetHeight) return
-      const next = Math.min(
-        (stage.clientWidth * FILL_X) / content.offsetWidth,
-        (stage.clientHeight * FILL_Y) / content.offsetHeight,
-      )
-      setScale(Math.min(MAX_SCALE, Math.max(MIN_SCALE, next)))
-    }
-    fit()
-    // Плашка меняет размер (поворот телефона, окно): сцена подстраивается заново.
-    const observer = new ResizeObserver(fit)
-    observer.observe(stage)
-    return () => observer.disconnect()
-  }, [index])
 
   const closeRef = useRef(onClose)
   useEffect(() => {
@@ -168,16 +136,14 @@ export function Onboarding({ onClose }: Props) {
           </Button>
         </div>
 
-        {/* key: каждая сцена создаётся заново и проявляется. */}
-        <div key={slide.scene} ref={stageRef} className={styles.stage}>
-          {slide.scene === 'hello' ? (
+        {/* key: каждая сцена создаётся заново и проявляется. Сцена сама подстраивается под плашку. */}
+        {slide.scene === 'hello' ? (
+          <div key={slide.scene} className={styles.stage}>
             <Mascot size={112} mood="happy" />
-          ) : (
-            <div className={styles.fit} style={{ width: SCENE_WIDTH, transform: `scale(${scale})` }}>
-              <ReelScene id={slide.scene} />
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <SceneFit key={slide.scene} id={slide.scene} className={styles.stage} />
+        )}
 
         <div key={`text-${slide.scene}`} className={styles.text} aria-live="polite">
           <h2 className="t-heading-3">{slide.title}</h2>

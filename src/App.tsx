@@ -31,6 +31,7 @@ const DevPreview = lazy(() => import('./pages/DevPreview').then((m) => ({ defaul
 const Showcase = lazy(() => import('./pages/Showcase').then((m) => ({ default: m.Showcase })))
 const OgImage = lazy(() => import('./pages/OgImage').then((m) => ({ default: m.OgImage })))
 // Админка нужна одному человеку: лежит своим куском и остальным не грузится.
+const Landing = lazy(() => import('./pages/landing/Landing').then((m) => ({ default: m.Landing })))
 const AdminPage = lazy(() => import('./pages/admin/routes').then((m) => ({ default: m.AdminPage })))
 const AdminPreview = lazy(() => import('./pages/admin/routes').then((m) => ({ default: m.AdminPreview })))
 
@@ -69,6 +70,7 @@ export default function App() {
               {import.meta.env.DEV && <Route path="/dev" element={<Showcase />} />}
               {import.meta.env.DEV && <Route path="/dev/og" element={<OgImage />} />}
               {import.meta.env.DEV && <Route path="/dev/app/*" element={<DevPreview />} />}
+              {import.meta.env.DEV && <Route path="/dev/landing" element={<Landing />} />}
               {import.meta.env.DEV && <Route path="/dev/admin/:section?" element={<AdminPreview />} />}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

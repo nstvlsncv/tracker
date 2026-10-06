@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Navigate, Outlet } from 'react-router'
+import { lazy, useEffect, useState } from 'react'
+import { Navigate, Outlet, useLocation } from 'react-router'
 import { Button } from '../components/Button'
 import { Mascot } from '../components/Mascot'
 import { PageLoader } from '../components/PageLoader'
@@ -21,13 +21,20 @@ function ConnectionError() {
   )
 }
 
-/** Экраны после входа. Гость уходит на вход. */
+// Лендинг видят только гости: лежит своим куском и вошедшим не грузится.
+const Landing = lazy(() => import('../pages/landing/Landing').then((m) => ({ default: m.Landing })))
+
+/**
+ * Экраны после входа. Гость с главного адреса видит лендинг (рассказ о трекере с кнопкой
+ * «Войти»), с любого другого уходит на вход.
+ */
 export function ProtectedRoute() {
   const { status } = useAuth()
+  const { pathname } = useLocation()
   // Пока проверяется вход: чистый экран, а если ждать приходится дольше, маскот по центру.
   if (status === 'loading') return <PageLoader screen />
   if (status === 'error') return <ConnectionError />
-  if (status === 'guest') return <Navigate to="/login" replace />
+  if (status === 'guest') return pathname === '/' ? <Landing /> : <Navigate to="/login" replace />
   return <Outlet />
 }
 

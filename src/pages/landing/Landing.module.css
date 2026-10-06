@@ -1,0 +1,747 @@
+/* Лендинг: первая страница для гостя. Те же цвета, шрифт и детали, что в трекере:
+   белая страница, серые плашки, чёрный текст, акцентный цвет на отметках и подчёркиваниях. */
+.page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  overflow-x: clip;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+/* Всё содержимое лежит поверх фона из точек. */
+.top,
+.main,
+.footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Шапка: название и вход. Едет вместе со страницей и остаётся наверху --- */
+
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  /* Во всю ширину окна: название у левого края, кнопки у правого. */
+  width: 100%;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--bg-surface);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.topNav {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* --- Основа --- */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 96px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg) 96px;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.h2,
+.sub,
+.muted {
+  margin: 0;
+}
+
+.sub {
+  margin-top: var(--space-sm);
+  color: var(--text-secondary);
+}
+
+.muted {
+  color: var(--text-tertiary);
+}
+
+/* --- Первый экран --- */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: center;
+  gap: var(--space-2xl);
+  min-height: min(640px, calc(100dvh - 160px));
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-lg);
+}
+
+/* Заголовок крупнее обычного h1: на первом экране он главный. */
+.title {
+  margin: 0;
+  font-size: clamp(40px, 5.6vw, 76px);
+  line-height: 1.05;
+}
+
+/* Первая строка заголовка меняется по кругу: новое слово въезжает снизу. */
+.subject,
+.rest {
+  display: block;
+}
+
+.subject {
+  animation: swap 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.rest {
+  animation: rise 600ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both;
+}
+
+/* Последнее слово подчёркнуто акцентным маркером, который дорисовывается слева направо. */
+.marked {
+  position: relative;
+  z-index: 0;
+  display: inline-block;
+}
+
+/* Строка-задача над разделом: страница устроена как список дел. Отмеченная гаснет
+   и зачёркивается, как выполненная задача в трекере. */
+.task {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.taskDone {
+  color: var(--text-disabled);
+  text-decoration: line-through;
+}
+
+.heroText .task {
+  margin-bottom: 0;
+  animation: rise 500ms ease-out both;
+}
+
+.marked::after {
+  position: absolute;
+  right: -0.08em;
+  bottom: 0.08em;
+  left: -0.08em;
+  z-index: -1;
+  height: 0.42em;
+  border-radius: var(--radius-sm);
+  background: var(--highlight-default);
+  content: '';
+  transform-origin: left center;
+  animation: draw 600ms cubic-bezier(0.22, 1, 0.36, 1) 700ms both;
+  transition: background-color var(--transition-fast);
+}
+
+.lead {
+  max-width: 520px;
+  margin: 0;
+  color: var(--text-secondary);
+  animation: rise 600ms ease-out 400ms both;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  animation: rise 600ms ease-out 520ms both;
+}
+
+/* Кнопка-ссылка с иконкой: между подписью и иконкой тот же шаг, что в кнопках трекера. */
+.cta {
+  gap: var(--space-sm);
+}
+
+.heroDemo {
+  animation: float-in 800ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
+}
+
+/* Живая карточка задач: слегка наклонена, при наведении выпрямляется. */
+.demo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-xl);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+  box-shadow: var(--effects-shadow-lg);
+  /* Лежит чуть косо; под курсором наклоняется вслед за ним (углы пишет Landing.tsx). */
+  transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))
+    rotate(var(--lean, 2deg));
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .demo:hover {
+    --lean: 0deg;
+  }
+}
+
+.demoHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.demoHint {
+  color: var(--text-tertiary);
+}
+
+.demoBody {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xl);
+}
+
+.demoList {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.demoTask {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  transition: color var(--transition-fast);
+}
+
+.demoDone {
+  color: var(--text-disabled);
+  text-decoration: line-through;
+}
+
+/* --- Бегущая строка на всю ширину окна --- */
+
+.marquee {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: var(--space-md) 0;
+  overflow: hidden;
+  background: var(--highlight-default);
+  color: var(--highlight-foreground);
+  transform: rotate(-1.2deg);
+  transition: background-color var(--transition-fast);
+}
+
+/* Сдвиг пишет скрипт: строка едет сама и ускоряется вместе с прокруткой страницы. */
+.marqueeTrack {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.marqueeWord {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  padding-right: var(--space-lg);
+  white-space: nowrap;
+}
+
+.marqueeDot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--highlight-foreground);
+}
+
+/* --- Возможности: сетка плашек, у каждой живая сцена --- */
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+.wide {
+  grid-column: span 2;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .feature:hover {
+    transform: translateY(-6px);
+  }
+}
+
+/* Плашка сцены: сцена сама подстраивается под её размер (см. SceneFit). */
+.scene {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 260px;
+  overflow: hidden;
+}
+
+.featureText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: 0 var(--space-xl) var(--space-xl);
+}
+
+.featureText h3,
+.featureText p {
+  margin: 0;
+}
+
+/* --- Свой цвет и тема --- */
+
+.custom {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2xl);
+  padding: var(--space-2xl);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.customText {
+  display: flex;
+  flex-direction: column;
+}
+
+.pickers {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-top: var(--space-xl);
+}
+
+.swatches {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* Кружок цвета: как в Профиле, с кольцом вокруг выбранного. */
+.swatch {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--highlight-default);
+  box-shadow: 0 0 0 0 var(--accent-default);
+  transition:
+    transform var(--transition-press),
+    box-shadow var(--transition-fast);
+}
+
+.swatch:active {
+  transform: scale(0.9);
+}
+
+.swatchOn {
+  box-shadow:
+    0 0 0 3px var(--bg-primary),
+    0 0 0 5px var(--accent-default);
+}
+
+.customMascot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 0 var(--space-xl);
+}
+
+/* --- Чем удобен: список, в котором всё уже отмечено --- */
+
+.perks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  /* Все строки одной высоты, по самой высокой плашке: и в два столбца, и в один. */
+  grid-auto-rows: 1fr;
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.perk {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  height: 100%;
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.perkText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.perk h3,
+.perk p,
+.step h3,
+.step p {
+  margin: 0;
+}
+
+/* Галочка как у отмеченного чекбокса трекера. */
+.perkMark {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--highlight-default);
+  color: var(--highlight-foreground);
+  transition: background-color var(--transition-fast);
+}
+
+.perkMark svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* --- Как начать --- */
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  height: 100%;
+  padding: var(--space-xl);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.stepNumber {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--space-sm);
+  border-radius: var(--radius-full);
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+/* --- Финал: плашка акцентного цвета с маскотом и кнопками --- */
+
+.final {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 72px var(--space-xl);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+  text-align: center;
+}
+
+.finalTitle,
+.finalText {
+  margin: 0;
+}
+
+.finalTitle {
+  font-size: clamp(28px, 4vw, 52px);
+  line-height: 1.1;
+}
+
+.finalText {
+  margin-bottom: var(--space-md);
+  color: var(--text-secondary);
+}
+
+.final .actions {
+  justify-content: center;
+  animation: none;
+}
+
+/* Последняя задача страницы: белая плашка со строкой-задачей. */
+.finalTask {
+  margin-bottom: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+}
+
+.finalTask .task {
+  margin: 0;
+}
+
+/* --- Кольцо в углу: сколько задач страницы закрыто --- */
+
+.progress {
+  position: fixed;
+  right: var(--space-lg);
+  bottom: var(--space-lg);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-lg) var(--space-sm) var(--space-sm);
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  box-shadow: var(--effects-shadow-lg);
+  animation: rise 600ms ease-out 900ms both;
+}
+
+.progressText {
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Подпись --- */
+
+.footer {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-lg);
+  color: var(--text-tertiary);
+}
+
+.footer a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--highlight-default);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* --- Появление блоков при прокрутке --- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 700ms ease-out var(--delay, 0ms),
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0ms);
+}
+
+.shown {
+  opacity: 1;
+  transform: none;
+}
+
+/* В сетке обёртка блока растягивается, как сам блок. */
+.features > .reveal,
+.perks .reveal,
+.steps .reveal {
+  height: 100%;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+@keyframes swap {
+  from {
+    opacity: 0;
+    transform: translateY(0.5em);
+  }
+}
+
+@keyframes draw {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes float-in {
+  from {
+    opacity: 0;
+    transform: translateY(40px) rotate(6deg);
+  }
+}
+
+/* --- Планшет --- */
+
+@media (max-width: 1024px) {
+  .main {
+    gap: 72px;
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    padding-top: var(--space-lg);
+  }
+
+  .features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wide,
+  .features > :last-child {
+    grid-column: span 2;
+  }
+}
+
+/* --- Телефон --- */
+
+@media (max-width: 640px) {
+  .top {
+    padding: var(--space-sm) var(--space-md);
+  }
+
+  /* В шапке остаётся главное: вход. Демо есть кнопкой ниже. */
+  .topDemo {
+    display: none;
+  }
+
+  .main {
+    gap: 56px;
+    padding: var(--space-md) var(--space-md) 56px;
+  }
+
+  .block {
+    gap: var(--space-lg);
+  }
+
+  .title {
+    font-size: 40px;
+  }
+
+  .demo {
+    gap: var(--space-md);
+    padding: var(--space-md);
+    --lean: 0deg;
+  }
+
+  .demoBody {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-md);
+  }
+
+  .demoBody > :first-child {
+    align-self: center;
+  }
+
+  .features,
+  .perks,
+  .steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .wide,
+  .features > :last-child {
+    grid-column: auto;
+  }
+
+  /* Кольцо в углу меньше и без подписи: на узком экране оно не должно закрывать текст. */
+  .progress {
+    right: var(--space-md);
+    bottom: var(--space-md);
+    padding: var(--space-xs);
+  }
+
+  .progressText {
+    display: none;
+  }
+
+  .scene {
+    height: 220px;
+  }
+
+  .featureText,
+  .perk,
+  .step {
+    padding: var(--space-md);
+  }
+
+  .featureText {
+    padding-top: 0;
+  }
+
+  .custom {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-lg);
+    padding: var(--space-lg) var(--space-md);
+  }
+
+  .customMascot {
+    order: -1;
+  }
+
+  .final {
+    padding: var(--space-2xl) var(--space-md);
+  }
+}
+
+/* Анимации отключены в системе: всё на месте сразу, строка не бежит. */
+@media (prefers-reduced-motion: reduce) {
+  .subject,
+  .rest,
+  .task,
+  .marked::after,
+  .lead,
+  .actions,
+  .heroDemo,
+  .progress {
+    animation: none;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

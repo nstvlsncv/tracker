@@ -279,20 +279,24 @@ const REST_STEPS = 4
 
 /**
  * Одна сцена ролика сама по себе, по кругу: проигрывается, немного стоит в конечном виде
- * и начинается заново. Нужна слайдам знакомства с трекером (`Onboarding`).
+ * и начинается заново. Нужна слайдам знакомства с трекером (`Onboarding`) и лендингу.
+ * С `once` проигрывается один раз и остаётся в конечном виде; пока `paused`, стоит на месте
+ * (на лендинге сцена ждёт, когда её плашка появится на экране).
  * При отключённых в системе анимациях стоит в конечном виде.
  */
-export function ReelScene({ id }: { id: ReelSceneId }) {
+export function ReelScene({ id, once = false, paused = false }: { id: ReelSceneId; once?: boolean; paused?: boolean }) {
   const [still] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [time, setTime] = useState(still ? STEPS_PER_SCENE - 1 : 0)
 
+  // Сыграна до конца и больше не повторяется.
+  const finished = once && time >= STEPS_PER_SCENE - 1
   useEffect(() => {
-    if (still) return
+    if (still || paused || finished) return
     const timer = setInterval(() => {
       if (!document.hidden) setTime((current) => current + 1)
     }, STEP_MS)
     return () => clearInterval(timer)
-  }, [still])
+  }, [still, paused, finished])
 
   const cycle = STEPS_PER_SCENE + REST_STEPS
   const loop = Math.floor(time / cycle)
