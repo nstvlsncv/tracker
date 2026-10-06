@@ -50,6 +50,13 @@ export type PlannerValue = {
   deleteGoal: (id: string) => void
   /** Перенести цели на другую неделю (невыполненное с прошлой недели на эту). */
   moveGoals: (ids: string[], weekStart: string) => void
+
+  /**
+   * Скопировать неделю `from` в неделю `to`: цели и обычные задачи встают на те же дни недели
+   * невыполненными. Повторяющиеся задачи не копируются: они появляются сами.
+   * Неделя `from` должна быть уже загружена. Показывает тост с «Отменить».
+   */
+  copyWeek: (from: string, to: string) => void
 }
 
 export const PlannerContext = createContext<PlannerValue | null>(null)

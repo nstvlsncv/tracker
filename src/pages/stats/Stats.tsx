@@ -50,7 +50,8 @@ type History = { tasks: Task[]; goals: Goal[] }
  * Данные читаются заново при каждом открытии экрана, в общем хранилище не лежат.
  */
 export function Stats() {
-  const { loadHistory, loadWeek, notes, moods, setMood } = usePlanner()
+  const planner = usePlanner()
+  const { loadHistory, loadWeek, notes, moods, setMood } = planner
   const habitsStore = useHabits()
   const today = useToday()
   const weeks = recentWeeks(today, WEEKS)
@@ -58,9 +59,13 @@ export function Stats() {
 
   // Заметка прошлой недели лежит вместе с неделей: подгружаем её для итогов.
   const lastWeek = weeks[weeks.length - 2]
+  // Текущая неделя тоже открывается: только тогда на её дни встают повторяющиеся задачи,
+  // и вердикт считает те же задачи, что видны на Неделе.
+  const thisWeekStart = weeks[weeks.length - 1]
   useEffect(() => {
     loadWeek(lastWeek)
-  }, [loadWeek, lastWeek])
+    loadWeek(thisWeekStart)
+  }, [loadWeek, lastWeek, thisWeekStart])
 
   const [history, setHistory] = useState<History | 'error' | null>(null)
   const [attempt, setAttempt] = useState(0)
@@ -103,7 +108,9 @@ export function Stats() {
 
   const habitsLoading = habitsStore.status === 'loading'
   // Экран появляется целиком, когда готово всё: по частям он дёргался бы.
-  if (history === null || habitsLoading) {
+  const weekState = planner.weekStatus[thisWeekStart]
+  const weekLoading = weekState === undefined || weekState === 'loading'
+  if (history === null || habitsLoading || weekLoading) {
     return (
       <>
         <PageHeader title="Итоги" help="stats" backTo=".." backAlways />
@@ -112,7 +119,22 @@ export function Stats() {
     )
   }
 
-  const summary = summarizeWeeks(history.tasks, history.goals, weeks)
+  // Прошлые недели берутся из истории, текущая из общего хранилища (если она загрузилась):
+  // в нём уже стоят повторяющиеся задачи этой недели.
+  const live = weekState === 'ready'
+  const allTasks = live
+    ? [
+        ...history.tasks.filter((task) => task.date < thisWeekStart),
+        ...planner.tasks.filter((task) => task.date >= thisWeekStart),
+      ]
+    : history.tasks
+  const allGoals = live
+    ? [
+        ...history.goals.filter((goal) => goal.weekStart < thisWeekStart),
+        ...planner.goals.filter((goal) => goal.weekStart >= thisWeekStart),
+      ]
+    : history.goals
+  const summary = summarizeWeeks(allTasks, allGoals, weeks)
   const hasTasks = summary.some((week) => week.total > 0)
 
   // Настроение недели: по доле выполненных задач текущей недели.
@@ -146,7 +168,7 @@ export function Stats() {
   const hasRecap = recap.total > 0 || recap.goalsTotal > 0 || recapMoods.length > 0 || Boolean(recapNote)
 
   // Что видно по настроению за последние 30 дней. Пока отметок мало, выводов нет.
-  const insights = moods ? moodInsights(moods, history.tasks, today, MOOD_DAYS) : null
+  const insights = moods ? moodInsights(moods, allTasks, today, MOOD_DAYS) : null
 
   return (
     <>

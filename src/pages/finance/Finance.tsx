@@ -23,6 +23,7 @@ import {
   formatMoney,
   formatMonth,
   formatPeriod,
+  isOnce,
   itemsFor,
   KINDS,
   monthOf,
@@ -257,7 +258,10 @@ export function Finance() {
                                   aria-label={`Изменить: ${item.title}, ${formatMoney(item.amount)}`}
                                   onClick={() => setEditing(item)}
                                 >
-                                  <span className={styles.title}>{item.title}</span>
+                                  <span className={styles.title}>
+                                    {item.title}
+                                    {isOnce(item) && <span className={`t-caption ${styles.once}`}>разово</span>}
+                                  </span>
                                   <span className={styles.sum}>{formatMoney(item.amount)}</span>
                                 </button>
                               </li>

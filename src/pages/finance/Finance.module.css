@@ -186,6 +186,13 @@
   overflow-wrap: anywhere;
 }
 
+/* Пометка разовой строки: в следующем месяце её уже не будет. */
+.once {
+  margin-left: var(--space-sm);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
 .sum {
   flex: none;
   white-space: nowrap;

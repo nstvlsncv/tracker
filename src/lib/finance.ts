@@ -166,6 +166,9 @@ export function itemsFor(items: FinanceItem[], month: string): FinanceItem[] {
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
 }
 
+/** Разовая строка: живёт один месяц и дальше не повторяется. */
+export const isOnce = (item: FinanceItem) => item.endMonth === item.startMonth
+
 /** Ключ отметки в наборе: строка и месяц. */
 export const checkKey = (itemId: string, month: string) => `${itemId}:${month}`
 

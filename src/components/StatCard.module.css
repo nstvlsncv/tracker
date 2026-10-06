@@ -3,7 +3,9 @@
   flex: 1;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* Содержимое прижато к верху: в ряду, где у одной карточки подпись в две строки,
+     числа всё равно стоят на одной линии. */
+  justify-content: flex-start;
   gap: var(--space-xs);
   min-width: 0;
   padding: var(--space-lg) var(--space-md);

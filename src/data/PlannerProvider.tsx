@@ -487,6 +487,60 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
           },
         })
       },
+
+      copyWeek: (from, to) => {
+        const days = Math.round((Date.parse(to) - Date.parse(from)) / 86_400_000)
+        const stamp = Date.now()
+        // Время создания идёт по порядку исходных строк: копии стоят в том же порядке.
+        const fresh = (index: number) => ({
+          id: newId(),
+          isDone: false,
+          doneAt: null,
+          createdAt: new Date(stamp + index).toISOString(),
+        })
+        const byCreated = (a: { createdAt: string }, b: { createdAt: string }) =>
+          a.createdAt.localeCompare(b.createdAt)
+        const newGoals: Goal[] = latest.current.goals
+          .filter((goal) => goal.weekStart === from)
+          .sort(byCreated)
+          .map((goal, index) => ({ ...fresh(index), weekStart: to, title: goal.title }))
+        const newTasks: Task[] = latest.current.tasks
+          .filter((task) => weekStartISO(task.date) === from && !task.ruleId)
+          .sort(byCreated)
+          .map((task, index) => ({
+            ...fresh(newGoals.length + index),
+            date: shiftDate(task.date, days),
+            title: task.title,
+          }))
+        if (newGoals.length + newTasks.length === 0) return
+        const goalIds = new Set(newGoals.map((goal) => goal.id))
+        const taskIds = new Set(newTasks.map((task) => task.id))
+        const drop = () => {
+          setGoals((current) => current.filter((goal) => !goalIds.has(goal.id)))
+          setTasks((current) => current.filter((task) => !taskIds.has(task.id)))
+        }
+        setGoals((current) => [...current, ...newGoals])
+        setTasks((current) => [...current, ...newTasks])
+        save(
+          Promise.all([...newGoals.map(api.insertGoal), ...newTasks.map(api.insertTask)]).then(() => {}),
+          drop,
+        )
+        toast({
+          message: 'Прошлая неделя скопирована',
+          duration: UNDO_TOAST_DURATION_MS,
+          action: {
+            label: 'Отменить',
+            onClick: () => {
+              drop()
+              // Не удалилось: копии останутся в базе и вернутся при следующем открытии недели.
+              Promise.all([
+                ...newGoals.map((goal) => api.deleteGoal(goal.id)),
+                ...newTasks.map((task) => api.deleteTask(task.id)),
+              ]).catch(() => toast({ message: SAVE_ERROR_MESSAGE }))
+            },
+          },
+        })
+      },
     }
     return actions
   }, [api, tasks, goals, weekStatus, storedWeeks, notes, rules, moods, loadWeek, fillFromRules, save, toast])

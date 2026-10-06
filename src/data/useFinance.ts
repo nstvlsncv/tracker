@@ -4,7 +4,14 @@ import type { FinanceDay, FinanceItem, FinanceKind, FinanceStage } from './finan
 /** unavailable: финансов в этой базе нет (не применена свежая схема). */
 export type FinanceStatus = 'loading' | 'ready' | 'error' | 'unavailable'
 
-export type NewFinanceItem = { stage: FinanceStage; kind: FinanceKind; title: string; amount: number }
+export type NewFinanceItem = {
+  stage: FinanceStage
+  kind: FinanceKind
+  title: string
+  amount: number
+  /** Разовая строка: только в месяце, в котором её добавили, дальше не повторяется. */
+  once?: boolean
+}
 
 export type FinanceValue = {
   status: FinanceStatus
@@ -17,7 +24,7 @@ export type FinanceValue = {
   /** Повторить загрузку после ошибки. */
   reload: () => void
 
-  /** Добавить строку с месяца `month` и дальше. */
+  /** Добавить строку с месяца `month` и дальше (разовую: только в этом месяце). */
   addItem: (item: NewFinanceItem, month: string) => void
   /** Изменить название и сумму с месяца `month` и дальше. Прошлые месяцы остаются как были. */
   editItem: (id: string, month: string, title: string, amount: number) => void

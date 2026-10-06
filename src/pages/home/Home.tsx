@@ -40,6 +40,8 @@ import { InstallBanner } from './InstallBanner'
 import styles from './Home.module.css'
 
 const NO_CHECKS: ReadonlySet<string> = new Set()
+/** С какого часа Главная напоминает о привычках, которые сегодня ещё не отмечены. */
+const REMIND_FROM_HOUR = 18
 
 /**
  * Главная: где я сегодня и что осталось сделать. Сверху приветствие и показатели дня,
@@ -90,6 +92,7 @@ export function Home() {
     (a, b) => Number(checksOf(a.id).has(today)) - Number(checksOf(b.id).has(today)),
   )
 
+  const pendingHabits = habits.filter((habit) => !checksOf(habit.id).has(today))
   const allHabitsDone = habits.length > 0 && habitsDoneToday === habits.length
   // Не закрытое за последние семь дней: можно одним нажатием перенести на сегодня.
   // Повторяющиеся задачи не в счёт: у них и так есть своя задача на сегодня.
@@ -177,6 +180,21 @@ export function Home() {
         </section>
       )}
 
+      {/* Вечером: привычки, которые сегодня ещё ждут отметки. Пропадает, когда всё отмечено. */}
+      {habitsReady && now.getHours() >= REMIND_FROM_HOUR && pendingHabits.length > 0 && (
+        <section className={styles.welcome}>
+          <Mascot size={48} interactive={false} still />
+          <div className={styles.summaryText}>
+            <h2 className="t-heading-5">
+              Сегодня ещё{' '}
+              {pluralize(pendingHabits.length, 'не отмечена', 'не отмечены', 'не отмечено')}{' '}
+              {pendingHabits.length} {pluralize(pendingHabits.length, 'привычка', 'привычки', 'привычек')}
+            </h2>
+            <p className={styles.summaryHint}>{pendingHabits.map((habit) => habit.title).join(', ')}</p>
+          </div>
+        </section>
+      )}
+
       {/* На телефоне: как добавить иконку трекера на экран. В демо для гостей не нужно. */}
       {!demo && <InstallBanner />}
 
@@ -202,6 +220,17 @@ export function Home() {
           label="привычки"
         />
       </div>
+
+      {/* «Итогов» в меню нет: в них попадают отсюда. */}
+      <section className={styles.summary}>
+        <div className={styles.summaryText}>
+          <h2 className="t-heading-5">Итоги</h2>
+          <p className={styles.summaryHint}>Как шли задачи, цели и привычки за последние недели</p>
+        </div>
+        <Link to="stats" relative="path" className={buttonClassName({ variant: 'secondary' })}>
+          Смотреть итоги
+        </Link>
+      </section>
 
       <Section
         title="Цели недели"
@@ -354,17 +383,6 @@ export function Home() {
           />
         </section>
       )}
-
-      {/* «Итогов» в меню нет: в них попадают отсюда. */}
-      <section className={styles.summary}>
-        <div className={styles.summaryText}>
-          <h2 className="t-heading-5">Итоги</h2>
-          <p className={styles.summaryHint}>Как шли задачи, цели и привычки за последние недели</p>
-        </div>
-        <Link to="stats" relative="path" className={buttonClassName({ variant: 'secondary' })}>
-          Смотреть итоги
-        </Link>
-      </section>
 
       {adding === 'habit' && (
         <HabitModal

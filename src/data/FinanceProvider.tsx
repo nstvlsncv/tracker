@@ -88,12 +88,13 @@ export function FinanceProvider({ api, children }: { api: FinanceApi; children: 
       days: data.days,
       reload,
 
-      addItem: (fields, month) => {
+      addItem: ({ once, ...fields }, month) => {
         const item: FinanceItem = {
           ...fields,
           id: newId(),
           startMonth: month,
-          endMonth: null,
+          // Разовая строка заканчивается тем же месяцем, в котором началась.
+          endMonth: once ? month : null,
           createdAt: new Date().toISOString(),
         }
         const state = latest.current

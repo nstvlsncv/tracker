@@ -8,8 +8,20 @@
   /* Модалка стоит на 120px ниже верхнего края экрана. */
   padding: 120px var(--space-2xl) var(--space-xl);
   overflow-y: auto;
-  background: var(--effects-overlay);
+  /* У края прокрутка не пружинит и не передаётся странице под модалкой. */
+  overscroll-behavior: none;
   animation: fade 150ms ease-out;
+}
+
+/* Затемнение лежит отдельным неподвижным слоем, а не фоном прокручиваемой подложки:
+   фон прокручиваемого блока браузер двигает вместе с содержимым, и когда прокрутка
+   пружинила у края, внизу экрана открывалась незатемнённая полоса. */
+.overlay::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--effects-overlay);
 }
 
 .dialog {

@@ -7,6 +7,7 @@ import { Button } from '../../components/Button'
 import { CalendarPicker } from '../../components/CalendarPicker'
 import { ItemList } from '../../components/ItemList'
 import { Kbd } from '../../components/Kbd'
+import { Mascot } from '../../components/Mascot'
 import { PageLoader } from '../../components/PageLoader'
 import { Section } from '../../components/Section'
 import { StatCard } from '../../components/StatCard'
@@ -69,9 +70,11 @@ export function Week() {
 
   // На текущей неделе нужны и цели прошлой: невыполненные можно перенести сюда.
   const previousWeek = weekStart === currentWeek ? shiftDate(currentWeek, -7) : null
+  // Неделя перед открытой: пустую текущую или будущую неделю можно начать с её копии.
+  const sourceWeek = weekStart && weekStart >= currentWeek ? shiftDate(weekStart, -7) : null
   useEffect(() => {
-    if (previousWeek) loadWeek(previousWeek)
-  }, [previousWeek, loadWeek])
+    if (sourceWeek) loadWeek(sourceWeek)
+  }, [sourceWeek, loadWeek])
 
   // Ряд дней открывается там, где его оставили. Если неделю ещё не листали,
   // текущая неделя открывается прокрученной к сегодняшнему дню.
@@ -90,6 +93,12 @@ export function Week() {
   const tasks = planner.tasks.filter((task) => weekStartISO(task.date) === weekStart)
   const goals = planner.goals.filter((goal) => goal.weekStart === weekStart)
   const leftGoals = planner.goals.filter((goal) => goal.weekStart === previousWeek && !goal.isDone)
+  // Пустая неделя: ни целей, ни своих задач. Повторяющиеся не в счёт, они встают сами.
+  const empty = goals.length === 0 && tasks.every((task) => task.ruleId)
+  const sourceGoals = planner.goals.filter((goal) => goal.weekStart === sourceWeek).length
+  const sourceTasks = planner.tasks.filter(
+    (task) => !task.ruleId && sourceWeek !== null && weekStartISO(task.date) === sourceWeek,
+  ).length
 
   const weekLabel = formatWeekRange(parseISO(weekStart), {
     year: !weekStart.startsWith(today.slice(0, 4)),
@@ -179,6 +188,33 @@ export function Week() {
         <PageLoader />
       ) : (
         <>
+          {/* Пустая текущая или будущая неделя: с чего начать и копия прошлой недели. */}
+          {empty && sourceWeek && (
+            <section className={styles.start}>
+              <Mascot size={48} mood="happy" interactive={false} still />
+              <div className={styles.startText}>
+                <h2 className="t-heading-5">Неделя пока пустая</h2>
+                <p className={styles.startHint}>
+                  {sourceGoals + sourceTasks > 0
+                    ? `Поставь 1–3 цели и разложи задачи по дням. Или возьми за основу прошлую неделю: ${[
+                        sourceGoals > 0 &&
+                          `${sourceGoals} ${pluralize(sourceGoals, 'цель', 'цели', 'целей')}`,
+                        sourceTasks > 0 &&
+                          `${sourceTasks} ${pluralize(sourceTasks, 'задача', 'задачи', 'задач')}`,
+                      ]
+                        .filter(Boolean)
+                        .join(' и ')} встанут на те же дни`
+                    : 'Поставь 1–3 цели и разложи задачи по дням: кнопка «Добавить задачу» есть в каждом дне'}
+                </p>
+              </div>
+              {sourceGoals + sourceTasks > 0 && (
+                <Button variant="secondary" onClick={() => planner.copyWeek(sourceWeek, weekStart)}>
+                  Скопировать прошлую неделю
+                </Button>
+              )}
+            </section>
+          )}
+
           <Section title="Цели недели">
             {goals.length > 0 ? (
               <ItemList
@@ -209,6 +245,25 @@ export function Week() {
             )}
           </Section>
 
+          <div className={styles.stats}>
+            <StatCard value={stats.total} label="всего задач" />
+            <StatCard value={stats.done} label="выполнено" />
+            <StatCard value={stats.remaining} label="осталось" />
+            <StatCard
+             
+              value={stats.averageProgress !== null ? `${stats.averageProgress}%` : '—'}
+              label="ср. прогресс"
+            />
+            <StatCard
+             
+              value={
+                stats.productiveDay ? formatWeekdayShort(parseISO(stats.productiveDay)) : '—'
+              }
+              label="лучший день"
+            />
+            <StatCard value={stats.goalsDone} label="вып. целей" />
+          </div>
+
           {/* Обёртка нужна сетке: число столбцов зависит от её ширины, а не от ширины окна. */}
           <div className={styles.board}>
             <div
@@ -232,25 +287,6 @@ export function Week() {
           </div>
 
           {phone && note}
-
-          <div className={styles.stats}>
-            <StatCard value={stats.total} label="всего задач" />
-            <StatCard value={stats.done} label="выполнено" />
-            <StatCard value={stats.remaining} label="осталось" />
-            <StatCard
-             
-              value={stats.averageProgress !== null ? `${stats.averageProgress}%` : '—'}
-              label="ср. прогресс"
-            />
-            <StatCard
-             
-              value={
-                stats.productiveDay ? formatWeekdayShort(parseISO(stats.productiveDay)) : '—'
-              }
-              label="лучший день"
-            />
-            <StatCard value={stats.goalsDone} label="вып. целей" />
-          </div>
         </>
       )}
     </>

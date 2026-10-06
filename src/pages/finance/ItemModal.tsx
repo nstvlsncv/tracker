@@ -9,7 +9,7 @@ import { Modal } from '../../components/Modal'
 import type { FinanceItem, FinanceKind, FinanceStage } from '../../data/finance'
 import type { NewFinanceItem } from '../../data/useFinance'
 import { HABIT_TITLE_MAX_LENGTH } from '../../lib/constants'
-import { amountToInput, KINDS, parseAmount, STAGES } from '../../lib/finance'
+import { amountToInput, isOnce, KINDS, parseAmount, STAGES } from '../../lib/finance'
 import styles from './Finance.module.css'
 
 type Props = {
@@ -27,10 +27,14 @@ type Props = {
 }
 
 const KIND_OPTIONS = KINDS.map(({ value, one }) => ({ value, label: one }))
+const REPEAT_OPTIONS = [
+  { value: 'monthly', label: 'Каждый месяц' },
+  { value: 'once', label: 'Только в этом месяце' },
+]
 
 /**
  * Модалка строки этапа: поступление, платёж или накопление. У новой строки выбирается,
- * что это и в каком этапе; у готовой меняются только название и сумма.
+ * что это, в каком этапе и повторяется ли она; у готовой меняются только название и сумма.
  */
 export function ItemModal({ item, month, onClose, onSave, onDelete, ...start }: Props) {
   const formId = useId()
@@ -40,6 +44,8 @@ export function ItemModal({ item, month, onClose, onSave, onDelete, ...start }: 
   const [amount, setAmount] = useState(item ? amountToInput(item.amount) : '')
   const [titleError, setTitleError] = useState<string>()
   const [amountError, setAmountError] = useState<string>()
+  const [repeat, setRepeat] = useState(item && isOnce(item) ? 'once' : 'monthly')
+  const once = repeat === 'once'
   const one = KINDS.find((option) => option.value === kind)!.one.toLowerCase()
 
   const submit = (event: FormEvent) => {
@@ -49,7 +55,7 @@ export function ItemModal({ item, month, onClose, onSave, onDelete, ...start }: 
     if (!trimmed) setTitleError('Напиши название')
     if (parsed === null) setAmountError('Нужна сумма цифрами, например 15 000')
     if (!trimmed || parsed === null) return
-    onSave({ kind, stage, title: trimmed, amount: parsed })
+    onSave({ kind, stage, title: trimmed, amount: parsed, once })
   }
 
   return (
@@ -86,6 +92,13 @@ export function ItemModal({ item, month, onClose, onSave, onDelete, ...start }: 
               options={KIND_OPTIONS}
             />
             <Dropdown label="Этап" aria-label="Этап" value={stage} onChange={setStage} options={STAGES} />
+            <Dropdown
+              label="Повтор"
+              aria-label="Повтор"
+              value={repeat}
+              onChange={setRepeat}
+              options={REPEAT_OPTIONS}
+            />
           </>
         )}
         <Input
@@ -103,7 +116,11 @@ export function ItemModal({ item, month, onClose, onSave, onDelete, ...start }: 
           inputMode="decimal"
           value={amount}
           error={amountError}
-          hint={`Действует с ${format(parseISO(`${month}-01`), 'MMMM', { locale: ru })} и дальше, прошлые месяцы не меняются`}
+          hint={
+            once
+              ? 'Разовая строка: только в этом месяце, дальше не повторяется'
+              : `Действует с ${format(parseISO(`${month}-01`), 'MMMM', { locale: ru })} и дальше, прошлые месяцы не меняются`
+          }
           onChange={(event) => {
             setAmount(event.target.value)
             setAmountError(undefined)

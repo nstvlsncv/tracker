@@ -2,8 +2,10 @@
 import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router'
-import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { ToastProvider } from '../components/Toast'
+import { toISODate, toWeekParam, weekStartISO } from '../lib/dates'
+import { shiftDate } from '../lib/metrics'
 import { DevPreview } from './DevPreview'
 
 // Сквозные проверки главных сценариев на демо-данных в памяти: трекер открывается целиком,
@@ -35,7 +37,10 @@ beforeAll(() => {
     ({ finished: Promise.resolve(), cancel() {}, onfinish: null }) as unknown as Animation
 })
 
-afterEach(cleanup)
+afterEach(() => {
+  cleanup()
+  vi.useRealTimers()
+})
 
 function openTracker(path = '') {
   render(
@@ -111,6 +116,40 @@ describe('трекер на демо-данных', () => {
     expect(await within(stage).findByRole('button', { name: /^Изменить: Страховка, 1.500/ })).toBeTruthy()
     await user.click(within(stage).getByRole('checkbox', { name: 'Отметить: Страховка' }))
     expect(await within(stage).findByRole('checkbox', { name: 'Снять отметку: Страховка' })).toBeTruthy()
+  })
+
+  it('Неделя: пустую неделю можно начать с копии прошлой', async () => {
+    const nextWeek = shiftDate(weekStartISO(toISODate(new Date())), 7)
+    const user = openTracker(`/week/${toWeekParam(nextWeek)}`)
+
+    expect(await screen.findByRole('heading', { name: 'Неделя пока пустая' })).toBeTruthy()
+    await user.click(screen.getByRole('button', { name: 'Скопировать прошлую неделю' }))
+
+    expect(await screen.findByText('Прошлая неделя скопирована')).toBeTruthy()
+    // Цели текущей недели встали в следующую, плашка пустой недели ушла.
+    expect(await screen.findByText('Три тренировки')).toBeTruthy()
+    expect(screen.queryByRole('heading', { name: 'Неделя пока пустая' })).toBeNull()
+  })
+
+  it('Главная: вечером напоминает о неотмеченных привычках', async () => {
+    const evening = new Date()
+    evening.setHours(20, 0, 0, 0)
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(evening)
+    openTracker()
+
+    expect(await screen.findByRole('heading', { name: /^Сегодня ещё не отмечен/ })).toBeTruthy()
+  })
+
+  it('Главная: днём о привычках не напоминает', async () => {
+    const noon = new Date()
+    noon.setHours(12, 0, 0, 0)
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(noon)
+    openTracker()
+
+    await screen.findByRole('heading', { name: 'Привычки сегодня' })
+    expect(screen.queryByRole('heading', { name: /^Сегодня ещё не отмечен/ })).toBeNull()
   })
 
   it('Справка раздела открывается кнопкой у названия', async () => {

@@ -1,14 +1,5 @@
 import { isNetworkError, supabase } from '../lib/supabase'
 
-/** Сессия: одно устройство или браузер, где выполнен вход. */
-export type AccountSession = {
-  id: string
-  userAgent: string | null
-  /** Когда сессией пользовались последний раз, ISO-строка. */
-  lastActiveAt: string
-  current: boolean
-}
-
 /** Пароль не подошёл либо новый пароль совпал со старым. Остальные ошибки бросаются. */
 export type PasswordResult = 'ok' | 'wrong-password' | 'same-password'
 
@@ -27,9 +18,6 @@ export type AccountApi = {
   removeAvatar: () => Promise<void>
   /** Меняет пароль и завершает все остальные сессии. */
   changePassword: (current: string, next: string) => Promise<PasswordResult>
-  listSessions: () => Promise<AccountSession[]>
-  endSession: (id: string) => Promise<void>
-  endOtherSessions: () => Promise<void>
   /** Удаляет аккаунт со всеми данными и выходит. */
   deleteAccount: (password: string) => Promise<PasswordResult>
 }
@@ -37,13 +25,6 @@ export type AccountApi = {
 type Options = {
   userId: string
   email: string
-}
-
-type SessionRow = {
-  id: string
-  user_agent: string | null
-  last_active_at: string
-  is_current: boolean
 }
 
 /** Проверка текущего пароля: повторный вход с ним. false: пароль не подошёл. */
@@ -111,27 +92,6 @@ export function createSupabaseAccount({ userId, email }: Options): AccountApi {
         .eq('id', userId)
       await supabase.auth.signOut({ scope: 'others' })
       return 'ok'
-    },
-
-    async listSessions() {
-      const { data, error } = await supabase.rpc('list_sessions')
-      if (error) throw error
-      return (data as SessionRow[]).map((row) => ({
-        id: row.id,
-        userAgent: row.user_agent,
-        lastActiveAt: row.last_active_at,
-        current: row.is_current,
-      }))
-    },
-
-    async endSession(id) {
-      const { error } = await supabase.rpc('end_session', { target: id })
-      if (error) throw error
-    },
-
-    async endOtherSessions() {
-      const { error } = await supabase.auth.signOut({ scope: 'others' })
-      if (error) throw error
     },
 
     async deleteAccount(password) {

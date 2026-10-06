@@ -17,6 +17,45 @@
   color: var(--text-tertiary);
 }
 
+/* Пустая неделя: маскот, пара строк и кнопка копирования прошлой недели.
+   Та же плашка, что «С чего начать» на Главной. */
+.start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+.startText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 240px;
+}
+
+.startText h2,
+.startHint {
+  margin: 0;
+}
+
+.startHint {
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 640px) {
+  .start {
+    padding: var(--space-md);
+  }
+
+  .startText {
+    min-width: 0;
+  }
+}
+
 /* Подсказки на месте пустых списков: цветом плейсхолдера. */
 .placeholder {
   color: var(--text-placeholder);
@@ -37,7 +76,7 @@
 
 /* Дни стоят сеткой: вся неделя видна сразу, прокрутка только вниз. Число столбцов зависит
    от ширины самого блока (меню может быть свёрнуто), поэтому обёртка объявлена контейнером.
-   Ряд растёт по самому длинному дню. Свободное место после воскресенья занимает заметка недели. */
+   Ряд растёт по самому длинному дню. Место после воскресенья занимает заметка недели. */
 .board {
   container-type: inline-size;
 }
@@ -69,9 +108,9 @@
   flex-grow: 1;
 }
 
-/* Пороги подобраны так, чтобы карточка не становилась уже 255px: иначе кнопка
-   «Добавить задачу» в ней не помещается.
-   Три столбца: 3 + 3 + воскресенье, заметка занимает два оставшихся места. */
+/* Три столбца: пн–ср, чт–сб, в последнем ряду воскресенье и заметка на два оставшихся места.
+   В блоке уже 800px карточка стала бы уже 255px, и кнопка «Добавить задачу» в ней
+   не поместилась бы: там остаётся два столбца. */
 @container (min-width: 800px) {
   .days {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -79,17 +118,6 @@
 
   .noteCell {
     grid-column: span 2;
-  }
-}
-
-/* Четыре столбца: 4 + 3, заметка восьмой ячейкой. */
-@container (min-width: 1064px) {
-  .days {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .noteCell {
-    grid-column: span 1;
   }
 }
 

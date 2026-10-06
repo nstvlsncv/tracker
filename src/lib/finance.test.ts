@@ -8,6 +8,7 @@ import {
   formatMoney,
   formatMonth,
   formatPeriod,
+  isOnce,
   itemsFor,
   monthOptions,
   parseAmount,
@@ -136,6 +137,15 @@ describe('строки и итоги', () => {
     expect(itemsFor(items, '2026-10').map((row) => row.id)).not.toContain('old')
     expect(itemsFor(items, '2026-10').map((row) => row.id)).not.toContain('future')
     expect(itemsFor(items, '2026-09').map((row) => row.id)).toContain('old')
+  })
+
+  it('разовая строка действует один месяц и дальше не повторяется', () => {
+    const gift = item('gift', 'bill', 3000, { startMonth: '2026-10', endMonth: '2026-10' })
+    expect(isOnce(gift)).toBe(true)
+    expect(isOnce(item('rent2', 'bill', 1))).toBe(false)
+    expect(itemsFor([gift], '2026-10')).toHaveLength(1)
+    expect(itemsFor([gift], '2026-11')).toHaveLength(0)
+    expect(itemsFor([gift], '2026-09')).toHaveLength(0)
   })
 
   it('свободно: поступления минус все платежи и накопления; оплатить: неотмеченные', () => {

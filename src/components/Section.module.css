@@ -16,6 +16,15 @@
   gap: var(--space-md);
 }
 
+/* Заголовок уступает место кнопке справа и переносится, кнопка остаётся целой. */
+.header > h2 {
+  min-width: 0;
+}
+
+.header > :not(h2) {
+  flex: none;
+}
+
 @media (max-width: 640px) {
   .section {
     padding: var(--space-md);

@@ -153,7 +153,7 @@ export function Habits() {
       {store.status === 'ready' && store.archived.length > 0 && (
         <div>
           <Button
-            variant="ghost"
+            variant="secondary"
             aria-expanded={archiveOpen}
             onClick={() => setArchiveOpen(!archiveOpen)}
           >

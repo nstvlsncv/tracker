@@ -4,7 +4,6 @@ import {
   ChatCircleDots,
   Check,
   ClockCounterClockwise,
-  Devices,
   LockKey,
   Moon,
   Palette,
@@ -36,7 +35,6 @@ import { AccountSection } from './profile/AccountSection'
 import { DangerZone } from './profile/DangerZone'
 import { HelpSection } from './profile/HelpSection'
 import { PasswordSection } from './profile/PasswordSection'
-import { SessionsSection } from './profile/SessionsSection'
 import { useAccount } from './profile/useAccount'
 import { useAvatar } from './profile/useAvatar'
 import styles from './Profile.module.css'
@@ -57,7 +55,7 @@ type Item = {
 /**
  * Профиль устроен как настройки в Телеграме: слева шапка с фото и список пунктов, справа
  * содержимое выбранного. На телефоне это две ступени: сначала список, по нажатию один пункт
- * со стрелкой «назад». Какой пункт открыт, записано в адресе (/profile/sessions).
+ * со стрелкой «назад». Какой пункт открыт, записано в адресе (/profile/password).
  */
 export function Profile() {
   const { section } = useParams()
@@ -80,20 +78,13 @@ export function Profile() {
         </>
       ),
     },
-    { id: 'appearance', label: 'Оформление', icon: Palette, render: () => <Appearance /> },
     ...(demo
       ? []
       : [{ id: 'password', label: 'Пароль', icon: LockKey, render: () => <PasswordSection /> }]),
-    {
-      id: 'sessions',
-      label: 'Сессии',
-      icon: Devices,
-      // После смены пароля другие сессии завершаются: список перечитывается заново.
-      render: () => <SessionsSection key={profile?.passwordChangedAt} />,
-    },
-    { id: 'releases', label: 'История версий', icon: ClockCounterClockwise, render: () => <Releases /> },
+    { id: 'appearance', label: 'Оформление', icon: Palette, render: () => <Appearance /> },
     { id: 'help', label: 'Помощь', icon: Question, render: () => <HelpSection /> },
     { id: 'feedback', label: 'Обратная связь', icon: ChatCircleDots, render: () => <Feedback /> },
+    { id: 'releases', label: 'История версий', icon: ClockCounterClockwise, render: () => <Releases /> },
   ]
 
   const opened = items.find((item) => item.id === section)
