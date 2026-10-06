@@ -1,0 +1,162 @@
+/* Знакомство с трекером: окно поверх приложения. На компьютере и планшете карточка
+   по центру, на телефоне во весь экран, как сторис. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  overflow-y: auto;
+  overscroll-behavior: none;
+  background: var(--effects-overlay);
+  animation: fade 200ms ease-out;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  width: 480px;
+  max-width: 100%;
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-modal);
+  outline: none;
+  animation: rise 240ms ease-out;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+/* Полоски слайдов: сколько их всего и где мы сейчас. */
+.bars {
+  display: flex;
+  flex: 1;
+  gap: var(--space-xs);
+}
+
+.bar {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: var(--bg-tertiary);
+  transition: background-color var(--transition-fast);
+}
+
+.barOn {
+  background: var(--accent-default);
+}
+
+/* Сцена слайда: серая плашка постоянной высоты, чтобы при листании ничего не прыгало. */
+.stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 260px;
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+  animation: slide-in 260ms ease-out;
+}
+
+/* Сцена раскладывается в своей обычной ширине и целиком увеличивается или уменьшается
+   под плашку (множитель считает Onboarding.tsx): сцены разного размера, а плашка
+   на каждом экране своя. */
+.fit {
+  flex: none;
+}
+
+/* Высота под самый длинный текст: кнопки под ним не скачут от слайда к слайду. */
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-height: 132px;
+  animation: slide-in 260ms ease-out;
+}
+
+.text h2,
+.hint {
+  margin: 0;
+}
+
+.hint {
+  color: var(--text-secondary);
+}
+
+.buttons {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* «Дальше» занимает всё свободное место: это главное действие слайда. */
+.next {
+  flex: 1;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+/* Телефон: знакомство во весь экран, сцена тянется, кнопки прижаты к низу. */
+@media (max-width: 640px) {
+  .overlay {
+    padding: 0;
+    background: var(--bg-surface);
+  }
+
+  .card {
+    width: 100%;
+    min-height: 100dvh;
+    padding: var(--space-md) var(--space-md) calc(var(--space-md) + env(safe-area-inset-bottom));
+    border-radius: 0;
+    box-shadow: none;
+    animation: none;
+  }
+
+  .stage {
+    flex: 1;
+    min-height: 240px;
+  }
+
+  .text {
+    min-height: 140px;
+  }
+
+  /* «Назад» узкая, «Дальше» на всё остальное. */
+  .buttons > button:not(.next) {
+    flex: none;
+    width: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .card,
+  .stage,
+  .text {
+    animation: none;
+  }
+}

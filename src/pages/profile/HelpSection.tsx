@@ -1,7 +1,9 @@
+import { Button } from '../../components/Button'
 import { HelpText, InstallSteps } from '../../components/Help'
 import helpStyles from '../../components/Help.module.css'
 import { Section } from '../../components/Section'
 import { HELP, HELP_ORDER, HOTKEYS } from '../../data/help'
+import { showOnboarding } from '../../lib/onboarding'
 
 /**
  * «Помощь» в Профиле: справка по всем разделам сразу (та же, что открывается кнопкой
@@ -10,6 +12,14 @@ import { HELP, HELP_ORDER, HOTKEYS } from '../../data/help'
 export function HelpSection() {
   return (
     <>
+      <Section title="Знакомство с трекером">
+        <p className={helpStyles.note}>Короткий рассказ о главном: тот, что был при первом входе</p>
+        <div>
+          <Button variant="secondary" onClick={showOnboarding}>
+            Показать ещё раз
+          </Button>
+        </div>
+      </Section>
       {HELP_ORDER.map((topic) => (
         <Section key={topic} title={HELP[topic].title}>
           <HelpText topic={topic} />

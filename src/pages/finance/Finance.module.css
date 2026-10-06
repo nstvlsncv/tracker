@@ -1,18 +1,3 @@
-/* Подпись кнопки в шапке: полная и короткая для планшета. */
-.short {
-  display: none;
-}
-
-@media (min-width: 641px) and (max-width: 1024px) {
-  .full {
-    display: none;
-  }
-
-  .short {
-    display: inline;
-  }
-}
-
 /* Показатели месяца: как на Главной, четыре в ряд, на телефоне в два столбца. */
 .stats {
   display: grid;

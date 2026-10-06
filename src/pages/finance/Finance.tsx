@@ -108,9 +108,7 @@ export function Finance() {
               onClick={addBill}
             >
               <span data-label>
-                {/* На планшете в шапке тесно: рядом с плюсом остаётся одно слово. */}
-                <span className={styles.full}>Добавить платёж</span>
-                <span className={styles.short}>Платёж</span>
+                Добавить платёж
                 <Kbd>N</Kbd>
               </span>
             </Button>

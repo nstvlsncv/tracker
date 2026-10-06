@@ -260,6 +260,54 @@ function MascotScene({ step }: { step: number }) {
   )
 }
 
+export type ReelSceneId = (typeof SCENES)[number]['id']
+
+/** Одна сцена по её имени и шагу. */
+function Scene({ id, step }: { id: ReelSceneId; step: number }) {
+  if (id === 'day') return <DayScene step={step} />
+  if (id === 'week') return <WeekScene step={step} />
+  if (id === 'goals') return <GoalsScene step={step} />
+  if (id === 'repeat') return <RepeatScene step={step} />
+  if (id === 'habits') return <HabitsScene step={step} />
+  if (id === 'mood') return <MoodScene step={step} />
+  if (id === 'finance') return <FinanceScene step={step} />
+  return <MascotScene step={step} />
+}
+
+/** Сколько шагов сцена стоит в конечном виде, прежде чем начаться заново. */
+const REST_STEPS = 4
+
+/**
+ * Одна сцена ролика сама по себе, по кругу: проигрывается, немного стоит в конечном виде
+ * и начинается заново. Нужна слайдам знакомства с трекером (`Onboarding`).
+ * При отключённых в системе анимациях стоит в конечном виде.
+ */
+export function ReelScene({ id }: { id: ReelSceneId }) {
+  const [still] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [time, setTime] = useState(still ? STEPS_PER_SCENE - 1 : 0)
+
+  useEffect(() => {
+    if (still) return
+    const timer = setInterval(() => {
+      if (!document.hidden) setTime((current) => current + 1)
+    }, STEP_MS)
+    return () => clearInterval(timer)
+  }, [still])
+
+  const cycle = STEPS_PER_SCENE + REST_STEPS
+  const loop = Math.floor(time / cycle)
+  const step = Math.min(time % cycle, STEPS_PER_SCENE - 1)
+
+  return (
+    <div className={styles.reel} inert aria-hidden>
+      {/* key: на каждом круге сцена создаётся заново, счётчики и кольцо стартуют с нуля. */}
+      <div key={loop} className={styles.scene} data-reel-scene>
+        <Scene id={id} step={step} />
+      </div>
+    </div>
+  )
+}
+
 /**
  * Шоурил на экране входа: короткий ролик из настоящих деталей трекера, который сам играет
  * по кругу, как видео. Восемь сцен: задачи дня, неделя, цели, повтор и перенос, привычки, настроение, платежи, маскот с цветами и темой.
@@ -297,14 +345,7 @@ export function Showreel({ onThemeFlip }: { onThemeFlip?: (flipped: boolean) => 
       </span>
       {/* key: каждая сцена создаётся заново и проявляется, счётчики и кольцо стартуют с нуля. */}
       <div key={loop} className={styles.scene}>
-        {scene.id === 'day' && <DayScene step={step} />}
-        {scene.id === 'week' && <WeekScene step={step} />}
-        {scene.id === 'goals' && <GoalsScene step={step} />}
-        {scene.id === 'repeat' && <RepeatScene step={step} />}
-        {scene.id === 'habits' && <HabitsScene step={step} />}
-        {scene.id === 'mood' && <MoodScene step={step} />}
-        {scene.id === 'finance' && <FinanceScene step={step} />}
-        {scene.id === 'mascot' && <MascotScene step={step} />}
+        <Scene id={scene.id} step={step} />
       </div>
     </div>
   )

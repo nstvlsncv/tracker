@@ -21,8 +21,9 @@
   width: 300px;
   /* Меню сворачивается и разворачивается плавно. */
   transition: width 220ms cubic-bezier(0.22, 1, 0.36, 1);
-  /* Высота окна минус отступы сверху и снизу. */
-  height: calc(100vh - 2 * var(--page-pad));
+  /* Высота видимой части окна минус отступы сверху и снизу. dvh, а не vh: на планшете vh
+     считает и место под панелями браузера, и меню выходило выше экрана. */
+  height: calc(100dvh - 2 * var(--page-pad));
   padding: var(--space-lg);
   border-radius: var(--radius-xl);
   background: var(--bg-primary);
@@ -338,6 +339,12 @@
     justify-content: center;
     width: 48px;
     padding: 0;
+  }
+
+  /* Места под горячую клавишу здесь нет: пустое, оно своим отступом сдвигало иконку
+     от центра кнопки. */
+  .shortcut {
+    display: none;
   }
 
   /* Сворачивать здесь нечего. */

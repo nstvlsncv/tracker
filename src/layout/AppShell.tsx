@@ -13,11 +13,14 @@ import { useAuth } from '../auth/useAuth'
 import { Avatar } from '../components/Avatar'
 import { Kbd } from '../components/Kbd'
 import { Mascot } from '../components/Mascot'
+import { Onboarding } from '../components/Onboarding'
 import { usePlanner } from '../data/usePlanner'
 import { cx } from '../lib/cx'
 import { takeEntrance } from '../lib/entrance'
 import { emitNewItem, isHotkey } from '../lib/hotkeys'
 import { hasOverdue } from '../lib/metrics'
+import { isOnboarded, markOnboarded, onShowOnboarding } from '../lib/onboarding'
+import { supabase } from '../lib/supabase'
 import { useToday } from '../lib/useToday'
 import { recall, remember } from '../lib/sessionState'
 import { SignOutModal } from './SignOutModal'
@@ -59,7 +62,20 @@ function sectionOf(pathname: string, basePath: string): string {
  */
 export function AppShell({ basePath = '' }: Props) {
   const [leaving, setLeaving] = useState(false)
-  const { profile } = useAuth()
+  const { profile, session, demo } = useAuth()
+  // Знакомство с трекером: при первом входе и по кнопке в «Помощи». В аккаунте пометка о том,
+  // что его уже видели, лежит в данных пользователя (как тема): на новом устройстве оно
+  // не показывается заново. У гостя демо пометка только в браузере.
+  const [onboarding, setOnboarding] = useState(
+    () => !isOnboarded() && !session?.user.user_metadata?.onboarded,
+  )
+  useEffect(() => onShowOnboarding(() => setOnboarding(true)), [])
+  const closeOnboarding = () => {
+    setOnboarding(false)
+    markOnboarded()
+    // Не сохранилось (нет сети): на другом устройстве знакомство покажется ещё раз.
+    if (!demo && session) void supabase.auth.updateUser({ data: { onboarded: true } })
+  }
   // На компьютере меню можно свернуть в полосу с иконками; на планшете оно такое всегда.
   const [collapsed, setCollapsed] = useState(readCollapsed)
   const toggleMenu = () => {
@@ -243,6 +259,7 @@ export function AppShell({ basePath = '' }: Props) {
         <Outlet />
       </main>
       {leaving && <SignOutModal onClose={() => setLeaving(false)} />}
+      {onboarding && <Onboarding onClose={closeOnboarding} />}
     </div>
   )
 }

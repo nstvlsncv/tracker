@@ -13,6 +13,8 @@ import { DevPreview } from './DevPreview'
 // тесты расчётов.
 
 beforeAll(() => {
+  // Знакомство с трекером уже пройдено: иначе оно закрывало бы экран в каждой проверке.
+  localStorage.setItem('tracker.onboarding', 'done')
   // В jsdom нет части браузерных возможностей, на которые рассчитывает интерфейс.
   window.matchMedia = (query: string) =>
     ({
@@ -150,6 +152,22 @@ describe('трекер на демо-данных', () => {
 
     await screen.findByRole('heading', { name: 'Привычки сегодня' })
     expect(screen.queryByRole('heading', { name: /^Сегодня ещё не отмечен/ })).toBeNull()
+  })
+
+  it('Знакомство: показывается при первом входе, листается и закрывается', async () => {
+    localStorage.removeItem('tracker.onboarding')
+    const user = openTracker()
+
+    const dialog = await screen.findByRole('dialog', { name: 'Знакомство с трекером' })
+    expect(within(dialog).getByRole('heading', { name: 'Привет! Это Трекер' })).toBeTruthy()
+    await user.click(within(dialog).getByRole('button', { name: 'Дальше' }))
+    expect(within(dialog).getByRole('heading', { name: 'Вся неделя на виду' })).toBeTruthy()
+    await user.click(within(dialog).getByRole('button', { name: 'Назад' }))
+    expect(within(dialog).getByRole('heading', { name: 'Привет! Это Трекер' })).toBeTruthy()
+    await user.click(within(dialog).getByRole('button', { name: 'Пропустить' }))
+
+    expect(screen.queryByRole('dialog', { name: 'Знакомство с трекером' })).toBeNull()
+    expect(localStorage.getItem('tracker.onboarding')).toBe('done')
   })
 
   it('Справка раздела открывается кнопкой у названия', async () => {
