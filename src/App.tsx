@@ -30,6 +30,9 @@ const Stats = fromWorkspace('Stats')
 const DevPreview = lazy(() => import('./pages/DevPreview').then((m) => ({ default: m.DevPreview })))
 const Showcase = lazy(() => import('./pages/Showcase').then((m) => ({ default: m.Showcase })))
 const OgImage = lazy(() => import('./pages/OgImage').then((m) => ({ default: m.OgImage })))
+// Админка нужна одному человеку: лежит своим куском и остальным не грузится.
+const AdminPage = lazy(() => import('./pages/admin/routes').then((m) => ({ default: m.AdminPage })))
+const AdminPreview = lazy(() => import('./pages/admin/routes').then((m) => ({ default: m.AdminPreview })))
 
 // Кусок с приложением начинает грузиться сразу, не дожидаясь проверки входа: пока она идёт,
 // он уже в пути. Экрану входа это не мешает.
@@ -58,6 +61,7 @@ export default function App() {
                     <Route path="/profile/:section?" element={<Profile />} />
                   </Route>
                 </Route>
+                <Route path="/admin/:section?" element={<AdminPage />} />
               </Route>
               {/* Демо для гостей: настоящий трекер на данных в памяти, без входа и без базы. */}
               <Route path="/demo/*" element={<DevPreview base="/demo" visitor />} />
@@ -65,6 +69,7 @@ export default function App() {
               {import.meta.env.DEV && <Route path="/dev" element={<Showcase />} />}
               {import.meta.env.DEV && <Route path="/dev/og" element={<OgImage />} />}
               {import.meta.env.DEV && <Route path="/dev/app/*" element={<DevPreview />} />}
+              {import.meta.env.DEV && <Route path="/dev/admin/:section?" element={<AdminPreview />} />}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             </Suspense>

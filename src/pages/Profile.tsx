@@ -1,6 +1,7 @@
 import {
   Camera,
   CaretRight,
+  ChartBar,
   ChatCircleDots,
   Check,
   ClockCounterClockwise,
@@ -13,7 +14,7 @@ import {
   UserCircle,
 } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, Navigate, useParams } from 'react-router'
 import { useAuth } from '../auth/useAuth'
@@ -22,6 +23,7 @@ import { Button } from '../components/Button'
 import { buttonClassName } from '../components/buttonStyles'
 import { Section } from '../components/Section'
 import { CHANGELOG } from '../data/changelog'
+import { supabaseAdmin } from '../data/supabaseAdmin'
 import { ACCENTS, setAccent, useAccent } from '../lib/accent'
 import { AUTHOR_URL } from '../lib/constants'
 import { cx } from '../lib/cx'
@@ -64,6 +66,18 @@ export function Profile() {
   const account = useAccount()
   const avatar = useAvatar()
   const [leaving, setLeaving] = useState(false)
+  // Админка видна только тем, кто записан в базе админом. В демо о ней не спрашиваем.
+  const [admin, setAdmin] = useState(false)
+  useEffect(() => {
+    if (demo) return
+    let cancelled = false
+    supabaseAdmin.isAdmin().then((value) => {
+      if (!cancelled) setAdmin(value)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [demo])
 
   const items: Item[] = [
     {
@@ -140,6 +154,14 @@ export function Profile() {
                 <CaretRight className={styles.caret} aria-hidden />
               </Link>
             ))}
+            {/* Отдельный экран со своим видом: открывается вместо трекера, обратно ведёт «В трекер». */}
+            {admin && (
+              <Link to="/admin" className={cx('t-button', styles.item)}>
+                <ChartBar aria-hidden />
+                <span className={styles.label}>Админка</span>
+                <CaretRight className={styles.caret} aria-hidden />
+              </Link>
+            )}
           </nav>
 
           {/* Только на телефоне: в нижней панели кнопки выхода нет. */}

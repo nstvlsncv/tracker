@@ -329,3 +329,196 @@ create policy "own finance days" on public.finance_days for all to authenticated
   using (user_id = (select auth.uid()))
   with check (user_id = (select auth.uid()));
 grant select, insert, update, delete on public.finance_days to authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Админка (/admin): сводная статистика по всем аккаунтам для владелицы трекера.
+-- Кто админ, записано в таблице admins: строку туда добавляют вручную в SQL Editor
+--   insert into public.admins (user_id) select id from auth.users where email = 'логин';
+-- Напрямую таблицу не читает и не меняет никто (политик нет). Данные чужих аккаунтов
+-- отдают только функции ниже, только админу и только числами: сколько задач, привычек,
+-- отметок. Названий задач, заметок и сумм в них нет.
+create table if not exists public.admins (
+  user_id uuid primary key references auth.users on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+alter table public.admins enable row level security;
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+security definer
+stable
+set search_path = ''
+as $$
+  select exists (select 1 from public.admins a where a.user_id = (select auth.uid()));
+$$;
+
+revoke all on function public.is_admin() from public, anon;
+grant execute on function public.is_admin() to authenticated;
+
+-- Все аккаунты: кто, когда появился и заходил, сколько чего завёл.
+create or replace function public.admin_users()
+returns table (
+  id uuid,
+  email text,
+  name text,
+  last_name text,
+  avatar_url text,
+  created_at timestamptz,
+  last_sign_in_at timestamptz,
+  tasks bigint,
+  tasks_done bigint,
+  goals bigint,
+  goals_done bigint,
+  habits bigint,
+  checks bigint,
+  moods bigint,
+  notes bigint,
+  rules bigint,
+  finance_items bigint,
+  last_activity timestamptz,
+  onboarded boolean,
+  theme text,
+  accent text
+)
+language plpgsql
+security definer
+stable
+set search_path = ''
+as $$
+#variable_conflict use_column
+begin
+  if not public.is_admin() then
+    raise exception 'forbidden' using errcode = '42501';
+  end if;
+  return query
+  select
+    u.id,
+    u.email::text,
+    p.name,
+    p.last_name,
+    p.avatar_url,
+    u.created_at,
+    u.last_sign_in_at,
+    -- Задачи из правил повтора встают сами: в счёт идут только заведённые руками и выполненные.
+    (select count(*) from public.tasks t where t.user_id = u.id and (t.rule_id is null or t.is_done)),
+    (select count(*) from public.tasks t where t.user_id = u.id and t.is_done),
+    (select count(*) from public.goals g where g.user_id = u.id),
+    (select count(*) from public.goals g where g.user_id = u.id and g.is_done),
+    (select count(*) from public.habits h where h.user_id = u.id),
+    (select count(*) from public.habit_checks c
+       join public.habits h on h.id = c.habit_id where h.user_id = u.id),
+    (select count(*) from public.day_moods m where m.user_id = u.id),
+    (select count(*) from public.week_notes n where n.user_id = u.id),
+    (select count(*) from public.task_rules r where r.user_id = u.id),
+    (select count(*) from public.finance_items f where f.user_id = u.id),
+    -- Последнее действие в трекере: самое свежее из всего, что человек создавал и отмечал.
+    greatest(
+      (select max(t.created_at) from public.tasks t where t.user_id = u.id and t.rule_id is null),
+      (select max(t.done_at) from public.tasks t where t.user_id = u.id),
+      (select max(g.created_at) from public.goals g where g.user_id = u.id),
+      (select max(g.done_at) from public.goals g where g.user_id = u.id),
+      (select max(h.created_at) from public.habits h where h.user_id = u.id),
+      (select max(m.updated_at) from public.day_moods m where m.user_id = u.id),
+      (select max(n.updated_at) from public.week_notes n where n.user_id = u.id),
+      (select max(f.created_at) from public.finance_items f where f.user_id = u.id)
+    ),
+    coalesce((u.raw_user_meta_data ->> 'onboarded') = 'true', false),
+    u.raw_user_meta_data ->> 'theme',
+    u.raw_user_meta_data ->> 'accent'
+  from auth.users u
+  left join public.profiles p on p.id = u.id
+  order by u.created_at;
+end;
+$$;
+
+revoke all on function public.admin_users() from public, anon;
+grant execute on function public.admin_users() to authenticated;
+
+-- Активность по дням за последние days дней: что создали и отметили, сколько людей заходило по делу.
+create or replace function public.admin_daily(days integer)
+returns table (
+  day date,
+  tasks_created bigint,
+  tasks_done bigint,
+  checks bigint,
+  moods bigint,
+  active_users bigint
+)
+language plpgsql
+security definer
+stable
+set search_path = ''
+as $$
+#variable_conflict use_column
+declare
+  since date := current_date - (least(greatest(days, 1), 366) - 1);
+begin
+  if not public.is_admin() then
+    raise exception 'forbidden' using errcode = '42501';
+  end if;
+  return query
+  with span as (
+    select generate_series(since, current_date, interval '1 day')::date as day
+  ),
+  events as (
+    select t.user_id, t.created_at::date as day, 'created' as kind
+      from public.tasks t where t.rule_id is null and t.created_at >= since
+    union all
+    select t.user_id, t.done_at::date, 'done'
+      from public.tasks t where t.done_at >= since
+    union all
+    select h.user_id, c.date, 'check'
+      from public.habit_checks c join public.habits h on h.id = c.habit_id where c.date >= since
+    union all
+    select m.user_id, m.date, 'mood'
+      from public.day_moods m where m.date >= since
+  )
+  select
+    span.day,
+    count(*) filter (where events.kind = 'created'),
+    count(*) filter (where events.kind = 'done'),
+    count(*) filter (where events.kind = 'check'),
+    count(*) filter (where events.kind = 'mood'),
+    count(distinct events.user_id)
+  from span
+  left join events on events.day = span.day
+  group by span.day
+  order by span.day;
+end;
+$$;
+
+revoke all on function public.admin_daily(integer) from public, anon;
+grant execute on function public.admin_daily(integer) to authenticated;
+
+-- Сколько строк в каждой таблице трекера: для страницы «Состояние».
+create or replace function public.admin_tables()
+returns table (name text, rows bigint)
+language plpgsql
+security definer
+stable
+set search_path = ''
+as $$
+#variable_conflict use_column
+begin
+  if not public.is_admin() then
+    raise exception 'forbidden' using errcode = '42501';
+  end if;
+  return query
+  select 'profiles'::text, count(*) from public.profiles
+  union all select 'tasks', count(*) from public.tasks
+  union all select 'goals', count(*) from public.goals
+  union all select 'task_rules', count(*) from public.task_rules
+  union all select 'habits', count(*) from public.habits
+  union all select 'habit_checks', count(*) from public.habit_checks
+  union all select 'day_moods', count(*) from public.day_moods
+  union all select 'week_notes', count(*) from public.week_notes
+  union all select 'finance_items', count(*) from public.finance_items
+  union all select 'finance_checks', count(*) from public.finance_checks
+  union all select 'finance_days', count(*) from public.finance_days;
+end;
+$$;
+
+revoke all on function public.admin_tables() from public, anon;
+grant execute on function public.admin_tables() to authenticated;

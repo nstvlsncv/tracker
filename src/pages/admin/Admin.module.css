@@ -1,0 +1,657 @@
+/* Админка. Свой вид, отличный от трекера: плотные таблицы, рамки вместо заливок, системный
+   шрифт (в духе Notion, Linear, GitHub). Цвета, отступы и скругления те же, из токенов,
+   поэтому обе темы работают сами. Размеры текста здесь свои и заданы числами: текстовые
+   стили трекера рассчитаны на широкий Unbounded и в таблицах слишком крупные. */
+.admin {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  min-height: 100dvh;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin button,
+.admin input {
+  font: inherit;
+  color: inherit;
+}
+
+.admin svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+
+/* --- Боковая колонка --- */
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  height: 100dvh;
+  padding: var(--space-md);
+  border-right: 1px solid var(--border-subtle);
+  background: var(--bg-primary);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  font-weight: 600;
+}
+
+.tag {
+  padding: 0 var(--space-xs);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navItem,
+.back {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  height: 32px;
+  padding: 0 var(--space-sm);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.navOn {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+@media (hover: hover) {
+  .navItem:hover,
+  .back:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+}
+
+/* --- Содержимое --- */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--space-lg) var(--space-xl) var(--space-2xl);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  min-height: 32px;
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.h1,
+.h2 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.h1 {
+  font-size: 20px;
+  line-height: 28px;
+}
+
+.h2 {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.muted {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.link {
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Кнопка в духе GitHub: рамка, белый фон, 32px. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  height: 32px;
+  padding: 0 var(--space-md);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .button:hover {
+    background: var(--bg-primary);
+  }
+}
+
+/* --- Блоки --- */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  min-width: 0;
+  padding: var(--space-md);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+}
+
+.panelHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm) var(--space-md);
+  min-height: 28px;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+/* Показатели: ряд ячеек в общей рамке, разделённых линиями. */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--border-subtle);
+}
+
+.kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-md);
+  background: var(--bg-surface);
+}
+
+.kpiLabel {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.kpiValue {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+}
+
+/* --- Статусы --- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 var(--space-sm);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--text-disabled);
+}
+
+.active .dot {
+  background: var(--status-success-icon);
+}
+
+.idle .dot {
+  background: var(--status-warning-icon);
+}
+
+.gone .dot {
+  background: var(--status-danger-icon);
+}
+
+/* --- Списки --- */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row,
+.feature,
+.release {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  min-height: 40px;
+  padding: var(--space-sm) 0;
+}
+
+.row + .row,
+.feature + .feature,
+.release + .release {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.rowValue {
+  font-weight: 600;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.who > * {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.avatar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  object-fit: cover;
+}
+
+/* Возможность: название, полоска доли и число. */
+.feature {
+  display: grid;
+  grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) 96px;
+}
+
+.feature > :last-child {
+  text-align: right;
+}
+
+.track {
+  display: block;
+  height: 6px;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--bg-secondary);
+}
+
+.track > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--highlight-default);
+}
+
+.release {
+  display: grid;
+  grid-template-columns: 56px 80px minmax(0, 1fr);
+  align-items: baseline;
+}
+
+/* --- Таблицы --- */
+
+.tableWrap {
+  /* Рамка блока служит краем таблицы: она выходит за его поля. */
+  margin: 0 calc(-1 * var(--space-md)) calc(-1 * var(--space-md));
+  overflow-x: auto;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table th {
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+/* Заголовок столбца, по которому можно сортировать. */
+.th {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-weight: 500;
+}
+
+.admin .th svg {
+  width: 12px;
+  height: 12px;
+}
+
+.tr {
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+@media (hover: hover) {
+  .tr:hover {
+    background: var(--bg-primary);
+  }
+}
+
+.trOpen {
+  background: var(--bg-primary);
+}
+
+.more td {
+  background: var(--bg-primary);
+  white-space: normal;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-md);
+  margin: 0;
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+}
+
+.fact dd {
+  margin: 0;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.right {
+  text-align: right !important;
+}
+
+.code {
+  color: var(--text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+}
+
+/* Задачи в строке: «351 из 412» и полоска доли. */
+.meter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 120px;
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-lg);
+  color: var(--text-tertiary);
+  text-align: center;
+}
+
+/* --- Поиск и переключатели --- */
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  height: 32px;
+  padding: 0 var(--space-sm);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+}
+
+.search:focus-within {
+  border-color: var(--border-strong);
+}
+
+.search input {
+  width: 200px;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: var(--text-primary);
+}
+
+.search input::placeholder {
+  color: var(--text-placeholder);
+}
+
+.switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  width: fit-content;
+  padding: 2px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-primary);
+}
+
+.switchItem {
+  height: 24px;
+  padding: 0 var(--space-sm);
+  border-radius: var(--radius-xs);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.switchOn {
+  background: var(--bg-surface);
+  box-shadow: var(--effects-shadow-sm);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* --- График: столбики по дням --- */
+
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.bars,
+.axis {
+  display: grid;
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
+  gap: 2px;
+}
+
+.bars {
+  height: 160px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.barSlot {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+}
+
+.barFill {
+  width: 100%;
+  min-height: 2px;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
+  background: var(--highlight-default);
+}
+
+@media (hover: hover) {
+  .barSlot:hover .barFill {
+    background: var(--accent-default);
+  }
+}
+
+/* Подписи дат шире столбика и выступают вправо, не раздвигая сетку. */
+.axis span {
+  height: 18px;
+  overflow: visible;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+/* --- Нет доступа --- */
+
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  text-align: center;
+}
+
+/* --- Планшет и телефон: колонка разделов становится полоской сверху --- */
+
+@media (max-width: 900px) {
+  .admin {
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+  }
+
+  .sidebar {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    order: 3;
+    flex-basis: 100%;
+  }
+
+  .back {
+    margin-left: auto;
+  }
+
+  .main {
+    padding: var(--space-md) var(--space-md) var(--space-xl);
+  }
+
+  .columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .feature {
+    grid-template-columns: minmax(0, 1fr) 72px;
+  }
+
+  .feature .track {
+    grid-row: 2;
+    grid-column: 1 / -1;
+  }
+
+  .release {
+    grid-template-columns: 56px minmax(0, 1fr);
+  }
+
+  .release > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .search input {
+    width: 140px;
+  }
+}
