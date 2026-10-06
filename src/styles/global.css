@@ -127,3 +127,14 @@ html.dragging-task * {
   cursor: grabbing !important;
   user-select: none !important;
 }
+
+/* Телефон: текст того же размера, что на компьютере, но в полях ввода 16px. При меньшем
+   размере iPhone сам приближает страницу, когда в поле ставят курсор. Правило сильнее
+   стилей компонентов намеренно: оно должно действовать в любом поле. */
+@media (max-width: 640px) {
+  input,
+  textarea {
+    font-size: 16px !important;
+    line-height: 24px !important;
+  }
+}

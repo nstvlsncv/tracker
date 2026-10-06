@@ -157,14 +157,14 @@ export function AppShell({ basePath = '' }: Props) {
               // раздел ведёт в его начало (текущая неделя).
               to={(to !== section && recall<string>(`shell.path.${to}`)) || `${basePath}/${to}`}
               end={end}
-              className={({ isActive }) =>
-                cx(
-                  't-button',
-                  styles.item,
-                  // «Итоги» открываются с Главной и в меню считаются её частью.
-                  (isActive || (to === '' && section === 'stats')) && styles.active,
-                )
-              }
+              className={cx(
+                't-button',
+                styles.item,
+                // Открытый раздел считается по адресу сами: NavLink не узнавал Главную в демо,
+                // где её адрес без косой черты на конце (/demo). «Итоги» открываются с Главной
+                // и в меню считаются её частью.
+                (to === section || (to === '' && section === 'stats')) && styles.active,
+              )}
               onClick={() => setTap((last) => ({ to, count: last.count + 1 }))}
             >
               {to === 'profile' && profile?.avatarUrl ? (

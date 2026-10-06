@@ -1,5 +1,4 @@
 import { ArrowLeft } from '@phosphor-icons/react'
-import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { buttonClassName } from '../components/buttonStyles'
@@ -27,28 +26,10 @@ type Props = {
 
 /**
  * Шапка экрана: название раздела и кнопки. До основного содержимого от неё 24px.
- * На телефоне кнопки не стоят в шапке, а закреплены внизу экрана, над нижней панелью.
+ * На телефоне кнопки тоже стоят в шапке: одна квадратом справа от названия, ряд с выбором
+ * недели или месяца под названием.
  */
 export function PageHeader({ title, help, aside, actions, backTo, backAlways }: Props) {
-  const actionsRef = useRef<HTMLDivElement>(null)
-  const hasActions = Boolean(actions)
-
-  // Высота блока кнопок уходит в CSS-переменную: на телефоне каркас оставляет под
-  // закреплённые кнопки место внизу страницы, чтобы они не закрывали последний блок.
-  useEffect(() => {
-    const block = actionsRef.current
-    if (!block) return
-    const root = document.documentElement
-    const observer = new ResizeObserver(() =>
-      root.style.setProperty('--page-actions-height', `${block.offsetHeight}px`),
-    )
-    observer.observe(block)
-    return () => {
-      observer.disconnect()
-      root.style.removeProperty('--page-actions-height')
-    }
-  }, [hasActions])
-
   return (
     <header className={styles.header}>
       <div className={cx(styles.title, backAlways && styles.withBack)}>
@@ -67,7 +48,7 @@ export function PageHeader({ title, help, aside, actions, backTo, backAlways }: 
         {aside}
       </div>
       {actions && (
-        <div ref={actionsRef} className={styles.actions}>
+        <div className={styles.actions}>
           {actions}
         </div>
       )}

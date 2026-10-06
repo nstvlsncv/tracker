@@ -67,30 +67,29 @@
     margin-left: calc(var(--space-md) - var(--space-xs));
   }
 
-  /* Без подложки: только сами кнопки, в один ряд. Главная (в разметке последняя) стоит слева
-     и занимает всю свободную ширину. 64px: высота нижней панели, то же число стоит
-     в AppShell.module.css. */
-  .actions {
-    position: fixed;
-    right: var(--space-md);
-    bottom: calc(64px + var(--space-sm) + env(safe-area-inset-bottom));
-    left: var(--space-md);
-    z-index: 30;
-    flex-direction: row-reverse;
+  /* Кнопки экрана стоят в шапке и уезжают вместе со страницей. Закреплёнными внизу, над
+     нижней панелью, они были раньше: закрывали содержимое и мигали при смене раздела.
+     Плюс всегда стоит в правом углу, на одной строке с названием. Выбор недели или месяца
+     идёт ниже, через 24px, во всю ширину: это первый блок содержимого. */
+  .header {
+    /* Точка отсчёта для календаря: он шириной со всю шапку и открывается под ней. */
+    position: relative;
   }
 
-  .actions > * {
+  /* Своего ряда у кнопок нет: каждая встаёт в шапку сама. */
+  .actions {
+    display: contents;
+  }
+
+  .title {
     flex: 1;
     min-width: 0;
   }
 
-  .actions > * > button {
-    width: 100%;
-  }
-
-  /* Второстепенная кнопка с пометкой data-compact сжимается в квадрат с одной иконкой. */
+  /* Кнопка с пометкой data-compact сжимается в квадрат с одной иконкой. */
   .actions > button[data-compact] {
     flex: none;
+    order: 1;
     width: 48px;
     padding: 0;
   }
@@ -99,14 +98,20 @@
     display: none;
   }
 
-  /* Календарь выбора недели открывается вверх: под кнопкой места уже нет. */
-  .actions [data-popover] {
-    top: auto;
-    bottom: calc(100% + var(--space-sm));
+  /* Всё остальное (выбор недели, месяца) уходит на свою строку под названием.
+     До названия 24px: 16px шага шапки и ещё 8px. */
+  .actions > :not(button[data-compact]) {
+    flex: 1 1 100%;
+    order: 2;
+    margin-top: var(--space-sm);
   }
 
-  /* Пока открыта клавиатура, закреплённые кнопки не должны висеть над ней. */
-  :global(body:has(input:focus)) .actions {
-    visibility: hidden;
+  .actions > :not(button[data-compact]) > button {
+    width: 100%;
+  }
+
+  /* Выбор уже стоит первым блоком содержимого: до следующего блока обычные 16px. */
+  .header:has(.actions > :not(button[data-compact])) {
+    margin-bottom: 0;
   }
 }

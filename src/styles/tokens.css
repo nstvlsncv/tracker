@@ -329,8 +329,10 @@
   --effects-shadow-lg: rgba(23, 23, 23, 0.22);
 }
 
-/* semantic-touch: планшет и телефон (экран до 1024px или сенсорный), текст на ступень крупнее */
-@media (max-width: 1024px), (pointer: coarse) {
+/* semantic-touch: планшет (экран от 641 до 1024px или сенсорный шире телефона), текст на ступень
+   крупнее. На телефоне размеры как на компьютере: крупный текст широкого шрифта там почти
+   в каждой строке переносился. */
+@media (min-width: 641px) and (max-width: 1024px), (min-width: 641px) and (pointer: coarse) {
   :root {
     --typography-heading-5-font-size: var(--core-font-size-400);
     --typography-heading-5-line-height: var(--core-line-height-400);

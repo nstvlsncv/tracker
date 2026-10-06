@@ -133,9 +133,9 @@
     line-height: var(--typography-heading-3-line-height);
   }
 
+  /* Четыре показателя в один ряд: карточки на телефоне плотные (см. StatCard). */
   .stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-sm);
+    gap: var(--space-xs);
   }
 }
 
@@ -177,6 +177,11 @@
     flex-direction: column;
     align-items: stretch;
     padding: var(--space-md);
+  }
+
+  /* На телефоне «Итоги» уходят в конец страницы: первый экран отдан целям и задачам. */
+  .recap {
+    order: 1;
   }
 }
 

@@ -45,8 +45,23 @@
   color: var(--text-inverse);
 }
 
+/* Телефон: карточки ниже и плотнее, число и подпись на ступень меньше:
+   так показатели встают в три-четыре столбца и занимают одну строку экрана. */
 @media (max-width: 640px) {
   .card {
-    padding: var(--space-md) var(--space-sm);
+    gap: 2px;
+    padding: var(--space-md) var(--space-xs);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Белые карточки внутри секций и так мелкие: их число не трогаем. */
+  .card:not(.surface) > :first-child {
+    font-size: var(--typography-heading-4-font-size);
+    line-height: var(--typography-heading-4-line-height);
+  }
+
+  .label {
+    font-size: var(--typography-caption-font-size);
+    line-height: var(--typography-caption-line-height);
   }
 }

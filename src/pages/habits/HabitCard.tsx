@@ -94,8 +94,11 @@ export function HabitCard({
                 : scheduleLabel(schedule)}{' '}
               ·
             </span>{' '}
-            <span>текущая серия {formatStreak(current)} ·</span>{' '}
-            <span>лучшая {formatStreak(best)}</span>
+            <span>
+              <span className={styles.wide}>текущая </span>серия {formatStreak(current)}
+            </span>{' '}
+            {/* На телефоне лучшей серии в строке нет: она есть в раскрытой карточке. */}
+            <span className={styles.wide}>· лучшая {formatStreak(best)}</span>
           </span>
         </div>
         {open && (

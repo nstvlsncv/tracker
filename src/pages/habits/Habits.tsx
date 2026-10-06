@@ -97,9 +97,18 @@ export function Habits() {
         title="Привычки"
         help="habits"
         actions={
-          <Button size="lg" icon={<Plus aria-hidden />} onClick={() => setEditing('new')}>
-            Добавить привычку
-            <Kbd>N</Kbd>
+          <Button
+            size="lg"
+            icon={<Plus aria-hidden />}
+            // На телефоне от кнопки остаётся квадрат с плюсом справа от названия (см. PageHeader).
+            data-compact
+            aria-label="Добавить привычку"
+            onClick={() => setEditing('new')}
+          >
+            <span data-label>
+              Добавить привычку
+              <Kbd>N</Kbd>
+            </span>
           </Button>
         }
       />

@@ -19,10 +19,12 @@ type Props = {
   date: string
   tasks: Task[]
   isToday: boolean
+  /** Телефон: кольцо меньше, чтобы список задач начинался выше. */
+  compact?: boolean
 }
 
 /** Карточка дня на экране Недели: настроение дня, донат с процентом и список задач. */
-export function DayCard({ date, tasks, isToday }: Props) {
+export function DayCard({ date, tasks, isToday, compact = false }: Props) {
   const { addTask, toggleTask, renameTask, deleteTask, moveTasks, repeatTask, canRepeat, arrangeTasks } =
     usePlanner()
   // Задачу можно бросить на карточку мимо строк (и в пустой день): она встаёт в конец списка.
@@ -59,7 +61,7 @@ export function DayCard({ date, tasks, isToday }: Props) {
       </header>
       <div className={styles.donut}>
         {/* У дня без задач стоит 0%, а не прочерк. */}
-        <Donut value={progress(tasks) ?? 0} size="xl" />
+        <Donut value={progress(tasks) ?? 0} size={compact ? 'lg' : 'xl'} />
       </div>
       {tasks.length > 0 ? (
         <ItemList

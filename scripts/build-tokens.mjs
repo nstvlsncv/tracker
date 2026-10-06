@@ -74,7 +74,7 @@ for (const [group, node] of Object.entries(tokens['semantic-dark'] ?? {})) {
   if (typeof node === 'object') walk(node, [group], dark)
 }
 
-// Планшет и телефон: увеличенный набор текстовых стилей (те же переменные, другие значения).
+// Планшет: увеличенный набор текстовых стилей (те же переменные, другие значения).
 const touch = []
 for (const [style, props] of Object.entries(tokens['semantic-touch']?.typography ?? {})) {
   for (const [prop, ref] of Object.entries(props)) {
@@ -116,8 +116,10 @@ ${themed(dark).join('\n')}
 ${themed(light).join('\n')}
 }
 
-/* semantic-touch: планшет и телефон (экран до 1024px или сенсорный), текст на ступень крупнее */
-@media (max-width: 1024px), (pointer: coarse) {
+/* semantic-touch: планшет (экран от 641 до 1024px или сенсорный шире телефона), текст на ступень
+   крупнее. На телефоне размеры как на компьютере: крупный текст широкого шрифта там почти
+   в каждой строке переносился. */
+@media (min-width: 641px) and (max-width: 1024px), (min-width: 641px) and (pointer: coarse) {
   :root {
 ${touch.join('\n')}
   }

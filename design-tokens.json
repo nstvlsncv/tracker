@@ -202,7 +202,7 @@
     }
   },
   "semantic-touch": {
-    "note": "Tablet and phone (screen up to 1024px wide or a touch screen): small text styles are one step larger. Only the listed properties change; headings 1-4 and number-lg are shared with desktop. Body text is 16px, which also stops iOS from zooming into inputs.",
+    "note": "Tablet only (screen 641-1024px wide, or a touch screen wider than a phone): small text styles are one step larger. Only the listed properties change; headings 1-4 and number-lg are shared with desktop. Phones use the desktop sizes; inputs there are forced to 16px in global.css so iOS does not zoom into them.",
     "typography": {
       "heading-5": { "fontSize": "{core.FontSize.400}", "lineHeight": "{core.LineHeight.400}" },
       "body-lg": { "fontSize": "{core.FontSize.400}", "lineHeight": "{core.LineHeight.400}" },

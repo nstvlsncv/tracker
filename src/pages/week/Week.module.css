@@ -121,10 +121,69 @@
   }
 }
 
-/* Телефон: статистика в два столбца, дни листаются лентой и уходят под правый край окна. */
+/* Полоска дней над лентой (только телефон): день недели, число и полоска прогресса.
+   Виден тот день, что сейчас в ленте; сегодняшний отмечен акцентной полоской. */
+.strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-xs);
+}
+
+.stripDay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-sm) 0;
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  color: var(--text-tertiary);
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-press);
+}
+
+.stripDay:active {
+  transform: scale(0.94);
+}
+
+.stripDay > :nth-child(2) {
+  color: var(--text-primary);
+}
+
+.stripShown {
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+}
+
+.stripShown > :nth-child(2) {
+  color: var(--text-inverse);
+}
+
+.stripBar {
+  width: 20px;
+  height: 4px;
+  margin-top: 2px;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background: var(--bg-tertiary);
+}
+
+.stripShown .stripBar {
+  background: var(--text-tertiary);
+}
+
+.stripBar > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--highlight-default);
+}
+
+/* Телефон: показатели в три столбца под лентой, дни листаются лентой и уходят под правый край окна. */
 @media (max-width: 640px) {
   .stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-sm);
   }
 

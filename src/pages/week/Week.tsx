@@ -24,7 +24,8 @@ import {
   weekStartISO,
 } from '../../lib/dates'
 import { onNewItem } from '../../lib/hotkeys'
-import { pluralize, shiftDate, weekAnalytics } from '../../lib/metrics'
+import { cx } from '../../lib/cx'
+import { pluralize, progress, shiftDate, weekAnalytics } from '../../lib/metrics'
 import { recall, remember } from '../../lib/sessionState'
 import { NETWORK_ERROR_MESSAGE } from '../../lib/supabase'
 import { useToday } from '../../lib/useToday'
@@ -54,6 +55,12 @@ export function Week() {
   const toast = useToast()
   const [addingTask, setAddingTask] = useState(false)
   const phone = useSyncExternalStore(subscribePhone, isPhone)
+  // Телефон: какой день сейчас виден в ленте. Его подсвечивает полоска дней над лентой.
+  const [shownDay, setShownDay] = useState<string>()
+  // Пока лента сама едет к выбранному в полоске дню, прокрутка выделение не трогает:
+  // иначе по пути загорались бы все дни, мимо которых она проезжает.
+  // Здесь лежит место, куда она едет; пусто, когда ленту листают пальцем.
+  const jumping = useRef<number>(undefined)
 
   const today = useToday()
   const currentWeek = weekStartISO(today)
@@ -122,6 +129,27 @@ export function Week() {
   // Заметка появляется, когда неделя загружена и в базе есть место для заметок.
   const note = planner.notes && <WeekNote key={weekStart} weekStart={weekStart} />
   const ready = status === 'ready'
+  // На компьютере показатели стоят под целями, на телефоне под лентой дней.
+  const statsRow = (
+    <div className={styles.stats}>
+      <StatCard value={stats.total} label="всего задач" />
+      <StatCard value={stats.done} label="выполнено" />
+      <StatCard value={stats.remaining} label="осталось" />
+      <StatCard
+       
+        value={stats.averageProgress !== null ? `${stats.averageProgress}%` : '—'}
+        label="ср. прогресс"
+      />
+      <StatCard
+       
+        value={
+          stats.productiveDay ? formatWeekdayShort(parseISO(stats.productiveDay)) : '—'
+        }
+        label="лучший день"
+      />
+      <StatCard value={stats.goalsDone} label="вып. целей" />
+    </div>
+  )
 
   return (
     <>
@@ -130,24 +158,10 @@ export function Week() {
         help="week"
         actions={
           <>
-            <Button
-              variant="secondary"
-              size="lg"
-              icon={<Plus aria-hidden />}
-              // На телефоне от кнопки остаётся квадрат с плюсом (см. PageHeader), подпись скрыта.
-              data-compact
-              aria-label="Добавить задачу"
-              onClick={() => setAddingTask(true)}
-            >
-              <span data-label>
-                Добавить задачу
-                <Kbd>N</Kbd>
-              </span>
-            </Button>
             <CalendarPicker
               aria-label="Неделя"
               mode="week"
-              variant="main"
+              variant="secondary"
               align="end"
               value={weekStart}
               label={weekLabel}
@@ -162,6 +176,19 @@ export function Week() {
                 )
               }
             />
+            <Button
+              size="lg"
+              icon={<Plus aria-hidden />}
+              // На телефоне от кнопки остаётся квадрат с плюсом (см. PageHeader), подпись скрыта.
+              data-compact
+              aria-label="Добавить задачу"
+              onClick={() => setAddingTask(true)}
+            >
+              <span data-label>
+                Добавить задачу
+                <Kbd>N</Kbd>
+              </span>
+            </Button>
           </>
         }
       />
@@ -245,31 +272,76 @@ export function Week() {
             )}
           </Section>
 
-          <div className={styles.stats}>
-            <StatCard value={stats.total} label="всего задач" />
-            <StatCard value={stats.done} label="выполнено" />
-            <StatCard value={stats.remaining} label="осталось" />
-            <StatCard
-             
-              value={stats.averageProgress !== null ? `${stats.averageProgress}%` : '—'}
-              label="ср. прогресс"
-            />
-            <StatCard
-             
-              value={
-                stats.productiveDay ? formatWeekdayShort(parseISO(stats.productiveDay)) : '—'
-              }
-              label="лучший день"
-            />
-            <StatCard value={stats.goalsDone} label="вып. целей" />
-          </div>
+          {!phone && statsRow}
+
+          {/* Телефон: полоска дней над лентой. Показывает прогресс каждого дня и листает к нему. */}
+          {phone && (
+            <nav className={styles.strip} aria-label="Дни недели">
+              {DAYS.map((offset) => {
+                const date = shiftDate(weekStart, offset)
+                const percent = progress(tasks.filter((task) => task.date === date)) ?? 0
+                const shown = date === (shownDay ?? (weekStart === currentWeek ? today : weekStart))
+                return (
+                  <button
+                    key={date}
+                    type="button"
+                    className={cx(styles.stripDay, shown && styles.stripShown, date === today && styles.stripToday)}
+                    aria-label={`${formatDayMonth(parseISO(date))}, выполнено ${percent}%`}
+                    aria-current={shown ? 'true' : undefined}
+                    onClick={() => {
+                      const row = daysRef.current
+                      const card = row?.querySelector<HTMLElement>(`[data-date="${date}"]`)
+                      if (row && card) {
+                        // Дальше правого края лента не уедет: цель не больше её полной прокрутки.
+                        const left = Math.min(
+                          card.offsetLeft - row.offsetLeft,
+                          row.scrollWidth - row.clientWidth,
+                        )
+                        jumping.current = left
+                        row.scrollTo({ left, behavior: 'smooth' })
+                      }
+                      setShownDay(date)
+                    }}
+                  >
+                    <span className="t-tab">{formatWeekdayShort(parseISO(date))}</span>
+                    <span className="t-body-md">{parseISO(date).getDate()}</span>
+                    <span className={styles.stripBar}>
+                      <span style={{ width: `${percent}%` }} />
+                    </span>
+                  </button>
+                )
+              })}
+            </nav>
+          )}
 
           {/* Обёртка нужна сетке: число столбцов зависит от её ширины, а не от ширины окна. */}
           <div className={styles.board}>
             <div
               ref={daysRef}
               className={styles.days}
-              onScroll={(event) => remember(daysScrollKey, event.currentTarget.scrollLeft)}
+              // Палец лёг на ленту: её листают сами, выделение в полоске снова следует за прокруткой.
+              onTouchStart={() => {
+                jumping.current = undefined
+              }}
+              onScroll={(event) => {
+                const row = event.currentTarget
+                remember(daysScrollKey, row.scrollLeft)
+                if (!phone) return
+                if (jumping.current !== undefined) {
+                  // Доехала до выбранного дня: дальше выделение снова следует за пальцем.
+                  if (Math.abs(row.scrollLeft - jumping.current) < 2) jumping.current = undefined
+                  return
+                }
+                // Виден тот день, чья карточка ближе всех к левому краю ленты.
+                let nearest: HTMLElement | undefined
+                for (const card of row.querySelectorAll<HTMLElement>('[data-date]')) {
+                  const gap = Math.abs(card.offsetLeft - row.offsetLeft - row.scrollLeft)
+                  if (!nearest || gap < Math.abs(nearest.offsetLeft - row.offsetLeft - row.scrollLeft)) {
+                    nearest = card
+                  }
+                }
+                if (nearest?.dataset.date) setShownDay(nearest.dataset.date)
+              }}
             >
               {DAYS.map((offset) => {
                 const date = shiftDate(weekStart, offset)
@@ -278,6 +350,7 @@ export function Week() {
                     key={date}
                     date={date}
                     isToday={date === today}
+                    compact={phone}
                     tasks={tasks.filter((task) => task.date === date)}
                   />
                 )
@@ -285,6 +358,8 @@ export function Week() {
               {!phone && note && <div className={styles.noteCell}>{note}</div>}
             </div>
           </div>
+
+          {phone && statsRow}
 
           {phone && note}
         </>

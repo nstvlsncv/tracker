@@ -221,8 +221,8 @@ export function Home() {
         />
       </div>
 
-      {/* «Итогов» в меню нет: в них попадают отсюда. */}
-      <section className={styles.summary}>
+      {/* «Итогов» в меню нет: в них попадают отсюда. На телефоне плашка стоит в самом низу. */}
+      <section className={cx(styles.summary, styles.recap)}>
         <div className={styles.summaryText}>
           <h2 className="t-heading-5">Итоги</h2>
           <p className={styles.summaryHint}>Как шли задачи, цели и привычки за последние недели</p>
