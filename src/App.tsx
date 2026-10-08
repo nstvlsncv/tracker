@@ -1,11 +1,12 @@
 import { IconContext } from '@phosphor-icons/react'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import type { ComponentType } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import { AuthProvider } from './auth/AuthProvider'
 import { GuestRoute, ProtectedRoute } from './auth/guards'
 import { ToastProvider } from './components/Toast'
 import { PageLoader } from './components/PageLoader'
+import { settleSplash } from './lib/splash'
 import { Login } from './pages/auth/Login'
 
 /** Все иконки приложения: набор Phosphor, начертание bold, чтобы держать вес рядом с Unbounded. */
@@ -40,6 +41,9 @@ const AdminPreview = lazy(() => import('./pages/admin/routes').then((m) => ({ de
 void loadWorkspace()
 
 export default function App() {
+  // Приложение отрисовалось: заставку из index.html можно убирать, если на экране нет загрузок.
+  useEffect(settleSplash, [])
+
   return (
     <IconContext.Provider value={ICONS}>
       <ToastProvider>

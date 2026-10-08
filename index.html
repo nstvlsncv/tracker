@@ -25,8 +25,121 @@
         // Акцентный цвет, выбранный в Профиле. Без выбора остаётся лаймовый.
         var accent = localStorage.getItem('tracker.accent')
         if (accent) document.documentElement.dataset.accent = accent
+        // Заставка при открытии: у вошедшего она его акцентного цвета, у гостя лаймовая, как
+        // лендинг и экран входа. Вошёл ли человек, видно по сохранённому входу Supabase.
+        // Демо и страницы разработки это уже сам трекер: там цвет выбранный.
+        var signedIn = false
+        for (var index = 0; index < localStorage.length; index++) {
+          if (/^sb-.+-auth-token$/.test(localStorage.key(index))) signedIn = true
+        }
+        if (!signedIn && !/^\/(demo|dev)(\/|$)/.test(location.pathname)) {
+          document.documentElement.dataset.splash = 'lime'
+        }
       } catch (e) {}
     </script>
+    <!-- Заставка при открытии: маскот по центру, пока грузится код и данные. Стили лежат здесь,
+         а не в общих: её должно быть видно до того, как загрузится всё остальное. Цвета повторяют
+         токены, тема уже стоит на <html>. Маскот акцентного цвета, у гостя всегда лаймовый. Убирает её
+         приложение, когда готово (src/lib/splash.ts). -->
+    <style>
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #ffffff;
+        --splash-accent: #c6f432;
+        transition: opacity 250ms ease-out;
+      }
+      [data-theme='dark'] #splash {
+        background: #1c1c1c;
+      }
+      [data-accent='pink'] #splash {
+        --splash-accent: #ff7ec8;
+      }
+      [data-accent='sky'] #splash {
+        --splash-accent: #6ccbff;
+      }
+      [data-accent='yellow'] #splash {
+        --splash-accent: #ffd534;
+      }
+      [data-accent='violet'] #splash {
+        --splash-accent: #b9a6ff;
+      }
+      /* Гость: заставка лаймовая, какой бы цвет ни был выбран в этом браузере. */
+      [data-splash='lime'] #splash {
+        --splash-accent: #c6f432;
+      }
+      #splash.splash-out {
+        opacity: 0;
+        pointer-events: none;
+      }
+      /* Маскот: круг акцентного цвета с двумя глазами, пропорции как у Mascot. Виден сразу,
+         с первого кадра: заставка стоит не меньше полутора секунд (src/lib/splash.ts). */
+      .splash-mascot {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 72px;
+        height: 72px;
+        padding-bottom: 6px;
+        box-sizing: border-box;
+        border-radius: 50%;
+        background: var(--splash-accent);
+        animation:
+          splash-in 300ms ease-out backwards,
+          splash-hop 1.2s ease-in-out 300ms infinite;
+      }
+      .splash-mascot i {
+        width: 9px;
+        height: 16px;
+        border-radius: 9px;
+        background: #171717;
+        animation: splash-blink 2.4s infinite;
+      }
+      @keyframes splash-in {
+        from {
+          opacity: 0;
+          transform: scale(0.8);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      /* Маскот мягко подпрыгивает: видно, что трекер не завис. */
+      @keyframes splash-hop {
+        0%,
+        100% {
+          translate: 0 0;
+        }
+        50% {
+          translate: 0 -10px;
+        }
+      }
+      @keyframes splash-blink {
+        0%,
+        90%,
+        100% {
+          transform: scaleY(1);
+        }
+        95% {
+          transform: scaleY(0.1);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .splash-mascot,
+        .splash-mascot i {
+          animation: none;
+        }
+        #splash {
+          transition: none;
+        }
+      }
+    </style>
     <title>Трекер</title>
     <meta name="description" content="Личный трекер недель, задач, привычек и финансов" />
 
@@ -43,6 +156,9 @@
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
+    <div id="splash" aria-hidden="true">
+      <div class="splash-mascot"><i></i><i></i></div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
