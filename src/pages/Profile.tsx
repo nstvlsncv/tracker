@@ -110,8 +110,9 @@ export function Profile() {
 
   return (
     <>
-      {/* Стрелка «назад» к списку: только на телефоне и только внутри пункта. */}
-      <PageHeader title="Профиль" backTo={opened ? '..' : undefined} />
+      {/* Стрелка «назад»: внутри пункта ведёт к списку (телефон и планшет), а со списка
+          на Главную, с которой Профиль открывают на телефоне (только там). */}
+      <PageHeader title="Профиль" backTo=".." backPhoneOnly={!opened} />
 
       <div className={cx(styles.layout, opened && styles.opened)}>
         <aside className={styles.menu}>

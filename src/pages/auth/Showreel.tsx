@@ -23,6 +23,7 @@ const SCENES = [
   { id: 'habits', title: 'Привычки и серии' },
   { id: 'mood', title: 'Настроение дня' },
   { id: 'finance', title: 'Платежи под присмотром' },
+  { id: 'lists', title: 'Списки для всего' },
   { id: 'mascot', title: 'Свой цвет и тема' },
 ] as const
 
@@ -134,6 +135,45 @@ function FinanceScene({ step }: { step: number }) {
   )
 }
 
+const LISTS = [
+  { title: 'Продукты', items: ['Молоко', 'Хлеб', 'Сыр'] },
+  { title: 'Фильмы', items: ['Дюна', 'Субстанция', 'Анора'] },
+  { title: 'Поездка', items: [] },
+]
+/** С какого шага открыт второй список. */
+const SECOND_LIST_STEP = 4
+
+/**
+ * Сцена 8: списки без дат. Сначала отмечается всё по списку продуктов, потом открывается
+ * список фильмов: в нём отмечено просмотренное, а один фильм ещё ждёт.
+ */
+function ListsScene({ step }: { step: number }) {
+  const second = step >= SECOND_LIST_STEP
+  const list = LISTS[second ? 1 : 0]
+  // В продуктах отмечается всё, в фильмах последний пункт остаётся: его ещё не смотрели.
+  const done = second ? Math.min(list.items.length - 1, step - SECOND_LIST_STEP) : Math.min(list.items.length, step)
+  return (
+    <div className={styles.goals}>
+      <div className={styles.listTabs}>
+        {LISTS.map(({ title }) => (
+          <span key={title} className={cx('t-body-sm', styles.listTab, title === list.title && styles.listTabOn)}>
+            {title}
+          </span>
+        ))}
+      </div>
+      {/* key: пункты другого списка появляются заново, а не переименовываются на месте. */}
+      <ul key={list.title} className={cx(styles.tasks, styles.listItems)}>
+        {list.items.map((title, index) => (
+          <li key={title} className={cx(styles.task, index < done && styles.taskDone)}>
+            <Checkbox checked={index < done} onChange={noop} quiet aria-label={title} />
+            <span>{title}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 const HISTORY = 14
 const HISTORY_FILLED = 9
 
@@ -237,7 +277,7 @@ function RepeatScene({ step }: { step: number }) {
 const THEME_STEP = ACCENTS.length
 
 /**
- * Сцена 8: маскот перебирает акцентные цвета, каждый по одному разу, затем плашка
+ * Сцена 9: маскот перебирает акцентные цвета, каждый по одному разу, затем плашка
  * перекрашивается в другую тему, и маскот радуется.
  */
 function MascotScene({ step }: { step: number }) {
@@ -271,6 +311,7 @@ function Scene({ id, step }: { id: ReelSceneId; step: number }) {
   if (id === 'habits') return <HabitsScene step={step} />
   if (id === 'mood') return <MoodScene step={step} />
   if (id === 'finance') return <FinanceScene step={step} />
+  if (id === 'lists') return <ListsScene step={step} />
   return <MascotScene step={step} />
 }
 
@@ -314,7 +355,7 @@ export function ReelScene({ id, once = false, paused = false }: { id: ReelSceneI
 
 /**
  * Шоурил на экране входа: короткий ролик из настоящих деталей трекера, который сам играет
- * по кругу, как видео. Восемь сцен: задачи дня, неделя, цели, повтор и перенос, привычки, настроение, платежи, маскот с цветами и темой.
+ * по кругу, как видео. Девять сцен: задачи дня, неделя, цели, повтор и перенос, привычки, настроение, платежи, списки, маскот с цветами и темой.
  * Нажимать в нём нечего: он неживой (inert) и для скринридера не существует.
  * При отключённых в системе анимациях стоит на первой сцене в её конечном виде.
  */

@@ -283,6 +283,33 @@
   color: var(--text-tertiary);
 }
 
+/* --- Списки --- */
+
+/* Названия списков в ряд, как закладки: открытый список темнее и на плашке. */
+.listTabs {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.listTab {
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  transition:
+    background-color 240ms ease-out,
+    color 240ms ease-out;
+}
+
+.listTabOn {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.listItems {
+  animation: scene-in 260ms ease-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .moodFace {
     transition: none;

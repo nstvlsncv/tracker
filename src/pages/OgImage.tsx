@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 const WIDTH = 1200
 const TITLE = 'Трекер'
-const TAGLINE = 'Недели, задачи, привычки и финансы'
+const TAGLINE = 'Недели, задачи, привычки, финансы и списки'
 const HEIGHT = 630
 /** Прогресс по дням недели на картинке: просто красивый пример. */
 const WEEK = [100, 100, 67, 100, 40, 0, 0]
@@ -74,7 +74,13 @@ export function OgImage() {
       pen.textBaseline = 'top'
       pen.letterSpacing = '0px'
       pen.fillStyle = '#737373'
-      pen.font = '400 36px Unbounded'
+      // Подпись стоит в одну строку между полями: если не помещается, шрифт становится мельче.
+      let taglineSize = 36
+      pen.font = `400 ${taglineSize}px Unbounded`
+      while (pen.measureText(TAGLINE).width > WIDTH - 96 * 2 && taglineSize > 24) {
+        taglineSize -= 1
+        pen.font = `400 ${taglineSize}px Unbounded`
+      }
       pen.fillText(TAGLINE, 96, 278)
 
       // Семь колец недели: серая дорожка и лаймовая дуга по проценту.

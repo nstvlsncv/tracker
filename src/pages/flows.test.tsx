@@ -218,6 +218,25 @@ describe('трекер на демо-данных', () => {
     expect(within(dialog).getByText(/Дела, которые повторяются/)).toBeTruthy()
   })
 
+  it('Списки: список заводится, пункт добавляется и отмечается', async () => {
+    const user = openTracker('/lists')
+    expect(await screen.findByRole('button', { name: 'Продукты' })).toBeTruthy()
+
+    await user.click(screen.getByRole('button', { name: 'Добавить список' }))
+    const dialog = await screen.findByRole('dialog')
+    await user.type(within(dialog).getByRole('textbox', { name: 'Название' }), 'Подарки')
+    await user.click(within(dialog).getByRole('button', { name: 'Добавить список' }))
+
+    // Новый список сразу раскрыт: в него можно добавлять пункты.
+    const title = await screen.findByRole('button', { name: 'Подарки', expanded: true })
+    const card = title.closest('article')!
+    await user.click(within(card).getByRole('button', { name: 'Добавить пункт' }))
+    await user.type(within(card).getByRole('textbox', { name: 'Добавить пункт' }), 'Книга маме{Enter}')
+
+    await user.click(await within(card).findByRole('checkbox', { name: /Книга маме/ }))
+    expect(await within(card).findByRole('button', { name: 'Убрать отмеченные (1)' })).toBeTruthy()
+  })
+
   it('Меню ведёт по разделам, в Профиле открываются пункты', async () => {
     const user = openTracker()
     await screen.findByRole('heading', { name: 'Задачи на сегодня' })

@@ -1,0 +1,62 @@
+/* Подсказка на месте пустого списка. */
+.placeholder {
+  margin: 0;
+  color: var(--text-placeholder);
+}
+
+/* Под пунктами: «Добавить пункт» и «Убрать отмеченные» в одну строку, на телефоне друг под другом. */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+/* Поле добавления занимает всю строку, когда открыто. */
+.actions > :first-child {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+/* Списков ещё нет: одна фраза с маскотом по центру свободного места экрана. */
+.empty {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-md);
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  color: var(--text-placeholder);
+  text-align: center;
+}
+
+.empty p {
+  margin: 0;
+}
+
+/* Ошибка загрузки. */
+.error {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--bg-primary);
+}
+
+@media (max-width: 640px) {
+  .error {
+    padding: var(--space-md);
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actions > :first-child {
+    flex: none;
+  }
+}

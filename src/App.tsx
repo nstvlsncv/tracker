@@ -25,6 +25,7 @@ const Home = fromWorkspace('Home')
 const Week = fromWorkspace('Week')
 const Habits = fromWorkspace('Habits')
 const Finance = fromWorkspace('Finance')
+const Lists = fromWorkspace('Lists')
 const Profile = fromWorkspace('Profile')
 const Stats = fromWorkspace('Stats')
 
@@ -62,6 +63,7 @@ export default function App() {
                     <Route path="/week/:isoWeek?" element={<Week />} />
                     <Route path="/habits" element={<Habits />} />
                     <Route path="/finance" element={<Finance />} />
+                    <Route path="/lists" element={<Lists />} />
                     <Route path="/stats" element={<Stats />} />
                     <Route path="/profile/:section?" element={<Profile />} />
                   </Route>

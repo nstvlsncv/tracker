@@ -349,6 +349,41 @@ create policy "own finance spends" on public.finance_spends for all to authentic
   with check (user_id = (select auth.uid()));
 grant select, insert, update, delete on public.finance_spends to authenticated;
 
+-- Списки: всё, что не привязано к дню (продукты, фильмы, идеи). Список и его пункты.
+create table if not exists public.lists (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  title text not null check (char_length(title) between 1 and 60),
+  position integer,
+  created_at timestamptz not null default now()
+);
+
+alter table public.lists enable row level security;
+drop policy if exists "own lists" on public.lists;
+create policy "own lists" on public.lists for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+grant select, insert, update, delete on public.lists to authenticated;
+
+create table if not exists public.list_items (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  list_id uuid not null references public.lists on delete cascade,
+  title text not null check (char_length(title) between 1 and 200),
+  is_done boolean not null default false,
+  position integer,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists list_items_list on public.list_items (list_id);
+
+alter table public.list_items enable row level security;
+drop policy if exists "own list items" on public.list_items;
+create policy "own list items" on public.list_items for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+grant select, insert, update, delete on public.list_items to authenticated;
+
 -- ---------------------------------------------------------------------------
 -- Админка (/admin): сводная статистика по всем аккаунтам для владелицы трекера.
 -- Кто админ, записано в таблице admins: строку туда добавляют вручную в SQL Editor
@@ -536,7 +571,9 @@ begin
   union all select 'finance_items', count(*) from public.finance_items
   union all select 'finance_checks', count(*) from public.finance_checks
   union all select 'finance_days', count(*) from public.finance_days
-  union all select 'finance_spends', count(*) from public.finance_spends;
+  union all select 'finance_spends', count(*) from public.finance_spends
+  union all select 'lists', count(*) from public.lists
+  union all select 'list_items', count(*) from public.list_items;
 end;
 $$;
 

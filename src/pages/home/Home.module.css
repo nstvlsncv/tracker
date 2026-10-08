@@ -18,6 +18,49 @@
   position: absolute;
   top: var(--space-xs);
   right: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* Вход в Профиль: только на телефоне, где его нет в нижней панели. Кружок 40px: фото
+   профиля, а пока его нет, серая кнопка с человечком. */
+.profile {
+  display: none;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: transform var(--transition-press);
+}
+
+.profile:active {
+  transform: scale(0.92);
+}
+
+.profile svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (max-width: 640px) {
+  .profile {
+    display: flex;
+  }
+
+  /* Справка и Профиль стоят в одной строке с названием трекера, приветствие идёт ниже
+     во всю ширину. */
+  .header .title {
+    padding-right: 0;
+  }
+
+  .help {
+    top: 0;
+  }
 }
 
 .title,
@@ -25,19 +68,19 @@
   margin: 0;
 }
 
-/* Маскот перед приветствием: только на телефоне, на компьютере он стоит в боковом меню. */
-.mascot {
+/* Название с маскотом: только на телефоне, на компьютере и планшете оно стоит в меню.
+   Строка той же высоты, что кнопки справа от неё. */
+.brand {
   display: none;
 }
 
 @media (max-width: 640px) {
-  .mascot {
-    display: inline-flex;
-    position: relative;
-    top: -0.08em;
-    margin-right: var(--space-sm);
-    /* По середине строчных букв: у круга с глазами своей базовой линии нет. */
-    vertical-align: middle;
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    height: 40px;
+    margin-bottom: var(--space-md);
   }
 }
 

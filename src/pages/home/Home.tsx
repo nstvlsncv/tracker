@@ -1,9 +1,10 @@
 import { parseISO } from 'date-fns'
-import { Plus } from '@phosphor-icons/react'
+import { Plus, User } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { useAuth } from '../../auth/useAuth'
 import { AddItemField } from '../../components/AddItem'
+import { Avatar } from '../../components/Avatar'
 import { Button } from '../../components/Button'
 import { buttonClassName } from '../../components/buttonStyles'
 import { Checkbox } from '../../components/Checkbox'
@@ -130,14 +131,18 @@ export function Home() {
       {/* Справка по разделу: в правом верхнем углу шапки. */}
       <div className={styles.help}>
         <HelpButton topic="home" />
+        {/* Телефон: Профиля в нижней панели нет, он открывается отсюда. */}
+        <Link to="profile" relative="path" className={styles.profile} aria-label="Профиль">
+          {profile?.avatarUrl ? <Avatar url={profile.avatarUrl} size={40} /> : <User aria-hidden />}
+        </Link>
+      </div>
+      {/* Телефон: бокового меню нет, поэтому название с маскотом стоит здесь, в одной строке
+          со справкой и Профилем, как шапка приложения. */}
+      <div className={`t-heading-5 ${styles.brand}`}>
+        <Mascot size={32} mood={overdue.length > 0 ? 'sad' : 'calm'} />
+        Трекер
       </div>
       <h1 className={`t-heading-1 ${styles.title}`}>
-        {/* На телефоне бокового меню нет: маскот живёт перед приветствием. */}
-        <Mascot
-          size="1.15em"
-          className={styles.mascot}
-          mood={overdue.length > 0 ? 'sad' : 'calm'}
-        />
         {greeting(now.getHours())}
         {profile?.name ? `, ${profile.name}` : ''}!
       </h1>

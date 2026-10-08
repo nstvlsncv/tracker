@@ -120,6 +120,8 @@ export function createMemoryAdmin(): AdminApi {
         { name: 'finance_checks', rows: 31 },
         { name: 'finance_days', rows: 4 },
         { name: 'finance_spends', rows: 212 },
+        { name: 'lists', rows: 9 },
+        { name: 'list_items', rows: 143 },
       ]
     },
   }

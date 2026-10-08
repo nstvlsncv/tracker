@@ -143,6 +143,10 @@
   animation: tilt 450ms ease-out;
 }
 
+.tick {
+  animation: tick 450ms ease-out;
+}
+
 .squeeze {
   animation: squeeze 400ms ease-out;
 }
@@ -209,6 +213,22 @@
 }
 
 /* Человечек кивает. */
+/* Списки: иконка коротко сжимается и расправляется, как поставленная галочка. */
+@keyframes tick {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.8) rotate(-6deg);
+  }
+  70% {
+    transform: scale(1.12) rotate(3deg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @keyframes nod {
   30% {
     transform: rotate(-14deg) scale(1.06);
@@ -419,7 +439,8 @@
     background: none;
   }
 
-  .active {
+  .active,
+  .activeOnPhone {
     color: var(--text-primary);
   }
 
@@ -433,6 +454,12 @@
 
   /* В нижней панели названия с маскотом нет. */
   .logo {
+    display: none;
+  }
+
+  /* Профиля в нижней панели нет: шесть разделов в неё не помещаются. Он открывается
+     с Главной, по фото в шапке. */
+  .wide {
     display: none;
   }
 

@@ -118,3 +118,10 @@
     line-height: var(--typography-heading-3-line-height);
   }
 }
+
+/* Стрелка, которая нужна только на телефоне (список пунктов Профиля): на планшете её нет. */
+@media (min-width: 641px) {
+  .back.phoneOnly {
+    display: none;
+  }
+}

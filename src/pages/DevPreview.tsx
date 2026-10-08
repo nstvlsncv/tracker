@@ -8,12 +8,15 @@ import { FinanceProvider } from '../data/FinanceProvider'
 import { createMemoryApi } from '../data/memoryApi'
 import { createMemoryFinance } from '../data/memoryFinance'
 import { HabitsProvider } from '../data/HabitsProvider'
+import { ListsProvider } from '../data/ListsProvider'
+import { createMemoryLists } from '../data/memoryLists'
 import { PlannerProvider } from '../data/PlannerProvider'
 import { AppShell } from '../layout/AppShell'
 import { forgetSessionState } from '../lib/sessionState'
 import { Finance } from './finance/Finance'
 import { Habits } from './habits/Habits'
 import { Home } from './home/Home'
+import { Lists } from './lists/Lists'
 import { Profile } from './Profile'
 import { Stats } from './stats/Stats'
 import { Week } from './week/Week'
@@ -50,6 +53,7 @@ export function DevPreview({ base = '/dev/app', visitor = false }: Props) {
 
   const api = useMemo(() => createMemoryApi(), [])
   const finance = useMemo(() => createMemoryFinance(), [])
+  const lists = useMemo(() => createMemoryLists(), [])
   const [profile, setProfile] = useState<ProfileData>(() => ({
     id: 'demo',
     name: visitor ? 'Гость' : 'Анастасия',
@@ -86,16 +90,19 @@ export function DevPreview({ base = '/dev/app', visitor = false }: Props) {
       <PlannerProvider api={api}>
         <HabitsProvider api={api}>
           <FinanceProvider api={finance}>
+          <ListsProvider api={lists}>
           <Routes>
             <Route element={<AppShell basePath={base} />}>
               <Route index element={<Home />} />
               <Route path="week/:isoWeek?" element={<Week />} />
               <Route path="habits" element={<Habits />} />
               <Route path="finance" element={<Finance />} />
+              <Route path="lists" element={<Lists />} />
               <Route path="stats" element={<Stats />} />
               <Route path="profile/:section?" element={<Profile />} />
             </Route>
           </Routes>
+          </ListsProvider>
           </FinanceProvider>
         </HabitsProvider>
       </PlannerProvider>

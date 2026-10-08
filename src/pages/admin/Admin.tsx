@@ -80,6 +80,8 @@ const TABLE_LABELS: Record<string, string> = {
   finance_checks: 'Отметки финансов',
   finance_days: 'Даты аванса и зарплаты',
   finance_spends: 'Траты по дням',
+  lists: 'Списки',
+  list_items: 'Пункты списков',
 }
 
 /**

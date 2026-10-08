@@ -54,7 +54,7 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
   const promo = (
     <>
       {/* Неразрывные пробелы: «и» и «в» не остаются висеть в конце строки. */}
-      <p className="t-body-sm">Недели, задачи, привычки и&nbsp;финансы в&nbsp;одном месте</p>
+      <p className="t-body-sm">Недели, задачи, привычки, финансы и&nbsp;списки в&nbsp;одном месте</p>
       {action}
     </>
   )

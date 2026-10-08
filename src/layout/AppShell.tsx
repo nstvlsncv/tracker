@@ -2,6 +2,7 @@ import {
   ArrowsClockwise,
   CalendarDots,
   House,
+  ListChecks,
   SidebarSimple,
   SignOut,
   User,
@@ -37,7 +38,10 @@ const NAV = [
   { to: 'week', label: 'Неделя', icon: CalendarDots, end: false, motion: 'flip' },
   { to: 'habits', label: 'Привычки', icon: ArrowsClockwise, end: false, motion: 'spin' },
   { to: 'finance', label: 'Финансы', icon: Wallet, end: false, motion: 'tilt' },
-  { to: 'profile', label: 'Профиль', icon: User, end: false, motion: 'nod' },
+  { to: 'lists', label: 'Списки', icon: ListChecks, end: false, motion: 'tick' },
+  // На телефоне Профиля в нижней панели нет: шестой пункт не помещается, он открывается
+  // с Главной, по фото в шапке.
+  { to: 'profile', label: 'Профиль', icon: User, end: false, motion: 'nod', wide: true },
 ] as const
 
 // Свёрнуто ли меню на компьютере. Выбор хранится в браузере, как тема и акцентный цвет.
@@ -127,7 +131,7 @@ export function AppShell({ basePath = '' }: Props) {
   // нажатии она создаётся заново, и анимация проигрывается снова, даже на уже открытом разделе.
   const [tap, setTap] = useState<{ to: string | null; count: number }>({ to: null, count: 0 })
 
-  // Горячие клавиши: цифры 1–5 открывают разделы по порядку меню, N начинает новую запись
+  // Горячие клавиши: цифры 1–6 открывают разделы по порядку меню, N начинает новую запись
   // на текущем экране. По коду клавиши, а не по букве: раскладка может быть русской.
   const navigate = useNavigate()
   const hotkeys = useRef({ section, basePath, navigate })
@@ -166,7 +170,7 @@ export function AppShell({ basePath = '' }: Props) {
           <span className={styles.logoText}>Трекер</span>
         </div>
         <nav className={styles.nav} aria-label="Разделы">
-          {NAV.map(({ to, label, icon: Icon, end, motion }, index) => (
+          {NAV.map(({ to, label, icon: Icon, end, motion, ...item }, index) => (
             <NavLink
               key={to}
               // Из другого раздела возвращаемся туда, где были. Нажатие на уже открытый
@@ -180,6 +184,9 @@ export function AppShell({ basePath = '' }: Props) {
                 // где её адрес без косой черты на конце (/demo). «Итоги» открываются с Главной
                 // и в меню считаются её частью.
                 (to === section || (to === '' && section === 'stats')) && styles.active,
+                // Телефон: Профиля в нижней панели нет, он открывается с Главной: подсвечена она.
+                to === '' && section === 'profile' && styles.activeOnPhone,
+                'wide' in item && styles.wide,
               )}
               onClick={() => setTap((last) => ({ to, count: last.count + 1 }))}
             >
