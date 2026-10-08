@@ -330,6 +330,25 @@ create policy "own finance days" on public.finance_days for all to authenticated
   with check (user_id = (select auth.uid()));
 grant select, insert, update, delete on public.finance_days to authenticated;
 
+-- Траты по дням: сумма без названия и категории. Уменьшает свободные деньги этапа,
+-- в который попадает день, и от неё считается, сколько можно потратить сегодня.
+create table if not exists public.finance_spends (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  date date not null,
+  amount numeric(11, 2) not null check (amount > 0),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists finance_spends_user_date on public.finance_spends (user_id, date);
+
+alter table public.finance_spends enable row level security;
+drop policy if exists "own finance spends" on public.finance_spends;
+create policy "own finance spends" on public.finance_spends for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+grant select, insert, update, delete on public.finance_spends to authenticated;
+
 -- ---------------------------------------------------------------------------
 -- Админка (/admin): сводная статистика по всем аккаунтам для владелицы трекера.
 -- Кто админ, записано в таблице admins: строку туда добавляют вручную в SQL Editor
@@ -516,7 +535,8 @@ begin
   union all select 'week_notes', count(*) from public.week_notes
   union all select 'finance_items', count(*) from public.finance_items
   union all select 'finance_checks', count(*) from public.finance_checks
-  union all select 'finance_days', count(*) from public.finance_days;
+  union all select 'finance_days', count(*) from public.finance_days
+  union all select 'finance_spends', count(*) from public.finance_spends;
 end;
 $$;
 

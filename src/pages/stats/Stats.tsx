@@ -26,21 +26,16 @@ import {
   scheduleLabel,
   scheduleOf,
 } from '../../lib/habits'
-import { WEEKDAY_LABELS } from '../../lib/habits'
 import { shiftDate } from '../../lib/metrics'
-import { averageMood, moodInsights, moodLabel } from '../../lib/moods'
+import { averageMood, moodLabel } from '../../lib/moods'
 import { habitsKept, recentWeeks, summarizeWeeks, weekSummary, weekVerdict } from '../../lib/stats'
 import { NETWORK_ERROR_MESSAGE } from '../../lib/supabase'
 import { useToday } from '../../lib/useToday'
-import { MoodHistory } from './MoodHistory'
 import styles from './Stats.module.css'
 
 /** За сколько недель показывается график и за сколько дней считаются привычки. */
 const WEEKS = 12
 const HABIT_DAYS = 30
-/** За сколько дней считаются выводы по настроению и сколько отметок для них нужно. */
-const MOOD_DAYS = 30
-const MOOD_MIN_MARKS = 5
 const NO_CHECKS: ReadonlySet<string> = new Set()
 
 type History = { tasks: Task[]; goals: Goal[] }
@@ -51,7 +46,7 @@ type History = { tasks: Task[]; goals: Goal[] }
  */
 export function Stats() {
   const planner = usePlanner()
-  const { loadHistory, loadWeek, notes, moods, setMood } = planner
+  const { loadHistory, loadWeek, notes, moods } = planner
   const habitsStore = useHabits()
   const today = useToday()
   const weeks = recentWeeks(today, WEEKS)
@@ -166,9 +161,6 @@ export function Stats() {
   const recapMood = averageMood(recapMoods)
   const recapNote = notes?.[lastWeek]
   const hasRecap = recap.total > 0 || recap.goalsTotal > 0 || recapMoods.length > 0 || Boolean(recapNote)
-
-  // Что видно по настроению за последние 30 дней. Пока отметок мало, выводов нет.
-  const insights = moods ? moodInsights(moods, allTasks, today, MOOD_DAYS) : null
 
   return (
     <>
@@ -311,40 +303,6 @@ export function Stats() {
           </>
         )}
       </Section>
-
-      {/* Настроений может не быть в базе: тогда секции нет. */}
-      {moods && (
-        <Section title="Настроение по дням">
-          {Object.keys(moods).length === 0 && (
-            <p className={styles.hint}>Отмечай настроение дня, и здесь соберётся картина. Нажми на любой день</p>
-          )}
-          {insights && insights.marked >= MOOD_MIN_MARKS && (
-            <div className={styles.recap}>
-              <StatCard
-                variant="surface"
-                value={String(insights.average).replace('.', ',')}
-                label={`из 5, среднее за ${MOOD_DAYS} дней`}
-              />
-              <StatCard
-                variant="surface"
-                value={insights.bestWeekday ? WEEKDAY_LABELS[insights.bestWeekday - 1] : '—'}
-                label="самый приятный день"
-              />
-              <StatCard
-                variant="surface"
-                value={insights.doneOnGoodDays === null ? '—' : `${insights.doneOnGoodDays}%`}
-                label="задач в хорошие дни"
-              />
-              <StatCard
-                variant="surface"
-                value={insights.doneOnBadDays === null ? '—' : `${insights.doneOnBadDays}%`}
-                label="задач в плохие дни"
-              />
-            </div>
-          )}
-          <MoodHistory moods={moods} today={today} onPick={setMood} />
-        </Section>
-      )}
     </>
   )
 }

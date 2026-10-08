@@ -1,7 +1,16 @@
 import { toISODate } from '../lib/dates'
 import { currentPeriod, monthOf, shiftMonth } from '../lib/finance'
 import { newId } from '../lib/id'
-import type { FinanceApi, FinanceCheck, FinanceDay, FinanceItem, FinanceKind, FinanceStage } from './finance'
+import type {
+  FinanceApi,
+  FinanceCheck,
+  FinanceDay,
+  FinanceItem,
+  FinanceKind,
+  FinanceSpend,
+  FinanceStage,
+} from './finance'
+import { shiftDate } from '../lib/metrics'
 
 /**
  * Финансы в памяти с демо-данными: для демо гостей (/demo) и экранов разработки (/dev/app).
@@ -53,13 +62,27 @@ export function createMemoryFinance(): FinanceApi {
       items.filter((item) => paid(item, target)).map((item) => ({ itemId: item.id, month: target })),
   )
 
+  // Траты текущего этапа: понемногу в каждый прошедший день и одна сегодня.
+  const SPENT = [640, 1150, 380, 920, 1480, 270, 760]
+  let spends: FinanceSpend[] = []
+  if (now) {
+    for (let date = now.start, index = 0; date <= today; date = shiftDate(date, 1), index++) {
+      spends.push({
+        id: newId(),
+        date,
+        amount: date === today ? 350 : SPENT[index % SPENT.length],
+        createdAt: `${date}T00:00:00.000Z`,
+      })
+    }
+  }
+
   // Небольшая задержка, чтобы было видно состояние загрузки.
   const wait = () => new Promise<void>((resolve) => setTimeout(resolve, 300))
 
   return {
     async load() {
       await wait()
-      return { items, checks, days }
+      return { items, checks, days, spends }
     },
     async insertItem(item) {
       items = [...items, item]
@@ -77,6 +100,12 @@ export function createMemoryFinance(): FinanceApi {
     },
     async saveDay(day) {
       days = [...days.filter((item) => item.stage !== day.stage || item.month !== day.month), day]
+    },
+    async insertSpend(spend) {
+      spends = [...spends, spend]
+    },
+    async deleteSpend(id) {
+      spends = spends.filter((spend) => spend.id !== id)
     },
   }
 }

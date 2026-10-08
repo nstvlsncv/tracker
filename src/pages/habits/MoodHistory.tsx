@@ -11,7 +11,7 @@ import type { HistoryPeriod } from '../../lib/habitHistory'
 import { MOODS, moodLabel } from '../../lib/moods'
 import { recall, remember, useSessionState } from '../../lib/sessionState'
 // Сетка та же, что у истории привычки: столбцы недель, подписи дней недели сбоку.
-import grid from '../habits/HabitHistory.module.css'
+import grid from './HabitHistory.module.css'
 import styles from './MoodHistory.module.css'
 
 type Props = {

@@ -13,6 +13,12 @@
   cursor: pointer;
 }
 
+/* Лицо настроения на месте чекбокса (карточка «Настроение дня»). */
+.mood {
+  display: flex;
+  flex: none;
+}
+
 .text {
   display: flex;
   flex: 1;

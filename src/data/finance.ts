@@ -31,12 +31,20 @@ export type FinanceCheck = { itemId: string; month: string }
  */
 export type FinanceDay = { stage: FinanceStage; month: string; day: number }
 
+/**
+ * Трата: сумма без названия и категории, записанная на день. Уменьшает свободные деньги этапа,
+ * в который попадает её день, и от неё пересчитывается, сколько можно потратить сегодня.
+ */
+export type FinanceSpend = { id: string; date: string; amount: number; createdAt: string }
+
 export type FinanceItemPatch = { title?: string; amount?: number; endMonth?: string | null }
 
 export type FinanceData = {
   items: FinanceItem[]
   checks: FinanceCheck[]
   days: FinanceDay[]
+  /** null: трат в этой базе нет (не применена свежая схема), остальные финансы работают. */
+  spends: FinanceSpend[] | null
 }
 
 /**
@@ -53,4 +61,6 @@ export type FinanceApi = {
   /** Поставить или снять отметку за месяц. */
   setCheck: (itemId: string, month: string, done: boolean) => Promise<void>
   saveDay: (day: FinanceDay) => Promise<void>
+  insertSpend: (spend: FinanceSpend) => Promise<void>
+  deleteSpend: (id: string) => Promise<void>
 }

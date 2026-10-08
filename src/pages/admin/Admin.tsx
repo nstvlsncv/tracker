@@ -79,6 +79,7 @@ const TABLE_LABELS: Record<string, string> = {
   finance_items: 'Строки финансов',
   finance_checks: 'Отметки финансов',
   finance_days: 'Даты аванса и зарплаты',
+  finance_spends: 'Траты по дням',
 }
 
 /**

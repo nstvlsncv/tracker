@@ -2,16 +2,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useToast } from '../components/useToast'
 import { UNDO_TOAST_DURATION_MS } from '../lib/constants'
-import { checkKey, shiftMonth } from '../lib/finance'
+import { checkKey, formatMoney, shiftMonth } from '../lib/finance'
 import { newId } from '../lib/id'
-import type { FinanceApi, FinanceDay, FinanceItem } from './finance'
+import type { FinanceApi, FinanceDay, FinanceItem, FinanceSpend } from './finance'
 import { FinanceContext } from './useFinance'
 import type { FinanceStatus, FinanceValue } from './useFinance'
 
 const SAVE_ERROR_MESSAGE = 'Не удалось сохранить'
 
-type State = { items: FinanceItem[]; checks: ReadonlySet<string>; days: FinanceDay[] }
-const EMPTY: State = { items: [], checks: new Set(), days: [] }
+type State = {
+  items: FinanceItem[]
+  checks: ReadonlySet<string>
+  days: FinanceDay[]
+  spends: FinanceSpend[] | null
+}
+const EMPTY: State = { items: [], checks: new Set(), days: [], spends: null }
 
 /** Месяцы, за которые у строки стоят отметки. */
 const checkedMonths = (checks: ReadonlySet<string>, id: string) =>
@@ -44,6 +49,7 @@ export function FinanceProvider({ api, children }: { api: FinanceApi; children: 
             items: loaded.items,
             checks: new Set(loaded.checks.map((check) => checkKey(check.itemId, check.month))),
             days: loaded.days,
+            spends: loaded.spends,
           })
         }
         setStatus(loaded ? 'ready' : 'unavailable')
@@ -80,12 +86,18 @@ export function FinanceProvider({ api, children }: { api: FinanceApi; children: 
   const value = useMemo<FinanceValue>(() => {
     const find = (id: string) => latest.current.items.find((item) => item.id === id)
     const all = (requests: Array<Promise<unknown>>) => Promise.all(requests)
+    const removeSpend = (id: string) => {
+      const state = latest.current
+      if (!state.spends?.some((spend) => spend.id === id)) return
+      commit({ ...state, spends: state.spends.filter((spend) => spend.id !== id) }, api.deleteSpend(id))
+    }
 
     return {
       status,
       items: data.items,
       checks: data.checks,
       days: data.days,
+      spends: data.spends,
       reload,
 
       addItem: ({ once, ...fields }, month) => {
@@ -208,6 +220,36 @@ export function FinanceProvider({ api, children }: { api: FinanceApi; children: 
           },
           api.saveDay(next),
         )
+      },
+
+      addSpend: (amount, date) => {
+        const state = latest.current
+        if (!state.spends) return
+        const spend: FinanceSpend = { id: newId(), date, amount, createdAt: new Date().toISOString() }
+        commit({ ...state, spends: [...state.spends, spend] }, api.insertSpend(spend))
+        toast({
+          message: `Записано: ${formatMoney(amount)}`,
+          duration: UNDO_TOAST_DURATION_MS,
+          action: { label: 'Отменить', onClick: () => removeSpend(spend.id) },
+        })
+      },
+
+      deleteSpend: (id) => {
+        const removed = latest.current.spends?.find((spend) => spend.id === id)
+        if (!removed) return
+        removeSpend(id)
+        toast({
+          message: 'Трата удалена',
+          duration: UNDO_TOAST_DURATION_MS,
+          action: {
+            label: 'Отменить',
+            onClick: () => {
+              const current = latest.current
+              if (!current.spends) return
+              commit({ ...current, spends: [...current.spends, removed] }, api.insertSpend(removed))
+            },
+          },
+        })
       },
     }
   }, [api, status, data, reload, commit, toast])

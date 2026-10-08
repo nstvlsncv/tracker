@@ -17,25 +17,12 @@
   align-items: center;
   gap: var(--space-xl);
   min-width: 0;
-  /* Блок с названием и формой стоит на 120px ниже верхнего края, подпись на 24px выше нижнего. */
+  /* Блок с названием и формой стоит на 120px ниже верхнего края. */
   padding: 120px var(--space-md) var(--space-lg);
-  /* Точка отсчёта для ссылки «О трекере» в углу колонки. */
-  position: relative;
-}
-
-/* Ссылка обратно на лендинг: в левом верхнем углу колонки с формой, вёрстку не двигает. */
-.back {
-  position: absolute;
-  top: var(--space-lg);
-  left: var(--space-lg);
-  z-index: 1;
-  gap: var(--space-xs);
-  width: auto;
 }
 
 /* Над канвасом с точками. */
-.content,
-.footer {
+.content {
   position: relative;
 }
 
@@ -77,11 +64,15 @@
   flex: none;
 }
 
-/* Название с маскотом: лаймовый круг с глазами, тот же знак, что на иконке приложения. */
+/* Название с маскотом: лаймовый круг с глазами, тот же знак, что на иконке приложения.
+   Это ссылка на лендинг, но выглядит как название, без подчёркивания. */
 .logo {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  text-decoration: none;
 }
 
 .card {
@@ -108,22 +99,6 @@
 
 .subtitle {
   color: var(--text-secondary);
-}
-
-.footer {
-  margin-top: auto;
-  /* Светлее подзаголовка карточки и на ступень меньше: подпись не спорит с формой. */
-  color: var(--text-tertiary);
-  text-align: center;
-}
-
-.author {
-  /* Имя того же серого, что вся подпись, лаймовое только подчёркивание. */
-  border-radius: var(--radius-xs);
-  color: inherit;
-  text-decoration: underline;
-  text-decoration-color: var(--highlight-default);
-  text-underline-offset: 3px;
 }
 
 /* Компьютер: левая половина экрана во всю высоту отдана ролику, правая форме. Всё
@@ -201,10 +176,8 @@
 /* Телефон: блок ближе к верху, поля карточки меньше. */
 @media (max-width: 640px) {
   .side {
-    /* Между карточкой с демо и подписью 24px. */
-    gap: var(--space-lg);
     padding-top: var(--space-2xl);
-    /* На айфоне подпись стоит выше полоски «домой». */
+    /* На айфоне карточка с демо стоит выше полоски «домой». */
     padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
   }
 
@@ -212,8 +185,8 @@
     padding: var(--space-md);
   }
 
-  /* Всё помещается в один экран без прокрутки: сверху название и форма, внизу карточка
-     с демо и под ней подпись. Свободное место остаётся между формой и карточкой. */
+  /* Всё помещается в один экран без прокрутки: сверху название и форма, у самого низа
+     карточка с демо. Свободное место остаётся между формой и карточкой. */
   .content {
     flex: 1;
   }
@@ -243,13 +216,5 @@
   .leaving {
     opacity: 1;
     transition: none;
-  }
-}
-
-/* Телефон: ссылка «О трекере» стоит выше и ближе к краю, чтобы не прижиматься к названию. */
-@media (max-width: 640px) {
-  .back {
-    top: var(--space-sm);
-    left: var(--space-sm);
   }
 }

@@ -310,7 +310,149 @@
   margin: 0;
 }
 
+/* Прочие расходы в текущем этапе: сколько можно потратить сегодня, из чего это число
+   получилось и ввод суммы. */
+.spendToday {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm) 0;
+}
+
+.spendLeft {
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Перерасход: сумма красная. */
+.over {
+  color: var(--status-danger-text);
+}
+
+/* Расчёт по строкам: слева что это, справа сумма. */
+.math {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 var(--space-sm);
+  color: var(--text-tertiary);
+}
+
+.math > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 var(--space-md);
+}
+
+.math dt,
+.math dd {
+  margin: 0;
+}
+
+.math dd {
+  margin-left: auto;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Поле и кнопка в одну строку: кнопка стоит на уровне поля, а не подписи над ним. */
+.spendForm {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+}
+
+.spendForm > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Высота подписи над полем: её строка и отступ под ней. */
+.spendForm > button {
+  flex: none;
+  margin-top: calc(var(--typography-caption-line-height) + var(--space-sm));
+}
+
+.spendOpen {
+  display: none;
+}
+
+/* Строка траты: день, сумма и корзина. */
+.spendRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-height: 40px;
+}
+
+.spendRow .title {
+  flex: 1;
+}
+
+/* Клавиатура-калькулятор: крупная сумма и кнопки три в ряд. */
+.padSum {
+  margin: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.padEmpty {
+  color: var(--text-placeholder);
+}
+
+.padError {
+  margin: 0;
+  color: var(--status-danger-text);
+  text-align: center;
+}
+
+.pad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.padKey {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  /* Быстрые нажатия подряд не приближают страницу. */
+  touch-action: manipulation;
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-press);
+}
+
+.padKey:active {
+  transform: scale(0.96);
+}
+
+.padKey svg {
+  width: 24px;
+  height: 24px;
+}
+
+@media (hover: hover) {
+  .padKey:hover {
+    background: var(--bg-tertiary);
+  }
+}
+
 @media (max-width: 640px) {
+  /* На телефоне суммы набирают клавиатурой-калькулятором, поля нет. */
+  .spendForm {
+    display: none;
+  }
+
+  .spendOpen {
+    display: block;
+  }
+
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-sm);

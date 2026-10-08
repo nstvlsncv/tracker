@@ -1,8 +1,6 @@
-import { ArrowLeft } from '@phosphor-icons/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
-import { buttonClassName } from '../../components/buttonStyles'
 import { Mascot } from '../../components/Mascot'
 import { AUTHOR_URL } from '../../lib/constants'
 import { cx } from '../../lib/cx'
@@ -73,15 +71,12 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
         <div className={styles.stagePromo}>{promo}</div>
       </aside>
       <div className={styles.side}>
-      {/* Обратно на лендинг: гость на главном адресе видит рассказ о трекере. */}
-      <Link to="/" className={cx(buttonClassName({ variant: 'ghost', size: 'sm' }), styles.back)}>
-        <ArrowLeft aria-hidden />О трекере
-      </Link>
       <div className={styles.content}>
-        <div className={`t-heading-2 ${styles.logo}`}>
+        {/* Название с маскотом ведёт обратно на лендинг: гость на главном адресе видит рассказ о трекере. */}
+        <Link to="/" className={`t-heading-2 ${styles.logo}`} aria-label="Трекер: о трекере">
           <Mascot size="1.3em" mood={mood} idleTarget={stageRef} />
           Трекер
-        </div>
+        </Link>
         <div ref={cardsRef} className={styles.cards}>
           <div ref={cardRef} className={styles.card}>
             <header className={styles.heading}>
@@ -95,14 +90,6 @@ export function AuthLayout({ title, subtitle, shake = 0, leaving, mood, action, 
           <div className={styles.promo}>{promo}</div>
         </div>
       </div>
-      <footer className={`t-body-sm ${styles.footer}`}>
-        Designed &amp; developed
-        <br />
-        by{' '}
-        <a className={styles.author} href={AUTHOR_URL} target="_blank" rel="noreferrer">
-          Anastasia
-        </a>
-      </footer>
       </div>
     </main>
   )

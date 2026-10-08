@@ -143,6 +143,24 @@ describe('трекер на демо-данных', () => {
     expect(await within(stage).findByRole('checkbox', { name: 'Снять отметку: Страховка' })).toBeTruthy()
   })
 
+  it('Финансы: трата записывается и появляется в списке', async () => {
+    const user = openTracker('/finance')
+    const block = await screen.findByRole('group', { name: 'Прочие расходы' })
+
+    await user.type(within(block).getByRole('textbox', { name: 'Трата, ₽' }), '777')
+    await user.click(within(block).getByRole('button', { name: 'Записать' }))
+
+    expect(await screen.findByText(/^Записано: 777/)).toBeTruthy()
+    expect(within(block).getByRole('button', { name: /^Удалить трату: сегодня, 777/ })).toBeTruthy()
+  })
+
+  it('Привычки: настроение дня отмечается в своей карточке', async () => {
+    const user = openTracker('/habits')
+
+    await user.click(await screen.findByRole('button', { name: 'Настроение дня' }))
+    expect(await screen.findByRole('heading', { name: 'Настроение за год' })).toBeTruthy()
+  })
+
   it('Неделя: пустую неделю можно начать с копии прошлой', async () => {
     const nextWeek = shiftDate(weekStartISO(toISODate(new Date())), 7)
     const user = openTracker(`/week/${toWeekParam(nextWeek)}`)

@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import type { FinanceDay, FinanceItem, FinanceKind, FinanceStage } from './finance'
+import type { FinanceDay, FinanceItem, FinanceKind, FinanceSpend, FinanceStage } from './finance'
 
 /** unavailable: финансов в этой базе нет (не применена свежая схема). */
 export type FinanceStatus = 'loading' | 'ready' | 'error' | 'unavailable'
@@ -21,6 +21,8 @@ export type FinanceValue = {
   checks: ReadonlySet<string>
   /** Числа месяца, в которые приходят аванс и зарплата. */
   days: FinanceDay[]
+  /** Траты по дням. null: их в этой базе нет (не применена свежая схема). */
+  spends: FinanceSpend[] | null
   /** Повторить загрузку после ошибки. */
   reload: () => void
 
@@ -34,6 +36,10 @@ export type FinanceValue = {
   toggleCheck: (id: string, month: string, done: boolean) => void
   /** Число месяца этапа с месяца `month` и дальше. */
   setDay: (stage: FinanceStage, month: string, day: number) => void
+  /** Записать трату на день. Показывает тост с «Отменить». */
+  addSpend: (amount: number, date: string) => void
+  /** Убрать трату. Показывает тост с «Отменить». */
+  deleteSpend: (id: string) => void
 }
 
 export const FinanceContext = createContext<FinanceValue | null>(null)

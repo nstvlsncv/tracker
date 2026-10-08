@@ -29,6 +29,7 @@ import {
   monthOf,
   monthOptions,
   perDay,
+  spentIn,
   stageLabel,
   stagePeriods,
   summarize,
@@ -39,6 +40,7 @@ import { useSessionState } from '../../lib/sessionState'
 import { useToday } from '../../lib/useToday'
 import { DayModal } from './DayModal'
 import { ItemModal } from './ItemModal'
+import { SpendBlock } from './SpendBlock'
 import styles from './Finance.module.css'
 
 /** Что подсказать в пустом списке этапа. */
@@ -73,6 +75,9 @@ export function Finance() {
   const periods = stagePeriods(store.days, month)
   const items = itemsFor(store.items, month)
   const total = summarize(items, store.checks, month)
+  // Траты по дням уменьшают свободные деньги этапа, в который попадает их день.
+  const spends = store.spends ?? []
+  const monthSpent = periods.reduce((sum, period) => sum + spentIn(spends, period), 0)
 
   // N на клавиатуре и кнопка в шапке: новый платёж в этапе, который идёт сейчас.
   const addBill = () => {
@@ -156,7 +161,7 @@ export function Finance() {
   }
 
   // Суммы в карточках сверху: без знака рубля, так они помещаются в узкую карточку на телефоне.
-  const totals = [total.free, total.income, total.bills + total.savings, total.toPay].map((amount) =>
+  const totals = [total.free - monthSpent, total.income, total.bills + total.savings, total.toPay].map((amount) =>
     formatMoney(amount, false),
   )
 
@@ -191,7 +196,11 @@ export function Finance() {
             const own = items.filter((item) => item.stage === period.stage)
             const summary = summarize(own, store.checks, month)
             const isNow = now?.month === month && now.stage === period.stage
-            const daily = perDay(summary.free, period.length)
+            const spent = spentIn(spends, period)
+            const free = summary.free - spent
+            // Сумма на день в итоге нужна там, где её не показывают «Прочие расходы»:
+            // в текущем этапе она уже стоит в них, вместе с расчётом.
+            const daily = isNow && store.spends ? null : perDay(free, period.length)
             const label = stageLabel(period.stage)
             return (
               <section
@@ -273,6 +282,20 @@ export function Finance() {
                   )
                 })}
 
+                {/* Прочие расходы: траты без названия. Вводятся в этапе, который идёт сейчас. */}
+                {store.spends && (
+                  <SpendBlock
+                    period={period}
+                    current={isNow}
+                    free={summary.free}
+                    noIncome={!own.some((item) => item.kind === 'income')}
+                    spends={store.spends}
+                    today={today}
+                    onAdd={(amount) => store.addSpend(amount, today)}
+                    onDelete={store.deleteSpend}
+                  />
+                )}
+
                 <dl className={styles.total}>
                   <div className={styles.totalRow}>
                     <dt>Свободно</dt>
@@ -280,7 +303,7 @@ export function Finance() {
                       {daily !== null && (
                         <span className={`t-body-sm ${styles.hint}`}>{formatMoney(daily)} в день · </span>
                       )}
-                      {formatMoney(summary.free)}
+                      {formatMoney(free)}
                     </dd>
                   </div>
                   <div className={styles.totalRow}>

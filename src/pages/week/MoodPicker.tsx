@@ -10,7 +10,7 @@ import styles from './MoodPicker.module.css'
  * на выбор, от отличного дня к плохому; повторный выбор того же лица снимает отметку.
  * Пока настроения грузятся или их нет в базе, кнопки нет.
  */
-export function MoodPicker({ date }: { date: string }) {
+export function MoodPicker({ date, size = 28 }: { date: string; size?: number }) {
   const { moods, setMood } = usePlanner()
   // Кнопка, под которой открыто окошко выбора. null: окошко закрыто.
   const [anchor, setAnchor] = useState<Element | null>(null)
@@ -32,7 +32,7 @@ export function MoodPicker({ date }: { date: string }) {
         }}
       >
         {/* key: новое лицо появляется с маленьким прыжком. */}
-        <MoodFace key={mood ?? 0} mood={mood} size={28} className={mood ? styles.picked : undefined} />
+        <MoodFace key={mood ?? 0} mood={mood} size={size} className={mood ? styles.picked : undefined} />
       </button>
       {anchor && (
         <MoodMenu

@@ -1,5 +1,12 @@
 import { supabase } from '../lib/supabase'
-import type { FinanceApi, FinanceCheck, FinanceItem, FinanceKind, FinanceStage } from './finance'
+import type {
+  FinanceApi,
+  FinanceCheck,
+  FinanceItem,
+  FinanceKind,
+  FinanceSpend,
+  FinanceStage,
+} from './finance'
 
 type ItemRow = {
   id: string
@@ -53,6 +60,36 @@ async function loadChecks(): Promise<FinanceCheck[]> {
   }
 }
 
+/**
+ * Все траты. Их несколько в день, за год набирается больше тысячи: читаем страницами.
+ * null: таблицы трат ещё нет в базе, остальные финансы работают без неё.
+ */
+async function loadSpends(): Promise<FinanceSpend[] | null> {
+  const spends: FinanceSpend[] = []
+  for (let from = 0; ; from += PAGE_SIZE) {
+    const { data, error } = await supabase
+      .from('finance_spends')
+      .select('id, date, amount, created_at')
+      .order('date')
+      .order('id')
+      .range(from, from + PAGE_SIZE - 1)
+    if (error) {
+      if (NO_TABLE.includes(error.code)) return null
+      throw error
+    }
+    const page = data ?? []
+    for (const row of page) {
+      spends.push({
+        id: row.id as string,
+        date: row.date as string,
+        amount: Number(row.amount),
+        createdAt: row.created_at as string,
+      })
+    }
+    if (page.length < PAGE_SIZE) return spends
+  }
+}
+
 // user_id в строки не передаётся: база сама подставляет текущего пользователя,
 // а правила доступа не дают прочитать или изменить чужое.
 export const supabaseFinance: FinanceApi = {
@@ -65,13 +102,15 @@ export const supabaseFinance: FinanceApi = {
       if (NO_TABLE.includes(items.error.code)) return null
       throw items.error
     }
-    const [checks, days] = await Promise.all([
+    const [checks, spends, days] = await Promise.all([
       loadChecks(),
+      loadSpends(),
       unwrap(supabase.from('finance_days').select('stage, month, day')),
     ])
     return {
       items: (items.data ?? []).map((row) => toItem(row as ItemRow)),
       checks,
+      spends,
       days: (days ?? []).map((row) => ({
         stage: row.stage as FinanceStage,
         month: row.month as string,
@@ -123,5 +162,20 @@ export const supabaseFinance: FinanceApi = {
 
   async saveDay(day) {
     await unwrap(supabase.from('finance_days').upsert(day, { onConflict: 'user_id,stage,month' }))
+  },
+
+  async insertSpend(spend) {
+    await unwrap(
+      supabase.from('finance_spends').insert({
+        id: spend.id,
+        date: spend.date,
+        amount: spend.amount,
+        created_at: spend.createdAt,
+      }),
+    )
+  },
+
+  async deleteSpend(id) {
+    await unwrap(supabase.from('finance_spends').delete().eq('id', id))
   },
 }

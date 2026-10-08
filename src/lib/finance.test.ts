@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import type { FinanceDay, FinanceItem } from '../data/finance'
+import type { FinanceDay, FinanceItem, FinanceSpend } from '../data/finance'
 import {
   checkKey,
   currentPeriod,
+  dayBudget,
   dayFor,
   daysLeft,
   formatMoney,
@@ -11,9 +12,11 @@ import {
   isOnce,
   itemsFor,
   monthOptions,
+  padPress,
   parseAmount,
   perDay,
   shiftMonth,
+  spentIn,
   stageDate,
   stagePeriods,
   summarize,
@@ -158,5 +161,67 @@ describe('строки и итоги', () => {
     expect(perDay(4109.5, 15)).toBe(273)
     expect(perDay(0, 15)).toBeNull()
     expect(perDay(-100, 15)).toBeNull()
+  })
+})
+
+describe('траты по дням', () => {
+  // Зарплата 5-го, аванс 20-го: этап зарплаты идёт с 5 по 19 октября, 15 дней.
+  const period = stagePeriods([], '2026-10').find((stage) => stage.stage === 'salary')!
+  const spend = (date: string, amount: number): FinanceSpend => ({
+    id: `${date}-${amount}`,
+    date,
+    amount,
+    createdAt: `${date}T10:00:00Z`,
+  })
+
+  it('в этап идут только траты его дней', () => {
+    const spends = [spend('2026-10-04', 100), spend('2026-10-05', 200), spend('2026-10-19', 300), spend('2026-10-20', 400)]
+    expect(spentIn(spends, period)).toBe(500)
+  })
+
+  it('без трат свободное делится на оставшиеся дни', () => {
+    expect(dayBudget(15000, [], period, '2026-10-05')).toEqual({
+      pool: 15000,
+      days: 15,
+      budget: 1000,
+      spentToday: 0,
+      left: 1000,
+      tomorrow: 1071,
+    })
+  })
+
+  it('сегодняшняя трата уменьшает остаток дня', () => {
+    const day = dayBudget(15000, [spend('2026-10-05', 400)], period, '2026-10-05')
+    expect(day.left).toBe(600)
+    expect(day.spentToday).toBe(400)
+  })
+
+  it('сэкономленное вчера прибавляется к следующим дням, перерасход вычитается', () => {
+    // Вчера не потрачено ничего: 15 000 на 14 дней.
+    expect(dayBudget(15000, [], period, '2026-10-06').budget).toBe(1071)
+    // Вчера потрачено 2 400: остаётся 12 600 на 14 дней.
+    expect(dayBudget(15000, [spend('2026-10-05', 2400)], period, '2026-10-06').budget).toBe(900)
+  })
+
+  it('перерасход сегодня: остаток отрицательный, завтра меньше', () => {
+    const day = dayBudget(15000, [spend('2026-10-05', 1700)], period, '2026-10-05')
+    expect(day.left).toBe(-700)
+    expect(day.tomorrow).toBe(950)
+  })
+
+  it('в последний день этапа завтра нет, а минус не показывается бюджетом', () => {
+    expect(dayBudget(1000, [], period, '2026-10-19').tomorrow).toBeNull()
+    expect(dayBudget(1000, [spend('2026-10-05', 5000)], period, '2026-10-10').budget).toBe(0)
+  })
+
+  it('клавиатура: цифры, одна запятая, две цифры после неё, стирание', () => {
+    const type = (keys: string) =>
+      [...keys].reduce((text, key) => padPress(text, key === '<' ? 'back' : (key as '1')), '')
+    expect(type('1500')).toBe('1500')
+    expect(type('05')).toBe('5')
+    expect(type(',5')).toBe('0,5')
+    expect(type('12,,345')).toBe('12,34')
+    expect(type('12,3<<')).toBe('12')
+    expect(type('1234567890')).toBe('123456789')
   })
 })

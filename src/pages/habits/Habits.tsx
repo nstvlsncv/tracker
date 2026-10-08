@@ -16,6 +16,7 @@ import { HabitCard } from './HabitCard'
 import { onNewItem } from '../../lib/hotkeys'
 import { Kbd } from '../../components/Kbd'
 import { HabitModal } from './HabitModal'
+import { MoodCard } from './MoodCard'
 import styles from './Habits.module.css'
 
 const NO_CHECKS: ReadonlySet<string> = new Set()
@@ -125,6 +126,9 @@ export function Habits() {
           </div>
         </div>
       )}
+
+      {/* Настроение дня: такая же карточка, как у привычки, закреплена над ними. */}
+      {store.status === 'ready' && <MoodCard today={today} />}
 
       {store.status === 'ready' && habits.length === 0 && (
         <div className={styles.placeholder}>

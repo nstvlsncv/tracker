@@ -1,6 +1,6 @@
 import { addMonths, differenceInCalendarDays, format, getDaysInMonth, parseISO } from 'date-fns'
 import { ru } from 'date-fns/locale'
-import type { FinanceDay, FinanceItem, FinanceKind, FinanceStage } from '../data/finance'
+import type { FinanceDay, FinanceItem, FinanceKind, FinanceSpend, FinanceStage } from '../data/finance'
 import { shiftDate } from './metrics'
 
 // Расчёты раздела «Финансы». Месяц везде строка 'yyyy-MM', день 'yyyy-MM-dd'.
@@ -202,4 +202,77 @@ export function summarize(items: FinanceItem[], checks: ReadonlySet<string>, mon
 /** Сколько свободных денег приходится на день этапа, в целых рублях. null: свободного нет. */
 export function perDay(free: number, length: number): number | null {
   return free > 0 && length > 0 ? Math.floor(free / length) : null
+}
+
+// --- Траты по дням ---
+
+/** Траты, чей день попадает в этап, от свежих к старым. */
+export function spendsIn(spends: FinanceSpend[], period: StagePeriod): FinanceSpend[] {
+  return spends
+    .filter((spend) => spend.date >= period.start && spend.date <= period.end)
+    .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt))
+}
+
+/** Сколько потрачено за этап. */
+export function spentIn(spends: FinanceSpend[], period: StagePeriod): number {
+  return spendsIn(spends, period).reduce((sum, spend) => add(sum, spend.amount), 0)
+}
+
+export type DayBudget = {
+  /** Сколько свободных денег этапа оставалось на утро сегодняшнего дня. */
+  pool: number
+  /** На сколько дней они делятся: от сегодня до конца этапа. */
+  days: number
+  /** Сколько сегодня можно было потратить с утра: остаток этапа, поделённый на оставшиеся дни. */
+  budget: number
+  spentToday: number
+  /** Сколько ещё можно потратить сегодня. Меньше нуля: сегодня перерасход. */
+  left: number
+  /** Сколько будет на день с завтра, если сегодня больше не тратить. null: сегодня последний день этапа. */
+  tomorrow: number | null
+}
+
+/**
+ * Сколько можно потратить сегодня. Свободные деньги этапа за вычетом того, что потрачено
+ * до сегодня, делятся на оставшиеся дни (считая сегодняшний): сэкономленное вчера
+ * прибавляется к следующим дням, перерасход из них вычитается. Целыми рублями.
+ */
+export function dayBudget(
+  free: number,
+  spends: FinanceSpend[],
+  period: StagePeriod,
+  today: string,
+): DayBudget {
+  const own = spendsIn(spends, period)
+  const sum = (list: FinanceSpend[]) => list.reduce((total, spend) => add(total, spend.amount), 0)
+  const spentToday = sum(own.filter((spend) => spend.date === today))
+  const before = sum(own.filter((spend) => spend.date < today))
+  const left = daysLeft(period, today)
+  const budget = Math.max(0, Math.floor(add(free, -before) / left))
+  const rest = add(add(free, -before), -spentToday)
+  return {
+    pool: add(free, -before),
+    days: left,
+    budget,
+    spentToday,
+    left: add(budget, -spentToday),
+    tomorrow: left > 1 ? Math.max(0, Math.floor(rest / (left - 1))) : null,
+  }
+}
+
+/** Клавиши клавиатуры-калькулятора: цифры, запятая и «стереть». */
+export const PAD_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', ',', '0', 'back'] as const
+export type PadKey = (typeof PAD_KEYS)[number]
+
+/**
+ * Что станет с набранной суммой после нажатия клавиши. Сумма хранится текстом, как её видно:
+ * «1500,5». Не больше девяти цифр до запятой и двух после; лишние нажатия ничего не меняют.
+ */
+export function padPress(text: string, key: PadKey): string {
+  if (key === 'back') return text.slice(0, -1)
+  const [whole, cents] = text.split(',')
+  if (key === ',') return cents !== undefined ? text : `${whole || '0'},`
+  if (cents !== undefined) return cents.length < 2 ? text + key : text
+  if (whole === '0') return key
+  return whole.length < 9 ? text + key : text
 }
