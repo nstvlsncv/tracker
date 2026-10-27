@@ -5,13 +5,12 @@ import { fireBurst } from '../../components/fireBurst'
 import { cx } from '../../lib/cx'
 import { formatDayMonth } from '../../lib/dates'
 import type { HabitSchedule } from '../../data/types'
-import { historyYears } from '../../lib/habitHistory'
 import { checkBlock } from '../../lib/habits'
-import { useSessionState } from '../../lib/sessionState'
 import styles from './HabitHistory.module.css'
+import { useHistoryPeriod } from './useHistoryPeriod'
 
 type Props = {
-  /** id привычки: по нему запоминается выбранный год. */
+  /** id привычки: по нему запоминается выбранный период. */
   habitId: string
   checks: ReadonlySet<string>
   /** Расписание: дни, которые по нему отметить нельзя, нарисованы бледнее. */
@@ -25,11 +24,10 @@ type Props = {
 /**
  * История привычки: год двенадцатью маленькими календарями, дни точками. Точка залита, если
  * день выполнен. Нажатие на прошедший день ставит или снимает отметку задним числом.
- * По умолчанию текущий год, в списке справа прошлые.
+ * По умолчанию текущий год, в списке справа прошлые. На телефоне вместо года месяц.
  */
 export function HabitHistory({ habitId, checks, schedule, today, since, onToggle }: Props) {
-  const [year, setYear] = useSessionState(`habit.year.${habitId}`, Number(today.slice(0, 4)))
-  const years = historyYears(since, today)
+  const period = useHistoryPeriod(`habit.${habitId}`, since, today)
 
   const day = (date: string) => {
     const done = checks.has(date)
@@ -56,14 +54,14 @@ export function HabitHistory({ habitId, checks, schedule, today, since, onToggle
       <div className={styles.header}>
         <h3 className={`t-body-md ${styles.title}`}>История</h3>
         <Dropdown
-          aria-label="Год истории"
+          aria-label="Период истории"
           size="sm"
-          value={String(year)}
-          onChange={(value) => setYear(Number(value))}
-          options={years.map((value) => ({ value: String(value), label: `${value} год` }))}
+          value={period.value}
+          onChange={period.onChange}
+          options={period.options}
         />
       </div>
-      <YearCalendar year={year} today={today} renderDay={day} />
+      <YearCalendar months={period.months} today={today} renderDay={day} />
     </div>
   )
 }

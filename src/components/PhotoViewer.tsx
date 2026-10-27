@@ -1,4 +1,4 @@
-import { CaretLeft, CaretRight } from '@phosphor-icons/react'
+import { CaretLeft, CaretRight, Trash } from '@phosphor-icons/react'
 import { parseISO } from 'date-fns'
 import { useEffect, useState } from 'react'
 import type { DayPhoto } from '../data/days'
@@ -21,9 +21,9 @@ type Props = {
 
 /**
  * Фото дня в обычной модалке (на телефоне шторкой). Пока грузится само фото, видно миниатюру.
- * Внизу справа стрелки к предыдущему и следующему фото (по датам, через дни без фото) и
- * «Заменить», на компьютере листают и клавиши ← и →. Слева внизу «Удалить» (спрашивает
- * подтверждение: вернуть фото нельзя).
+ * Внизу одним рядом: корзина (спрашивает подтверждение: вернуть фото нельзя), «Заменить» и
+ * стрелки к предыдущему и следующему фото (по датам, через дни без фото), на компьютере
+ * листают и клавиши ← и →.
  */
 export function PhotoViewer({ photo, onMove, onReplace, onClose }: Props) {
   const { photos, deletePhoto } = useDays()
@@ -53,13 +53,18 @@ export function PhotoViewer({ photo, onMove, onReplace, onClose }: Props) {
         open={!confirming}
         title={`Фото дня, ${formatDayMonth(parseISO(photo.date))}`}
         onClose={onClose}
-        footerStart={
-          <Button tone="danger" variant="ghost" onClick={() => setConfirming(true)}>
-            Удалить
-          </Button>
-        }
         footer={
           <div className={styles.nav}>
+            <IconButton
+              tone="danger"
+              variant="ghost"
+              aria-label="Удалить фото"
+              icon={<Trash aria-hidden />}
+              onClick={() => setConfirming(true)}
+            />
+            <Button className={styles.replace} onClick={onReplace}>
+              Заменить
+            </Button>
             {/* У первого и последнего фото стрелки в ту сторону нет. */}
             {previous && (
               <IconButton
@@ -77,7 +82,6 @@ export function PhotoViewer({ photo, onMove, onReplace, onClose }: Props) {
                 onClick={() => onMove(next)}
               />
             )}
-            <Button onClick={onReplace}>Заменить</Button>
           </div>
         }
       >

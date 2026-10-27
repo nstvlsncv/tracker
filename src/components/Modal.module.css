@@ -24,6 +24,20 @@
   background: var(--effects-overlay);
 }
 
+/* Полоска под строкой статуса телефона: непрозрачная, цвета затемнения (`--browser-color`
+   ставит src/lib/theme.ts). Полупрозрачную подложку браузер под строку статуса не пускает, и
+   та оставалась светлой. Где системной зоны нет (компьютер), полоска нулевой высоты. */
+.overlay::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: -1;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--browser-color);
+}
+
 .dialog {
   position: relative;
   display: flex;

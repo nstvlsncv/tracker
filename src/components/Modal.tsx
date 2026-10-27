@@ -3,6 +3,7 @@ import { useEffect, useId, useLayoutEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { cx } from '../lib/cx'
+import { dimBrowser } from '../lib/theme'
 import { IconButton } from './IconButton'
 import styles from './Modal.module.css'
 
@@ -76,8 +77,12 @@ export function Modal({ open, title, onClose, children, footer, footerStart, siz
     document.addEventListener('keydown', onKeyDown)
     const overflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    // Строка статуса и панели браузера на телефоне темнеют вместе со страницей.
+    const undim = dimBrowser()
     return () => {
       document.removeEventListener('keydown', onKeyDown)
+      // Затемнение уходит вместе с растворяющейся копией модалки, а не раньше неё.
+      setTimeout(undim, CLOSE_MS)
       document.body.style.overflow = overflow
       if (previous instanceof HTMLElement) previous.focus()
     }

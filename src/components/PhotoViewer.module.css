@@ -14,7 +14,7 @@
   animation: appear 200ms ease-out;
 }
 
-/* Стрелки и «Заменить» одним рядом, между кнопками 8px. */
+/* Корзина, «Заменить» и стрелки одним рядом, между кнопками 8px. */
 .nav {
   display: flex;
   gap: var(--space-sm);
@@ -35,11 +35,11 @@
     height: 48px;
   }
 
-  .nav > :not(:last-child) {
+  .nav > :not(.replace) {
     width: 48px;
   }
 
-  .nav > :last-child {
+  .nav > .replace {
     flex: 1;
   }
 }

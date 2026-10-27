@@ -29,6 +29,15 @@
   }
 }
 
+/* Один месяц во всю ширину (история на телефоне): кружки крупные, между ними просторнее. */
+.year.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.single .days {
+  gap: var(--space-sm);
+}
+
 .month {
   display: flex;
   flex-direction: column;

@@ -373,7 +373,7 @@ export function Home() {
             {/* Фото дня устроено как настроение: плашка, справа квадрат. То же фото, что в шапке
                 дня на Неделе и в Привычках. */}
             {days.photos && (
-              <section className={styles.summary}>
+              <section className={cx(styles.summary, styles.inline)}>
                 <div className={styles.summaryText}>
                   <h2 className="t-heading-5">Фото дня</h2>
                   <p className={styles.summaryHint}>

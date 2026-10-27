@@ -3,11 +3,13 @@ import { useEffect, useState } from 'react'
 import type { PointerEvent, ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { formatWeekdayAndDay } from '../lib/dates'
-import { monthWeeks, yearMonths } from '../lib/habitHistory'
+import { cx } from '../lib/cx'
+import { monthWeeks } from '../lib/habitHistory'
 import styles from './YearCalendar.module.css'
 
 type Props = {
-  year: number
+  /** Месяцы 'yyyy-MM' по порядку: двенадцать месяцев года или один месяц (на телефоне). */
+  months: string[]
   today: string
   /** Клетка прошедшего или сегодняшнего дня. Будущие дни календарь рисует сам: бледная точка. */
   renderDay: (date: string) => ReactNode
@@ -23,12 +25,14 @@ const TIP_EDGE_PX = 8
 
 /**
  * Год сеткой из двенадцати маленьких календарей: у каждого месяца название и дни кружками,
- * недели с понедельника. Сколько месяцев в ряд (6 на компьютере, 4, 3, 2 на телефоне), решает
- * ширина самого блока; клетки растягиваются по ширине месяца.
+ * недели с понедельника. Сколько месяцев в ряд (6 на компьютере, 4, 3, 2), решает ширина
+ * самого блока; клетки растягиваются по ширине месяца. Один месяц (так история устроена
+ * на телефоне) стоит во всю ширину и без названия: месяц назван в списке над ним.
  * Над днём под курсором тёмная подсказка с днём недели и числом («Вторник, 27 октября»).
  * Общий для истории привычки, настроения и фото дня: что лежит в клетке, решает экран.
  */
-export function YearCalendar({ year, today, renderDay }: Props) {
+export function YearCalendar({ months, today, renderDay }: Props) {
+  const single = months.length === 1
   const [tip, setTip] = useState<{ text: string; x: number; y: number } | null>(null)
 
   // Подсказка рисуется поверх страницы и не следует за прокруткой: при прокрутке прячется.
@@ -51,10 +55,10 @@ export function YearCalendar({ year, today, renderDay }: Props) {
 
   return (
     <div className={styles.wrap}>
-      <div className={styles.year} onPointerOver={onOver} onPointerLeave={() => setTip(null)}>
-        {yearMonths(year).map((month, index) => (
+      <div className={cx(styles.year, single && styles.single)} onPointerOver={onOver} onPointerLeave={() => setTip(null)}>
+        {months.map((month) => (
           <div key={month} className={styles.month}>
-            <span className={`t-caption ${styles.name}`}>{MONTH_NAMES[index]}</span>
+            {!single && <span className={`t-caption ${styles.name}`}>{MONTH_NAMES[Number(month.slice(5, 7)) - 1]}</span>}
             <div className={styles.days}>
               {monthWeeks(month).flatMap((week, row) =>
                 week.map((date, column) => {

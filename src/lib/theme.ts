@@ -14,10 +14,50 @@ export function getTheme(): Theme {
   return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
 }
 
-/** Цвет панелей браузера на телефоне: под цвет страницы в текущей теме. */
+/** Сколько модалок сейчас открыто: пока хоть одна, панели браузера затемнены. */
+let dimmed = 0
+
+/** Цвет в виде [r, g, b, a]: браузер сам разбирает любую запись (hex, rgb, rgba). */
+function channels(color: string): number[] {
+  const probe = document.createElement('span')
+  probe.style.color = color
+  document.body.appendChild(probe)
+  const parsed = getComputedStyle(probe).color.match(/[\d.]+/g)?.map(Number) ?? [0, 0, 0]
+  probe.remove()
+  return [parsed[0], parsed[1], parsed[2], parsed[3] ?? 1]
+}
+
+/** Цвет страницы под затемнением модалки: полупрозрачная подложка поверх фона страницы. */
+function dimmedColor(surface: string, overlay: string): string {
+  const base = channels(surface)
+  const [r, g, b, alpha] = channels(overlay)
+  const mix = [r, g, b].map((value, index) => Math.round(value * alpha + base[index] * (1 - alpha)))
+  return `rgb(${mix.join(', ')})`
+}
+
+/**
+ * Цвет панелей браузера на телефоне: под цвет страницы в текущей теме, а пока открыта модалка,
+ * под цвет затемнения. Тот же цвет получает полоска под строкой статуса (`--browser-color`,
+ * см. Modal.module.css): полупрозрачное затемнение браузер туда не дотягивает, и строка
+ * статуса оставалась светлой над тёмной подложкой.
+ */
 function syncBrowserColor() {
-  const color = getComputedStyle(document.documentElement).getPropertyValue('--bg-surface').trim()
+  const root = document.documentElement
+  const style = getComputedStyle(root)
+  const surface = style.getPropertyValue('--bg-surface').trim()
+  const color = dimmed ? dimmedColor(surface, style.getPropertyValue('--effects-overlay').trim()) : surface
+  root.style.setProperty('--browser-color', color)
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color)
+}
+
+/** Затемнить панели браузера вместе со страницей, пока открыта модалка. Возвращает отмену. */
+export function dimBrowser(): () => void {
+  dimmed += 1
+  syncBrowserColor()
+  return () => {
+    dimmed -= 1
+    syncBrowserColor()
+  }
 }
 
 function applyTheme(theme: Theme) {

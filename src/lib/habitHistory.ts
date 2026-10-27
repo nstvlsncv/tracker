@@ -14,6 +14,18 @@ export function historyYears(since: string, today: string): number[] {
   return Array.from({ length: last - first + 1 }, (_, index) => last - index)
 }
 
+/**
+ * Месяцы для выбора в истории на телефоне, новые сверху: текущий и одиннадцать предыдущих,
+ * а если отметки есть и раньше, то до месяца `since`.
+ */
+export function historyMonths(since: string, today: string): string[] {
+  const last = monthOf(today)
+  const first = [monthOf(since), shiftMonth(last, -11)].sort()[0]
+  const months: string[] = []
+  for (let month = last; month >= first; month = shiftMonth(month, -1)) months.push(month)
+  return months
+}
+
 /** Месяц в виде 'yyyy-MM'. */
 export function monthOf(date: string): string {
   return date.slice(0, 7)

@@ -241,6 +241,13 @@
     align-items: stretch;
     padding: var(--space-md);
   }
+
+  /* Квадрат фото маленький: он остаётся в одной строке с названием и описанием. */
+  .summary.inline {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
 }
 
 /* Подсказка новичку: маскот и пара строк, пока в трекере ничего нет. */

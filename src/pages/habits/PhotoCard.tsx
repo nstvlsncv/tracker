@@ -5,30 +5,31 @@ import { DayPhotoSlot } from '../../components/DayPhotoSlot'
 import { Dropdown } from '../../components/Dropdown'
 import { YearCalendar } from '../../components/YearCalendar'
 import { useDays } from '../../data/useDays'
-import { historyYears } from '../../lib/habitHistory'
 import { useSessionState } from '../../lib/sessionState'
 import card from './HabitCard.module.css'
 import history from './HabitHistory.module.css'
+import { useHistoryPeriod } from './useHistoryPeriod'
 
 /**
  * Фото дня в Привычках, рядом с настроением: карточка устроена как карточка привычки,
  * серии у неё нет. Свёрнутая: квадрат с фото за сегодня на месте чекбокса (нажатие добавляет
  * или открывает фото). Раскрытая: год маленькими календарями, как история привычки, в клетках
- * миниатюры 24px (год выбирается в списке справа), в любой прошедший день можно добавить
+ * миниатюры (год выбирается в списке справа, на телефоне вместо года месяц), в любой прошедший день можно добавить
  * фото задним числом. Пока фото нет в базе, карточки нет.
  */
 export function PhotoCard({ today }: { today: string }) {
   const { photos, uploading } = useDays()
   const detailsId = useId()
   const [open, setOpen] = useSessionState('habits.photoOpen', false)
-  const [year, setYear] = useSessionState('photo.year', Number(today.slice(0, 4)))
+  const dates = Object.keys(photos ?? {}).sort()
+  const period = useHistoryPeriod('photo', dates[0] ?? today, today)
 
   if (!photos) return null
 
   const has = Boolean(photos[today] || uploading[today])
-  const dates = Object.keys(photos).sort()
-  const inYear = dates.filter((date) => date.startsWith(`${year}-`)).length
-  const years = historyYears(dates[0] ?? today, today)
+  // Сколько фото за выбранный период: год на компьютере, месяц на телефоне.
+  const inPeriod = dates.filter((date) => date.startsWith(`${period.value}-`)).length
+  const unit = period.phone ? 'месяц' : 'год'
   const Caret = open ? CaretUp : CaretDown
 
   return (
@@ -59,17 +60,17 @@ export function PhotoCard({ today }: { today: string }) {
           <div className={history.card}>
             <div className={history.header}>
               <h3 className={`t-body-md ${history.title}`}>
-                {inYear > 0 ? `${inYear} фото за год` : 'Фото за год пока нет'}
+                {inPeriod > 0 ? `${inPeriod} фото за ${unit}` : `Фото за ${unit} пока нет`}
               </h3>
               <Dropdown
-                aria-label="Год"
+                aria-label="Период"
                 size="sm"
-                value={String(year)}
-                onChange={(value) => setYear(Number(value))}
-                options={years.map((value) => ({ value: String(value), label: `${value} год` }))}
+                value={period.value}
+                onChange={period.onChange}
+                options={period.options}
               />
             </div>
-            <YearCalendar year={year} today={today} renderDay={(date) => <DayPhotoSlot date={date} size="fill" today={date === today} />} />
+            <YearCalendar months={period.months} today={today} renderDay={(date) => <DayPhotoSlot date={date} size="fill" today={date === today} />} />
           </div>
         </div>
       </Collapse>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatMonth, historyYears, monthWeeks, shiftMonth, yearMonths } from './habitHistory'
+import { formatMonth, historyMonths, historyYears, monthWeeks, shiftMonth, yearMonths } from './habitHistory'
 
 describe('historyYears', () => {
   it('текущий год и четыре предыдущих, новые сверху', () => {
@@ -8,6 +8,21 @@ describe('historyYears', () => {
 
   it('если отметки есть раньше, список доходит до их года', () => {
     expect(historyYears('2020-05-10', '2026-10-02')).toEqual([2026, 2025, 2024, 2023, 2022, 2021, 2020])
+  })
+})
+
+describe('historyMonths', () => {
+  it('текущий месяц и одиннадцать предыдущих, новые сверху', () => {
+    const months = historyMonths('2026-09-01', '2026-10-02')
+    expect(months).toHaveLength(12)
+    expect(months[0]).toBe('2026-10')
+    expect(months[11]).toBe('2025-11')
+  })
+
+  it('если отметки есть раньше, список доходит до их месяца', () => {
+    const months = historyMonths('2024-03-15', '2026-10-02')
+    expect(months.at(-1)).toBe('2024-03')
+    expect(months).toHaveLength(32)
   })
 })
 
