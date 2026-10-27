@@ -23,6 +23,15 @@ type ItemRow = {
 const PAGE_SIZE = 1000
 /** 42P01 у базы и PGRST205 у её API: такой таблицы нет. База старше кода. */
 const NO_TABLE = ['42P01', 'PGRST205']
+/** 42703: такой колонки нет. */
+const NO_COLUMN = '42703'
+
+// Строкой, а не литералом: выбор колонок зависит от базы, разбирать его на типы незачем.
+const SPEND_COLUMNS: string = 'id, date, amount, created_at'
+const SPEND_COLUMNS_TITLED: string = 'id, date, amount, title, created_at'
+
+/** Есть ли у трат колонка с названием. Узнаётся при загрузке; без неё траты пишутся без названия. */
+let spendTitles = true
 
 async function unwrap<T>(request: PromiseLike<{ data: T; error: unknown }>): Promise<T> {
   const { data, error } = await request
@@ -66,23 +75,31 @@ async function loadChecks(): Promise<FinanceCheck[]> {
  */
 async function loadSpends(): Promise<FinanceSpend[] | null> {
   const spends: FinanceSpend[] = []
+  spendTitles = true
   for (let from = 0; ; from += PAGE_SIZE) {
     const { data, error } = await supabase
       .from('finance_spends')
-      .select('id, date, amount, created_at')
+      .select(spendTitles ? SPEND_COLUMNS_TITLED : SPEND_COLUMNS)
       .order('date')
       .order('id')
       .range(from, from + PAGE_SIZE - 1)
     if (error) {
       if (NO_TABLE.includes(error.code)) return null
+      // Колонки с названием ещё нет: читаем без неё.
+      if (error.code === NO_COLUMN && spendTitles) {
+        spendTitles = false
+        from -= PAGE_SIZE
+        continue
+      }
       throw error
     }
     const page = data ?? []
-    for (const row of page) {
+    for (const row of page as unknown as Array<Record<string, unknown>>) {
       spends.push({
         id: row.id as string,
         date: row.date as string,
         amount: Number(row.amount),
+        title: (row.title as string | null | undefined) || null,
         createdAt: row.created_at as string,
       })
     }
@@ -111,6 +128,7 @@ export const supabaseFinance: FinanceApi = {
       items: (items.data ?? []).map((row) => toItem(row as ItemRow)),
       checks,
       spends,
+      spendTitles,
       days: (days ?? []).map((row) => ({
         stage: row.stage as FinanceStage,
         month: row.month as string,
@@ -170,8 +188,21 @@ export const supabaseFinance: FinanceApi = {
         id: spend.id,
         date: spend.date,
         amount: spend.amount,
+        ...(spendTitles && { title: spend.title }),
         created_at: spend.createdAt,
       }),
+    )
+  },
+
+  async updateSpend(id, patch) {
+    await unwrap(
+      supabase
+        .from('finance_spends')
+        .update({
+          ...(spendTitles && patch.title !== undefined && { title: patch.title }),
+          ...(patch.amount !== undefined && { amount: patch.amount }),
+        })
+        .eq('id', id),
     )
   },
 

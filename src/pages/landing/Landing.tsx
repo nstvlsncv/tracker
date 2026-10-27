@@ -40,29 +40,27 @@ const DEMO_TASKS = ['Разобрать почту', 'Позвонить мам�
 /** Сколько из них отмечено с самого начала. */
 const DEMO_DONE = 1
 
-/** Что собрано в трекере: слова меняются в заголовке по кругу. */
-const SUBJECTS = ['Вся неделя', 'Все задачи', 'Все привычки', 'Все платежи', 'Все списки']
-const SUBJECT_MS = 2400
-
 /** Абзац под заголовком: что такое трекер, одной мыслью. */
 const LEAD =
   'Трекер помогает спланировать неделю и не забыть важное: задачи по дням, цели, привычки и обязательные платежи. Отмечаешь сделанное и видишь, сколько уже позади'
 
 /** Бегущая строка: из чего состоит трекер. */
-const WORDS = ['задачи', 'цели недели', 'привычки', 'серии', 'платежи', 'списки', 'настроение', 'итоги', 'повтор', 'заметки']
+const WORDS = ['задачи', 'цели недели', 'привычки', 'серии', 'платежи', 'списки', 'настроение', 'фото дня', 'повтор']
 
 type Feature = { scene: ReelSceneId; title: string; text: string; wide?: boolean }
 
 /**
- * Возможности: у каждой живая сцена, та же, что в ролике на экране входа. Порядок подобран
+ * Возможности: у каждой живая сцена, та же, что в ролике на экране входа (фото дня есть
+ * только здесь). Все плашки устроены одинаково: серая карточка, в ней белое окно со сценой
+ * и текст под ним. Прогресс дня отдельной плашкой был, но повторял неделю. Порядок подобран
  * под сетку в три столбца, четыре ряда без дыр: широкая и обычная, обычная и широкая,
  * и ещё раз так же.
  */
 const FEATURES: Feature[] = [
   {
     scene: 'week',
-    title: 'Неделя целиком',
-    text: 'Задачи разложены по дням с понедельника по воскресенье. У каждого дня кольцо: оно показывает, какая часть задач уже сделана',
+    title: 'Неделя и дни',
+    text: 'Задачи разложены по дням с понедельника по воскресенье. Кольцо у каждого дня показывает, сколько сделано, а закрытый день трекер отмечает салютом',
     wide: true,
   },
   {
@@ -98,9 +96,9 @@ const FEATURES: Feature[] = [
     text: 'Раз в день отмечаешь, каким он был. Через пару недель видно, какие дни даются легче',
   },
   {
-    scene: 'day',
-    title: 'Прогресс дня',
-    text: 'Каждая галочка двигает кольцо. Закроешь все задачи дня, и трекер отпразднует это салютом',
+    scene: 'photo',
+    title: 'Фото дня',
+    text: 'Одно фото на каждый день. За год из них собирается календарь, по которому приятно листать, что было',
     wide: true,
   },
 ]
@@ -109,10 +107,10 @@ const FEATURES: Feature[] = [
 const PERKS = [
   { title: 'Разбираться не придётся', text: 'Добавил задачу, отметил, готово. Инструкция не нужна' },
   { title: 'Работает на телефоне', text: 'Открывается в браузере и ставится иконкой на экран, как обычное приложение' },
-  { title: 'Твои записи видишь только ты', text: 'Задачи, заметки и суммы не показываются другим людям' },
+  { title: 'Твои записи видишь только ты', text: 'Задачи, фото и суммы не показываются другим людям' },
   { title: 'Ничего не отвлекает', text: 'Нет рекламы, лент и уведомлений, о которых не просили' },
   { title: 'Светлая и тёмная тема', text: 'И пять цветов на выбор: можно настроить под себя' },
-  { title: 'Есть итоги', text: 'Трекер показывает, как шли последние недели и какие привычки держатся' },
+  { title: 'Видно весь год', text: 'Привычки, настроение и фото дня собираются в календарь по месяцам' },
 ]
 
 /** Как начать: регистрации нет, аккаунты заводятся вручную, поэтому путь лежит через сообщение. */
@@ -312,16 +310,6 @@ export function Landing() {
     }
   }, [mark])
 
-  // Слово в заголовке меняется по кругу.
-  const [subject, setSubject] = useState(0)
-  useEffect(() => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const timer = setInterval(() => {
-      if (!document.hidden) setSubject((current) => (current + 1) % SUBJECTS.length)
-    }, SUBJECT_MS)
-    return () => clearInterval(timer)
-  }, [])
-
   const left = PAGE_TASKS.length - done.size
   const percent = Math.round((done.size / PAGE_TASKS.length) * 100)
 
@@ -387,12 +375,10 @@ export function Landing() {
         <section ref={track('hero')} className={styles.hero}>
           <div className={styles.heroText}>
             {task('hero')}
-            {/* Слова меняются ради анимации: для скринридера заголовок назван целиком. */}
-            <h1 className={`t-heading-1 ${styles.title}`} aria-label="Вся неделя в одном трекере">
-              {/* key: новое слово въезжает снизу. */}
-              <span key={subject} className={styles.subject}>
-                {SUBJECTS[subject]}
-              </span>
+            {/* Один заголовок на всё: что угодно из трекера, но в одном месте. Слова, которые
+                менялись по кругу, владелица попросила заменить одним. */}
+            <h1 className={`t-heading-1 ${styles.title}`}>
+              <span className={styles.subject}>Всё важное</span>{' '}
               <span className={styles.rest}>
                 {tidy('в одном ')}
                 <span className={styles.marked}>трекере</span>
@@ -426,7 +412,7 @@ export function Landing() {
                   <SceneFit id={feature.scene} className={styles.scene} once />
                   <div className={styles.featureText}>
                     <h3 className="t-heading-4">{tidy(feature.title)}</h3>
-                    <p className={styles.muted}>{tidy(feature.text)}</p>
+                    <p className={`t-body-md ${styles.text}`}>{tidy(feature.text)}</p>
                   </div>
                 </article>
               </Reveal>
@@ -475,7 +461,7 @@ export function Landing() {
               </div>
               <div className={styles.customMascot}>
                 <Mascot size={168} mood="happy" />
-                <span className={`t-caption ${styles.muted}`}>{tidy('это маскот, на него можно нажать')}</span>
+                <span className={`t-caption ${styles.text}`}>{tidy('это маскот, на него можно нажать')}</span>
               </div>
             </div>
           </Reveal>
@@ -495,8 +481,8 @@ export function Landing() {
                       <Check aria-hidden />
                     </span>
                     <div className={styles.perkText}>
-                      <h3 className="t-heading-5">{tidy(title)}</h3>
-                      <p className={styles.muted}>{tidy(text)}</p>
+                      <h3 className="t-heading-4">{tidy(title)}</h3>
+                      <p className={`t-body-md ${styles.text}`}>{tidy(text)}</p>
                     </div>
                   </div>
                 </Reveal>
@@ -516,8 +502,8 @@ export function Landing() {
                 <Reveal delay={index * 100}>
                   <div className={styles.step}>
                     <span className={`t-heading-3 ${styles.stepNumber}`}>{index + 1}</span>
-                    <h3 className="t-heading-5">{tidy(step.title)}</h3>
-                    <p className={styles.muted}>{tidy(step.text)}</p>
+                    <h3 className="t-heading-4">{tidy(step.title)}</h3>
+                    <p className={`t-body-md ${styles.text}`}>{tidy(step.text)}</p>
                   </div>
                 </Reveal>
               </li>
@@ -548,7 +534,7 @@ export function Landing() {
         <Donut value={percent} size="sm" quiet />
         <div className={styles.progressText}>
           <span className="t-body-md">Задачи страницы</span>
-          <span className={`t-caption ${styles.muted}`}>
+          <span className={`t-caption ${styles.text}`}>
             {done.size} из {PAGE_TASKS.length}
           </span>
         </div>

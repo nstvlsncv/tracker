@@ -11,11 +11,17 @@ export const STAGES: Array<{ value: FinanceStage; label: string }> = [
 ]
 
 /** Списки внутри этапа в том порядке, в каком они стоят на экране. */
-export const KINDS: Array<{ value: FinanceKind; label: string; one: string }> = [
+/**
+ * Списки этапа на экране. Отдельного списка накоплений больше нет: накопления, заведённые
+ * раньше, стоят среди платежей и считаются так же (`listKind`).
+ */
+export const KINDS: Array<{ value: Exclude<FinanceKind, 'saving'>; label: string; one: string }> = [
   { value: 'income', label: 'Поступления', one: 'Поступление' },
   { value: 'bill', label: 'Платежи', one: 'Платёж' },
-  { value: 'saving', label: 'Накопления', one: 'Накопление' },
 ]
+
+/** В каком списке этапа стоит строка: старые накопления среди платежей. */
+export const listKind = (kind: FinanceKind) => (kind === 'saving' ? 'bill' : kind)
 
 export const stageLabel = (stage: FinanceStage) =>
   STAGES.find((item) => item.value === stage)?.label ?? ''
@@ -77,8 +83,21 @@ export function parseAmount(text: string): number | null {
   return amount > 0 && amount <= MAX_AMOUNT ? amount : null
 }
 
-/** Сумма для поля ввода: без пробелов и знака рубля. */
-export const amountToInput = (amount: number) => String(amount).replace('.', ',')
+/**
+ * Набранная сумма с пробелами между тысячами, как её показывает поле ввода: «1500,5» → «1 500,5».
+ * Лишнее (буквы, второй разделитель, третья цифра копеек) выбрасывается, точка становится запятой.
+ */
+export function spaceAmount(text: string): string {
+  const clean = text.replace(/[^\d.,]/g, '').replace(/\./g, ',')
+  const comma = clean.indexOf(',')
+  const whole = (comma < 0 ? clean : clean.slice(0, comma)).replace(/,/g, '')
+  const spaced = whole.replace(/\B(?=(\d{3})+$)/g, '\u00a0')
+  if (comma < 0) return spaced
+  return `${spaced},${clean.slice(comma + 1).replace(/,/g, '').slice(0, 2)}`
+}
+
+/** Сумма для поля ввода: с пробелами между тысячами, без знака рубля. */
+export const amountToInput = (amount: number) => spaceAmount(String(amount))
 
 /** Копейки складываются в целых числах: иначе 0,1 + 0,2 дало бы 0,30000000000000004. */
 const add = (a: number, b: number) => Math.round((a + b) * 100) / 100

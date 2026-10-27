@@ -1,8 +1,8 @@
 import {
   ArrowsClockwise,
   CalendarDots,
+  Checks,
   House,
-  ListChecks,
   SidebarSimple,
   SignOut,
   User,
@@ -37,8 +37,8 @@ const NAV = [
   { to: '', label: 'Главная', icon: House, end: true, motion: 'bounce' },
   { to: 'week', label: 'Неделя', icon: CalendarDots, end: false, motion: 'flip' },
   { to: 'habits', label: 'Привычки', icon: ArrowsClockwise, end: false, motion: 'spin' },
+  { to: 'lists', label: 'Списки', icon: Checks, end: false, motion: 'tick' },
   { to: 'finance', label: 'Финансы', icon: Wallet, end: false, motion: 'tilt' },
-  { to: 'lists', label: 'Списки', icon: ListChecks, end: false, motion: 'tick' },
   // На телефоне Профиля в нижней панели нет: шестой пункт не помещается, он открывается
   // с Главной, по фото в шапке.
   { to: 'profile', label: 'Профиль', icon: User, end: false, motion: 'nod', wide: true },
@@ -165,8 +165,7 @@ export function AppShell({ basePath = '' }: Props) {
     <div className={cx(styles.shell, entering && styles.entering)}>
       <aside className={cx(styles.sidebar, collapsed && styles.collapsed)}>
         <div className={`t-heading-3 ${styles.logo}`}>
-          {/* В «Итогах» за курсором следит большой маскот экрана, этот смотрит прямо. */}
-          <Mascot size={32} mood={overdue ? 'sad' : 'calm'} still={section === 'stats'} />
+          <Mascot size={32} mood={overdue ? 'sad' : 'calm'} />
           <span className={styles.logoText}>Трекер</span>
         </div>
         <nav className={styles.nav} aria-label="Разделы">
@@ -181,9 +180,8 @@ export function AppShell({ basePath = '' }: Props) {
                 't-button',
                 styles.item,
                 // Открытый раздел считается по адресу сами: NavLink не узнавал Главную в демо,
-                // где её адрес без косой черты на конце (/demo). «Итоги» открываются с Главной
-                // и в меню считаются её частью.
-                (to === section || (to === '' && section === 'stats')) && styles.active,
+                // где её адрес без косой черты на конце (/demo).
+                to === section && styles.active,
                 // Телефон: Профиля в нижней панели нет, он открывается с Главной: подсвечена она.
                 to === '' && section === 'profile' && styles.activeOnPhone,
                 'wide' in item && styles.wide,

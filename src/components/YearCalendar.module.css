@@ -1,0 +1,91 @@
+/* Контейнер: число месяцев в ряд зависит от ширины блока, а не окна. */
+.wrap {
+  container-type: inline-size;
+}
+
+/* Месяцы делят ширину блока поровну: на компьютере шесть в ряд, весь год в два ряда. */
+.year {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-lg) var(--space-md);
+}
+
+@container (min-width: 420px) {
+  .year {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 600px) {
+  .year {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@container (min-width: 900px) {
+  .year {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: var(--space-lg);
+  }
+}
+
+.month {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.name {
+  color: var(--text-tertiary);
+}
+
+/* Клетки растягиваются по ширине месяца. */
+.days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+}
+
+/* Клетка дня квадратная. Сама себе контейнер: лицо настроения меряет себя её шириной (100cqi). */
+.cell {
+  display: flex;
+  aspect-ratio: 1;
+  min-width: 0;
+  container-type: inline-size;
+}
+
+/* Будущий день: бледная точка, отметить его нельзя. */
+.future {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--bg-secondary);
+  opacity: 0.4;
+}
+
+/* Подсказка над днём: тёмная, как подсказки свёрнутого меню, появляется сразу. */
+.tip {
+  position: fixed;
+  z-index: 95;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  background: var(--accent-default);
+  color: var(--accent-foreground);
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - var(--space-xs)));
+  animation: tip-in 140ms ease-out;
+}
+
+@keyframes tip-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tip {
+    animation: none;
+  }
+}

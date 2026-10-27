@@ -80,6 +80,7 @@ body {
   font-weight: var(--typography-body-md-font-weight);
   font-size: var(--typography-body-md-font-size);
   line-height: var(--typography-body-md-line-height);
+  letter-spacing: var(--typography-body-md-letter-spacing);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -98,43 +99,11 @@ input {
   color: inherit;
 }
 
-/*
- * Свой курсор по всему трекеру: скруглённая чёрная стрелка с белой обводкой, а над тем, что
- * нажимается, та же стрелка лаймовая. В обеих темах курсор один (как в macOS): тёмный ореол
- * в тёмной теме выглядел жирным. Рисунки в src/assets/cursors, нарисованы вдвое крупнее (2x),
- * чтобы на ретине не мылились. Над полями ввода остаётся системная текстовая черта.
- */
-:root {
-  --cursor-default: image-set(url('../assets/cursors/arrow.svg') 2x) 3 3, default;
-  --cursor-pointer: image-set(url('../assets/cursors/arrow-lime.svg') 2x) 3 3, pointer;
-}
-
-html {
-  cursor: var(--cursor-default);
-}
-
-a[href],
-button,
-select,
-summary,
-label:has(input[type='checkbox'], input[type='radio'], input[type='file']),
-[role='button'],
-[role='tab'],
-[role='option'],
-[role='menuitem'] {
-  cursor: var(--cursor-pointer);
-}
-
-input:not([type='checkbox'], [type='radio'], [type='button'], [type='submit'], [type='file']),
-textarea,
-[contenteditable='true'] {
-  cursor: text;
-}
-
 button {
   padding: 0;
   border: 0;
   background: none;
+  cursor: pointer;
 }
 
 button:disabled {

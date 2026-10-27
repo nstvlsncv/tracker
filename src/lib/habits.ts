@@ -203,3 +203,25 @@ export function completionRate(
   if (schedule.frequency === 'weekly') due = Math.round(((schedule.timesPerWeek ?? 1) * due) / 7)
   return due === 0 ? 0 : Math.min(100, Math.round((done / due) * 100))
 }
+
+/**
+ * Привычки недели для ряда показателей на Неделе: сколько привычек набрали норму недели
+ * и сколько их всего. Норма: каждый день или все дни расписания (кроме дней паузы), у «N раз
+ * в неделю» N отметок. Привычка, которая всю неделю на паузе, не считается вовсе.
+ */
+export function weekHabits(
+  habits: Array<{ schedule: HabitSchedule; checks: ReadonlySet<string> }>,
+  weekStart: string,
+): { done: number; total: number } {
+  const days = Array.from({ length: 7 }, (_, offset) => shiftDate(weekStart, offset))
+  let done = 0
+  let total = 0
+  for (const { schedule, checks } of habits) {
+    const due = days.filter((date) => isScheduled(schedule, date))
+    if (due.length === 0) continue
+    total++
+    const need = schedule.frequency === 'weekly' ? Math.min(schedule.timesPerWeek ?? 1, due.length) : due.length
+    if (due.filter((date) => checks.has(date)).length >= need) done++
+  }
+  return { done, total }
+}

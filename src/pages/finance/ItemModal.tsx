@@ -9,7 +9,8 @@ import { Modal } from '../../components/Modal'
 import type { FinanceItem, FinanceKind, FinanceStage } from '../../data/finance'
 import type { NewFinanceItem } from '../../data/useFinance'
 import { HABIT_TITLE_MAX_LENGTH } from '../../lib/constants'
-import { amountToInput, isOnce, KINDS, parseAmount, STAGES } from '../../lib/finance'
+import { amountToInput, isOnce, KINDS, listKind, parseAmount, STAGES } from '../../lib/finance'
+import { AmountInput } from './AmountInput'
 import styles from './Finance.module.css'
 
 type Props = {
@@ -33,7 +34,7 @@ const REPEAT_OPTIONS = [
 ]
 
 /**
- * Модалка строки этапа: поступление, платёж или накопление. У новой строки выбирается,
+ * Модалка строки этапа: поступление или платёж. У новой строки выбирается,
  * что это, в каком этапе и повторяется ли она; у готовой меняются только название и сумма.
  */
 export function ItemModal({ item, month, onClose, onSave, onDelete, ...start }: Props) {
@@ -46,7 +47,7 @@ export function ItemModal({ item, month, onClose, onSave, onDelete, ...start }: 
   const [amountError, setAmountError] = useState<string>()
   const [repeat, setRepeat] = useState(item && isOnce(item) ? 'once' : 'monthly')
   const once = repeat === 'once'
-  const one = KINDS.find((option) => option.value === kind)!.one.toLowerCase()
+  const one = KINDS.find((option) => option.value === listKind(kind))!.one.toLowerCase()
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
@@ -111,9 +112,8 @@ export function ItemModal({ item, month, onClose, onSave, onDelete, ...start }: 
             setTitleError(undefined)
           }}
         />
-        <Input
+        <AmountInput
           label="Сумма, ₽"
-          inputMode="decimal"
           value={amount}
           error={amountError}
           hint={
@@ -121,8 +121,8 @@ export function ItemModal({ item, month, onClose, onSave, onDelete, ...start }: 
               ? 'Разовая строка: только в этом месяце, дальше не повторяется'
               : `Действует с ${format(parseISO(`${month}-01`), 'MMMM', { locale: ru })} и дальше, прошлые месяцы не меняются`
           }
-          onChange={(event) => {
-            setAmount(event.target.value)
+          onChange={(next) => {
+            setAmount(next)
             setAmountError(undefined)
           }}
         />

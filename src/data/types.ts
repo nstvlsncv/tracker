@@ -101,10 +101,7 @@ export type ItemPatch = {
  * а для витрины в режиме разработки есть реализация в памяти. Методы бросают ошибку при сбое.
  */
 export type PlannerApi = {
-  /** `note`: заметка недели. undefined: заметок в этой базе нет (не применена свежая схема). */
-  loadWeek: (weekStart: string) => Promise<{ tasks: Task[]; goals: Goal[]; note?: string }>
-  /** Сохранить заметку недели. Пустой текст убирает её. */
-  saveNote: (weekStart: string, text: string) => Promise<void>
+  loadWeek: (weekStart: string) => Promise<{ tasks: Task[]; goals: Goal[] }>
 
   /** Настроение по дням ('yyyy-MM-dd'). null: его в этой базе нет (не применена свежая схема). */
   loadMoods: () => Promise<Record<string, Mood> | null>

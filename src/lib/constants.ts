@@ -18,5 +18,5 @@ export const AUTHOR_URL = 'https://t.me/nst_vlsncv'
 /** Сторона фото профиля в пикселях: до неё картинка сжимается в браузере перед отправкой. */
 export const AVATAR_SIZE = 256
 
-/** Заметка недели: то же ограничение стоит в базе. */
-export const NOTE_MAX_LENGTH = 5000
+/** Корзина хранилища с фото дней: закрытая, у каждого своя папка с именем его id. */
+export const DAY_PHOTOS = 'day-photos'

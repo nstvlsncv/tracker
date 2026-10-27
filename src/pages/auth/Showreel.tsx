@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowBendUpRight, Repeat } from '@phosphor-icons/react'
+import { ArrowBendUpRight, Camera, Repeat } from '@phosphor-icons/react'
 import { Checkbox } from '../../components/Checkbox'
 import { Donut } from '../../components/Donut'
 import { Mascot } from '../../components/Mascot'
@@ -273,6 +273,55 @@ function RepeatScene({ step }: { step: number }) {
   )
 }
 
+const PHOTO_DAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+/**
+ * У каких дней появляется фото и каким цветом оно нарисовано: среда пропущена, воскресенье
+ * это сегодня, на нём кнопка с камерой. Цвета из акцентных: настоящих фото в сцене нет.
+ */
+const PHOTO_SHOTS: Array<[number, (typeof ACCENTS)[number]['value']]> = [
+  [0, 'sky'],
+  [1, 'yellow'],
+  [3, 'pink'],
+  [4, 'lime'],
+  [5, 'violet'],
+]
+
+/**
+ * Сцена «Фото дня» (только на лендинге, в ролик не входит): у дней недели одно за другим
+ * появляются фото, как в календаре фото в Привычках.
+ */
+function PhotoScene({ step }: { step: number }) {
+  const shown = Math.min(PHOTO_SHOTS.length, step)
+  return (
+    <div className={styles.goals}>
+      <span className={`t-body-sm ${styles.muted}`}>
+        <RollingNumber value={shown} /> фото за неделю
+      </span>
+      <div className={styles.photoWeek}>
+        {PHOTO_DAYS.map((day, index) => {
+          const shot = PHOTO_SHOTS.findIndex(([at]) => at === index)
+          const today = index === PHOTO_DAYS.length - 1
+          return (
+            <div key={day} className={styles.photoDay}>
+              <span className={`t-caption ${styles.muted}`}>{day}</span>
+              <span
+                data-accent={shot >= 0 ? PHOTO_SHOTS[shot][1] : undefined}
+                className={cx(
+                  styles.photo,
+                  shot >= 0 && shot < shown && styles.photoOn,
+                  today && styles.photoToday,
+                )}
+              >
+                {today && <Camera />}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 /** Сколько шагов сцены уходит на цвета; дальше плашка показывает другую тему. */
 const THEME_STEP = ACCENTS.length
 
@@ -300,7 +349,8 @@ function MascotScene({ step }: { step: number }) {
   )
 }
 
-export type ReelSceneId = (typeof SCENES)[number]['id']
+/** Сцены ролика и сцена «Фото дня», которая есть только на лендинге. */
+export type ReelSceneId = (typeof SCENES)[number]['id'] | 'photo'
 
 /** Одна сцена по её имени и шагу. */
 function Scene({ id, step }: { id: ReelSceneId; step: number }) {
@@ -312,6 +362,7 @@ function Scene({ id, step }: { id: ReelSceneId; step: number }) {
   if (id === 'mood') return <MoodScene step={step} />
   if (id === 'finance') return <FinanceScene step={step} />
   if (id === 'lists') return <ListsScene step={step} />
+  if (id === 'photo') return <PhotoScene step={step} />
   return <MascotScene step={step} />
 }
 

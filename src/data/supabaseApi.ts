@@ -155,7 +155,7 @@ async function loadAllChecks(): Promise<HabitCheck[]> {
 // а правила доступа не дают прочитать или изменить чужое.
 export const supabaseApi: PlannerApi = {
   async loadWeek(weekStart) {
-    const [tasks, goals, note] = await Promise.all([
+    const [tasks, goals] = await Promise.all([
       unwrap(
         supabase
           .from('tasks')
@@ -164,28 +164,8 @@ export const supabaseApi: PlannerApi = {
           .lte('date', shiftDate(weekStart, 6)),
       ),
       unwrap(supabase.from('goals').select(GOAL_COLUMNS).eq('week_start', weekStart)),
-      // Таблицы заметок может ещё не быть: тогда неделя открывается без заметки.
-      supabase
-        .from('week_notes')
-        .select('text')
-        .eq('week_start', weekStart)
-        .maybeSingle()
-        .then(({ data, error }) => (error ? undefined : ((data?.text as string) ?? ''))),
     ])
-    return { tasks: (tasks ?? []).map(toTask), goals: (goals ?? []).map(toGoal), note }
-  },
-
-  async saveNote(weekStart, text) {
-    await unwrap(
-      text
-        ? supabase
-            .from('week_notes')
-            .upsert(
-              { week_start: weekStart, text, updated_at: new Date().toISOString() },
-              { onConflict: 'user_id,week_start' },
-            )
-        : supabase.from('week_notes').delete().eq('week_start', weekStart),
-    )
+    return { tasks: (tasks ?? []).map(toTask), goals: (goals ?? []).map(toGoal) }
   },
 
   async loadMoods() {
@@ -265,12 +245,30 @@ export const supabaseApi: PlannerApi = {
   },
 
   async loadHistory(fromWeekStart) {
-    // За 12 недель задач заведомо меньше тысячи строк, которые отдаёт один запрос.
+    // Задач за долгий период бывает больше тысячи строк, которые отдаёт один запрос,
+    // поэтому страницами, пока не кончатся.
+    const pages = async <Row,>(table: 'tasks' | 'goals', columns: string, column: 'date' | 'week_start') => {
+      const rows: Row[] = []
+      for (let from = 0; ; from += PAGE_SIZE) {
+        const page =
+          (await unwrap(
+            supabase
+              .from(table)
+              .select(columns)
+              .gte(column, fromWeekStart)
+              .order(column)
+              .order('id')
+              .range(from, from + PAGE_SIZE - 1),
+          )) ?? []
+        rows.push(...(page as unknown as Row[]))
+        if (page.length < PAGE_SIZE) return rows
+      }
+    }
     const [tasks, goals] = await Promise.all([
-      unwrap(supabase.from('tasks').select(TASK_COLUMNS).gte('date', fromWeekStart)),
-      unwrap(supabase.from('goals').select(GOAL_COLUMNS).gte('week_start', fromWeekStart)),
+      pages<TaskRow>('tasks', TASK_COLUMNS, 'date'),
+      pages<GoalRow>('goals', GOAL_COLUMNS, 'week_start'),
     ])
-    return { tasks: (tasks ?? []).map(toTask), goals: (goals ?? []).map(toGoal) }
+    return { tasks: tasks.map(toTask), goals: goals.map(toGoal) }
   },
 
   async loadWeeksWithData() {

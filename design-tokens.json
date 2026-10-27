@@ -69,13 +69,16 @@
       "800": { "value": 64, "type": "number" }
     },
     "FontFamily": {
-      "base": { "value": "Unbounded", "type": "string", "note": "Used for ALL text per product decision, including body/UI text at small sizes. Display/geometric face — verify readability at 12-14px during implementation; no italic exists." }
+      "base": { "value": "Unbounded", "type": "string", "note": "Used for ALL text per product decision, including body/UI text at small sizes. Body text and captions get a little extra letter spacing, so the wide face reads easier at 12-14px (a lighter weight 300 was tried: too thin). Inter for body text was tried and dropped: next to Unbounded it looked like another app." }
     },
     "FontWeight": {
       "regular": { "value": 400, "type": "number" },
       "medium": { "value": 500, "type": "number" },
       "semibold": { "value": 600, "type": "number" },
       "bold": { "value": 700, "type": "number" }
+    },
+    "LetterSpacing": {
+      "text": { "value": "0.01em", "type": "string", "note": "Body text and captions: a little air between letters of the wide face at small sizes." }
     },
     "FontSize": {
       "100": { "value": 12, "type": "number" },
@@ -164,6 +167,8 @@
     "effects": {
       "focus-ring": { "value": "{core.Neutral.900}", "type": "color" },
       "overlay": { "value": "rgba(23, 23, 23, 0.5)", "type": "color" },
+      "photo-dim": { "value": "rgba(0, 0, 0, 0.35)", "type": "color" },
+      "on-photo": { "value": "#FFFFFF", "type": "color" },
       "shadow-sm": { "value": "rgba(23, 23, 23, 0.08)", "type": "color" },
       "shadow-md": { "value": "rgba(23, 23, 23, 0.14)", "type": "color" },
       "shadow-lg": { "value": "rgba(23, 23, 23, 0.22)", "type": "color" }
@@ -191,11 +196,11 @@
       "heading-3": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.semibold}", "fontSize": "{core.FontSize.600}", "lineHeight": "{core.LineHeight.600}" },
       "heading-4": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.medium}", "fontSize": "{core.FontSize.500}", "lineHeight": "{core.LineHeight.500}" },
       "heading-5": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.semibold}", "fontSize": "{core.FontSize.300}", "lineHeight": "{core.LineHeight.300}" },
-      "body-lg": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.regular}", "fontSize": "{core.FontSize.300}", "lineHeight": "{core.LineHeight.300}" },
-      "body-md": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.regular}", "fontSize": "{core.FontSize.200}", "lineHeight": "{core.LineHeight.200}" },
-      "body-sm": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.regular}", "fontSize": "{core.FontSize.100}", "lineHeight": "{core.LineHeight.100}" },
+      "body-lg": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.regular}", "fontSize": "{core.FontSize.300}", "lineHeight": "{core.LineHeight.300}", "letterSpacing": "{core.LetterSpacing.text}" },
+      "body-md": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.regular}", "fontSize": "{core.FontSize.200}", "lineHeight": "{core.LineHeight.200}", "letterSpacing": "{core.LetterSpacing.text}" },
+      "body-sm": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.regular}", "fontSize": "{core.FontSize.100}", "lineHeight": "{core.LineHeight.100}", "letterSpacing": "{core.LetterSpacing.text}" },
       "button": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.medium}", "fontSize": "{core.FontSize.200}", "lineHeight": "{core.LineHeight.200}" },
-      "caption": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.medium}", "fontSize": "{core.FontSize.100}", "lineHeight": "{core.LineHeight.100}" },
+      "caption": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.medium}", "fontSize": "{core.FontSize.100}", "lineHeight": "{core.LineHeight.100}", "letterSpacing": "{core.LetterSpacing.text}" },
       "number-lg": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.semibold}", "fontSize": "{core.FontSize.600}", "lineHeight": "{core.LineHeight.600}" },
       "number-sm": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.medium}", "fontSize": "{core.FontSize.100}", "lineHeight": "{core.LineHeight.100}" },
       "tab": { "fontFamily": "{core.FontFamily.base}", "fontWeight": "{core.FontWeight.medium}", "fontSize": "{core.FontSize.100}", "lineHeight": "{core.LineHeight.100}", "note": "Labels of the phone bottom bar. Stays small on touch screens, like tab labels in iOS." }
@@ -278,6 +283,8 @@
     "effects": {
       "focus-ring": { "value": "{core.Neutral.100}", "type": "color" },
       "overlay": { "value": "rgba(0, 0, 0, 0.6)", "type": "color" },
+      "photo-dim": { "value": "rgba(0, 0, 0, 0.35)", "type": "color" },
+      "on-photo": { "value": "#FFFFFF", "type": "color" },
       "shadow-sm": { "value": "rgba(0, 0, 0, 0.4)", "type": "color" },
       "shadow-md": { "value": "rgba(0, 0, 0, 0.5)", "type": "color" },
       "shadow-lg": { "value": "rgba(0, 0, 0, 0.6)", "type": "color" }

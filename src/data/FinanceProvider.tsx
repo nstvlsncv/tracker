@@ -15,8 +15,9 @@ type State = {
   checks: ReadonlySet<string>
   days: FinanceDay[]
   spends: FinanceSpend[] | null
+  spendTitles: boolean
 }
-const EMPTY: State = { items: [], checks: new Set(), days: [], spends: null }
+const EMPTY: State = { items: [], checks: new Set(), days: [], spends: null, spendTitles: false }
 
 /** Месяцы, за которые у строки стоят отметки. */
 const checkedMonths = (checks: ReadonlySet<string>, id: string) =>
@@ -50,6 +51,7 @@ export function FinanceProvider({ api, children }: { api: FinanceApi; children: 
             checks: new Set(loaded.checks.map((check) => checkKey(check.itemId, check.month))),
             days: loaded.days,
             spends: loaded.spends,
+            spendTitles: loaded.spendTitles,
           })
         }
         setStatus(loaded ? 'ready' : 'unavailable')
@@ -98,6 +100,7 @@ export function FinanceProvider({ api, children }: { api: FinanceApi; children: 
       checks: data.checks,
       days: data.days,
       spends: data.spends,
+      spendTitles: data.spendTitles,
       reload,
 
       addItem: ({ once, ...fields }, month) => {
@@ -222,16 +225,28 @@ export function FinanceProvider({ api, children }: { api: FinanceApi; children: 
         )
       },
 
-      addSpend: (amount, date) => {
+      addSpend: (amount, date, title) => {
         const state = latest.current
         if (!state.spends) return
-        const spend: FinanceSpend = { id: newId(), date, amount, createdAt: new Date().toISOString() }
+        const spend: FinanceSpend = { id: newId(), date, amount, title, createdAt: new Date().toISOString() }
         commit({ ...state, spends: [...state.spends, spend] }, api.insertSpend(spend))
         toast({
           message: `Записано: ${formatMoney(amount)}`,
           duration: UNDO_TOAST_DURATION_MS,
           action: { label: 'Отменить', onClick: () => removeSpend(spend.id) },
         })
+      },
+
+      editSpend: (id, title, amount) => {
+        const state = latest.current
+        if (!state.spends) return
+        commit(
+          {
+            ...state,
+            spends: state.spends.map((spend) => (spend.id === id ? { ...spend, title, amount } : spend)),
+          },
+          api.updateSpend(id, { title, amount }),
+        )
       },
 
       deleteSpend: (id) => {

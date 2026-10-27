@@ -20,8 +20,6 @@ type Props = {
    * только на телефоне и только у экранов, которых нет в нижней панели (Профиль).
    */
   backTo?: string
-  /** Стрелка «назад» видна на любом экране: у разделов, которых нет и в боковом меню (Итоги). */
-  backAlways?: boolean
   /**
    * Стрелка «назад» только на телефоне: у экрана, который на планшете есть в меню, а в нижней
    * панели телефона его нет (список пунктов Профиля, назад на Главную).
@@ -34,10 +32,10 @@ type Props = {
  * На телефоне кнопки тоже стоят в шапке: одна квадратом справа от названия, ряд с выбором
  * недели или месяца под названием.
  */
-export function PageHeader({ title, help, aside, actions, backTo, backAlways, backPhoneOnly }: Props) {
+export function PageHeader({ title, help, aside, actions, backTo, backPhoneOnly }: Props) {
   return (
     <header className={styles.header}>
-      <div className={cx(styles.title, backAlways && styles.withBack)}>
+      <div className={styles.title}>
         {backTo && (
           <Link
             to={backTo}

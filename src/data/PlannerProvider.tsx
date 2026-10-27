@@ -30,8 +30,6 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
   const [goals, setGoals] = useState<Goal[]>([])
   const [weekStatus, setWeekStatus] = useState<Record<string, WeekStatus | undefined>>({})
   const [storedWeeks, setStoredWeeks] = useState<string[]>([])
-  // undefined: ни одна неделя ещё не сказала, есть ли в базе заметки.
-  const [notes, setNotes] = useState<Record<string, string> | undefined>(undefined)
   // undefined: правила ещё грузятся. null: повтора в этой базе нет.
   const [rules, setRules] = useState<TaskRule[] | null | undefined>(undefined)
 
@@ -39,9 +37,9 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
   const [moods, setMoods] = useState<Record<string, Mood> | null | undefined>(undefined)
 
   // Актуальные значения для обработчиков, которые не должны пересоздаваться на каждое изменение.
-  const latest = useRef({ tasks, goals, weekStatus, notes, rules, moods })
+  const latest = useRef({ tasks, goals, weekStatus, rules, moods })
   useEffect(() => {
-    latest.current = { tasks, goals, weekStatus, notes, rules, moods }
+    latest.current = { tasks, goals, weekStatus, rules, moods }
   })
 
   useEffect(() => {
@@ -160,8 +158,6 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
             ...current.filter((goal) => goal.weekStart !== weekStart && !goalIds.has(goal.id)),
             ...loaded.goals,
           ])
-          const { note } = loaded
-          if (note !== undefined) setNotes((current) => ({ ...current, [weekStart]: note }))
           // Неделю перечитали: задачи из правил проверяются заново.
           filledWeeks.current.delete(weekStart)
           setStatus('ready')
@@ -248,15 +244,6 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
       loadWeek,
 
       loadHistory: api.loadHistory,
-      notes,
-      saveNote: (weekStart, text) => {
-        const before = latest.current.notes?.[weekStart] ?? ''
-        if (text === before) return
-        setNotes((current) => ({ ...current, [weekStart]: text }))
-        save(api.saveNote(weekStart, text), () =>
-          setNotes((current) => ({ ...current, [weekStart]: before })),
-        )
-      },
       moods,
       setMood: (date, mood) => {
         const before = latest.current.moods?.[date] ?? null
@@ -543,7 +530,7 @@ export function PlannerProvider({ api, children }: { api: PlannerApi; children: 
       },
     }
     return actions
-  }, [api, tasks, goals, weekStatus, storedWeeks, notes, rules, moods, loadWeek, fillFromRules, save, toast])
+  }, [api, tasks, goals, weekStatus, storedWeeks, rules, moods, loadWeek, fillFromRules, save, toast])
 
   return <PlannerContext.Provider value={value}>{children}</PlannerContext.Provider>
 }

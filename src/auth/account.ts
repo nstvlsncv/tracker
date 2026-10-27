@@ -1,3 +1,4 @@
+import { DAY_PHOTOS } from '../lib/constants'
 import { isNetworkError, supabase } from '../lib/supabase'
 
 /** Пароль не подошёл либо новый пароль совпал со старым. Остальные ошибки бросаются. */
@@ -98,6 +99,15 @@ export function createSupabaseAccount({ userId, email }: Options): AccountApi {
       if (!(await confirmPassword(email, password))) return 'wrong-password'
       // Фото лежит в хранилище отдельно от таблиц: вместе с аккаунтом само оно не удалится.
       await supabase.storage.from(AVATARS).remove([avatarPath])
+      // Фото дней тоже: вся папка пользователя в их корзине (её может ещё не быть). Список
+      // отдаётся по тысяче файлов, поэтому несколько заходов, но не бесконечно.
+      const photos = supabase.storage.from(DAY_PHOTOS)
+      for (let round = 0; round < 20; round++) {
+        const { data } = await photos.list(userId, { limit: 1000 })
+        if (!data?.length) break
+        const { error } = await photos.remove(data.map((file) => `${userId}/${file.name}`))
+        if (error) break
+      }
       const { error } = await supabase.rpc('delete_account')
       if (error) throw error
       // Аккаунта уже нет, осталось забыть сессию в этом браузере.

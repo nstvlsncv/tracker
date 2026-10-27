@@ -1,9 +1,8 @@
-/* День в сетке: место под лицо, размером с точку истории привычки. */
+/* День года: место под лицо во всю клетку календаря. */
 .day {
   display: flex;
-  flex: none;
-  width: var(--dot);
-  height: var(--dot);
+  width: 100%;
+  height: 100%;
   border-radius: var(--radius-full);
   transition: transform var(--transition-press);
 }

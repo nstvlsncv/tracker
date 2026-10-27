@@ -8,7 +8,9 @@ import { FinanceProvider } from '../data/FinanceProvider'
 import { createMemoryApi } from '../data/memoryApi'
 import { createMemoryFinance } from '../data/memoryFinance'
 import { HabitsProvider } from '../data/HabitsProvider'
+import { DaysProvider } from '../data/DaysProvider'
 import { ListsProvider } from '../data/ListsProvider'
+import { createMemoryDays } from '../data/memoryDays'
 import { createMemoryLists } from '../data/memoryLists'
 import { PlannerProvider } from '../data/PlannerProvider'
 import { AppShell } from '../layout/AppShell'
@@ -18,7 +20,6 @@ import { Habits } from './habits/Habits'
 import { Home } from './home/Home'
 import { Lists } from './lists/Lists'
 import { Profile } from './Profile'
-import { Stats } from './stats/Stats'
 import { Week } from './week/Week'
 
 type Props = {
@@ -54,6 +55,7 @@ export function DevPreview({ base = '/dev/app', visitor = false }: Props) {
   const api = useMemo(() => createMemoryApi(), [])
   const finance = useMemo(() => createMemoryFinance(), [])
   const lists = useMemo(() => createMemoryLists(), [])
+  const days = useMemo(() => createMemoryDays(), [])
   const [profile, setProfile] = useState<ProfileData>(() => ({
     id: 'demo',
     name: visitor ? 'Гость' : 'Анастасия',
@@ -91,6 +93,7 @@ export function DevPreview({ base = '/dev/app', visitor = false }: Props) {
         <HabitsProvider api={api}>
           <FinanceProvider api={finance}>
           <ListsProvider api={lists}>
+          <DaysProvider api={days}>
           <Routes>
             <Route element={<AppShell basePath={base} />}>
               <Route index element={<Home />} />
@@ -98,10 +101,10 @@ export function DevPreview({ base = '/dev/app', visitor = false }: Props) {
               <Route path="habits" element={<Habits />} />
               <Route path="finance" element={<Finance />} />
               <Route path="lists" element={<Lists />} />
-              <Route path="stats" element={<Stats />} />
               <Route path="profile/:section?" element={<Profile />} />
             </Route>
           </Routes>
+          </DaysProvider>
           </ListsProvider>
           </FinanceProvider>
         </HabitsProvider>

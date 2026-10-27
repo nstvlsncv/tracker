@@ -59,9 +59,6 @@ export function createMemoryApi(): PlannerApi {
       createdAt: new Date(Date.UTC(2026, 0, 1)).toISOString(),
     },
   ]
-  const notes = new Map<string, string>([
-    [weekStart, 'Хорошая неделя: закрыты почти все задачи. На следующей не забыть про стоматолога.'],
-  ])
   let goals: Goal[] = [
     goal('Закончить курс по дизайну'),
     goal('Три тренировки'),
@@ -145,12 +142,7 @@ export function createMemoryApi(): PlannerApi {
       return {
         tasks: tasks.filter((item) => item.date >= start && item.date <= end),
         goals: goals.filter((item) => item.weekStart === start),
-        note: notes.get(start) ?? '',
       }
-    },
-    async saveNote(start, text) {
-      if (text) notes.set(start, text)
-      else notes.delete(start)
     },
     async loadMoods() {
       return { ...moods }

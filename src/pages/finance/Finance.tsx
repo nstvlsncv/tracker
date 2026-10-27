@@ -26,6 +26,7 @@ import {
   isOnce,
   itemsFor,
   KINDS,
+  listKind,
   monthOf,
   monthOptions,
   perDay,
@@ -44,10 +45,9 @@ import { SpendBlock } from './SpendBlock'
 import styles from './Finance.module.css'
 
 /** Что подсказать в пустом списке этапа. */
-const EXAMPLES: Record<FinanceKind, string> = {
+const EXAMPLES: Record<(typeof KINDS)[number]['value'], string> = {
   income: 'Сколько приходит',
   bill: 'Например: аренда, связь, кредит',
-  saving: 'Например: подушка, отпуск',
 }
 
 const UNTIL: Record<FinanceStage, string> = { advance: 'до аванса', salary: 'до зарплаты' }
@@ -56,8 +56,8 @@ const days = (count: number) => `${count} ${pluralize(count, 'день', 'дня
 
 /**
  * Экран «Финансы»: обязательные траты месяца. Месяц делится на два этапа, аванс и зарплату.
- * В каждом свои поступления (бюджет этапа), платежи и накопления; платежи и накопления
- * отмечаются, а этап показывает, сколько свободно и сколько осталось оплатить.
+ * В каждом свои поступления (бюджет этапа) и платежи; платежи отмечаются, а этап показывает,
+ * сколько свободно и сколько осталось оплатить. Между платежами и итогом «Прочие расходы».
  */
 export function Finance() {
   const store = useFinance()
@@ -177,7 +177,7 @@ export function Finance() {
             <h2 className="t-heading-5">С чего начать</h2>
             <p className={styles.hint}>
               Поставь даты аванса и зарплаты, впиши, сколько приходит, и добавь обязательные
-              платежи и накопления. Дальше отмечай оплаченное, а трекер покажет, сколько свободно
+              платежи. Дальше отмечай оплаченное, а трекер покажет, сколько свободно
             </p>
           </div>
         </section>
@@ -199,13 +199,13 @@ export function Finance() {
             const spent = spentIn(spends, period)
             const free = summary.free - spent
             // Сумма на день в итоге нужна там, где её не показывают «Прочие расходы»:
-            // в текущем этапе она уже стоит в них, вместе с расчётом.
+            // в текущем этапе в них стоит бюджет дня.
             const daily = isNow && store.spends ? null : perDay(free, period.length)
             const label = stageLabel(period.stage)
             return (
               <section
                 key={period.stage}
-                className={cx(styles.stage, isNow && styles.now)}
+                className={styles.stage}
                 aria-label={label}
               >
                 <header className={styles.stageHeader}>
@@ -230,7 +230,7 @@ export function Finance() {
                 </p>
 
                 {KINDS.map((kind) => {
-                  const rows = own.filter((item) => item.kind === kind.value)
+                  const rows = own.filter((item) => listKind(item.kind) === kind.value)
                   return (
                     <div key={kind.value} className={styles.group}>
                       <div className={styles.groupHeader}>
@@ -282,7 +282,7 @@ export function Finance() {
                   )
                 })}
 
-                {/* Прочие расходы: траты без названия. Вводятся в этапе, который идёт сейчас. */}
+                {/* Прочие расходы после платежей: траты сверх обязательных. Вводятся в этапе, который идёт сейчас. */}
                 {store.spends && (
                   <SpendBlock
                     period={period}
@@ -290,12 +290,15 @@ export function Finance() {
                     free={summary.free}
                     noIncome={!own.some((item) => item.kind === 'income')}
                     spends={store.spends}
+                    titles={store.spendTitles}
                     today={today}
-                    onAdd={(amount) => store.addSpend(amount, today)}
+                    onAdd={(amount, title) => store.addSpend(amount, today, title)}
+                    onEdit={store.editSpend}
                     onDelete={store.deleteSpend}
                   />
                 )}
 
+                {/* Итог в самом конце карточки. */}
                 <dl className={styles.total}>
                   <div className={styles.totalRow}>
                     <dt>Свободно</dt>
@@ -306,6 +309,13 @@ export function Finance() {
                       {formatMoney(free)}
                     </dd>
                   </div>
+                  {/* Прочие расходы этапа: уже вычтены из «Свободно». */}
+                  {spent > 0 && (
+                    <div className={styles.totalRow}>
+                      <dt className={styles.hint}>Потрачено на прочее</dt>
+                      <dd className={styles.hint}>{formatMoney(spent)}</dd>
+                    </div>
+                  )}
                   <div className={styles.totalRow}>
                     <dt className={styles.hint}>Осталось оплатить</dt>
                     <dd className={styles.hint}>{formatMoney(summary.toPay)}</dd>

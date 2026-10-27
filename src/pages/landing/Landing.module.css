@@ -1,6 +1,14 @@
 /* Лендинг: первая страница для гостя. Те же цвета, шрифт и детали, что в трекере:
-   белая страница, серые плашки, чёрный текст, акцентный цвет на отметках и подчёркиваниях. */
+   белая страница, серые плашки, чёрный текст, акцентный цвет на отметках и подчёркиваниях.
+   Плашки того же цвета, что секции трекера (--bg-primary). Ступенью темнее (--bg-secondary)
+   с белым окном под сцену пробовали: владелице показалось слишком контрастно.
+   Текстовые стили везде одни: подзаголовок раздела t-body-lg серым второго уровня,
+   название плашки t-heading-4, описание t-body-md тем же серым. */
 .page {
+  --card: var(--bg-primary);
+  /* Плитки дней в сцене повтора серые, как остальные детали сцен, а не белые плашки. */
+  --reel-tile: var(--bg-secondary);
+
   position: relative;
   display: flex;
   flex-direction: column;
@@ -67,7 +75,7 @@
 
 .h2,
 .sub,
-.muted {
+.text {
   margin: 0;
 }
 
@@ -76,8 +84,10 @@
   color: var(--text-secondary);
 }
 
-.muted {
-  color: var(--text-tertiary);
+/* Описания и подписи: тот же серый, что у подзаголовков. Третий уровень серого на серой
+   плашке читался плохо. */
+.text {
+  color: var(--text-secondary);
 }
 
 /* --- Первый экран --- */
@@ -184,14 +194,15 @@
   animation: float-in 800ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
 }
 
-/* Живая карточка задач: слегка наклонена, при наведении выпрямляется. */
+/* Живая карточка задач: серая, как остальные плашки, лежит над страницей с тенью,
+   слегка наклонена, при наведении выпрямляется. */
 .demo {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
   padding: var(--space-xl);
   border-radius: var(--radius-xl);
-  background: var(--bg-primary);
+  background: var(--card);
   box-shadow: var(--effects-shadow-lg);
   /* Лежит чуть косо; под курсором наклоняется вслед за ним (углы пишет Landing.tsx). */
   transform: perspective(900px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg))
@@ -213,7 +224,7 @@
 }
 
 .demoHint {
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
 }
 
 .demoBody {
@@ -295,10 +306,12 @@
 .feature {
   display: flex;
   flex-direction: column;
+  gap: var(--space-lg);
   height: 100%;
+  padding: var(--space-md);
   overflow: hidden;
   border-radius: var(--radius-xl);
-  background: var(--bg-primary);
+  background: var(--card);
   transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -308,12 +321,13 @@
   }
 }
 
-/* Плашка сцены: сцена сама подстраивается под её размер (см. SceneFit). */
+/* Место под сцену, одинаковое у всех плашек: сцена лежит прямо на плашке и сама
+   подстраивается под его размер (см. SceneFit). */
 .scene {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 260px;
+  height: 240px;
   overflow: hidden;
 }
 
@@ -321,7 +335,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  padding: 0 var(--space-xl) var(--space-xl);
+  padding: 0 var(--space-md) var(--space-md);
 }
 
 .featureText h3,
@@ -338,7 +352,7 @@
   gap: var(--space-2xl);
   padding: var(--space-2xl);
   border-radius: var(--radius-xl);
-  background: var(--bg-primary);
+  background: var(--card);
 }
 
 .customText {
@@ -377,7 +391,7 @@
 
 .swatchOn {
   box-shadow:
-    0 0 0 3px var(--bg-primary),
+    0 0 0 3px var(--card),
     0 0 0 5px var(--accent-default);
 }
 
@@ -407,15 +421,15 @@
   align-items: flex-start;
   gap: var(--space-md);
   height: 100%;
-  padding: var(--space-lg);
+  padding: var(--space-xl);
   border-radius: var(--radius-xl);
-  background: var(--bg-primary);
+  background: var(--card);
 }
 
 .perkText {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-sm);
 }
 
 .perk h3,
@@ -462,7 +476,7 @@
   height: 100%;
   padding: var(--space-xl);
   border-radius: var(--radius-xl);
-  background: var(--bg-primary);
+  background: var(--card);
 }
 
 .stepNumber {
@@ -486,23 +500,17 @@
   gap: var(--space-md);
   padding: 72px var(--space-xl);
   border-radius: var(--radius-xl);
-  background: var(--bg-primary);
+  background: var(--card);
   text-align: center;
 }
 
-.finalTitle,
-.finalText {
+.finalTitle {
   margin: 0;
 }
 
 .finalTitle {
   font-size: clamp(28px, 4vw, 52px);
   line-height: 1.1;
-}
-
-.finalText {
-  margin-bottom: var(--space-md);
-  color: var(--text-secondary);
 }
 
 .final .actions {
@@ -551,7 +559,7 @@
   justify-content: center;
   gap: var(--space-xs);
   padding: var(--space-lg);
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
 }
 
 .footer a {
@@ -701,14 +709,17 @@
     height: 220px;
   }
 
-  .featureText,
-  .perk,
-  .step {
-    padding: var(--space-md);
+  .feature {
+    padding: var(--space-sm);
   }
 
   .featureText {
-    padding-top: 0;
+    padding: 0 var(--space-sm) var(--space-sm);
+  }
+
+  .perk,
+  .step {
+    padding: var(--space-md);
   }
 
   .custom {

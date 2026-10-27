@@ -6,17 +6,17 @@ import { useAuth } from '../../auth/useAuth'
 import { AddItemField } from '../../components/AddItem'
 import { Avatar } from '../../components/Avatar'
 import { Button } from '../../components/Button'
-import { buttonClassName } from '../../components/buttonStyles'
 import { Checkbox } from '../../components/Checkbox'
 import { IconButton } from '../../components/IconButton'
 import { HelpButton } from '../../components/Help'
 import { ItemList } from '../../components/ItemList'
 import { Mascot } from '../../components/Mascot'
+import { DayPhotoSlot } from '../../components/DayPhotoSlot'
 import { MoodRow } from '../../components/MoodMenu'
 import { PageLoader } from '../../components/PageLoader'
 import { useRepeatDelete } from '../../components/RepeatDelete'
 import { Section } from '../../components/Section'
-import { StatCard } from '../../components/StatCard'
+import { SummaryStats } from '../../components/SummaryStats'
 import { useToast } from '../../components/useToast'
 import { useHabits } from '../../data/useHabits'
 import { usePlanner } from '../../data/usePlanner'
@@ -36,6 +36,7 @@ import { moodLabel } from '../../lib/moods'
 import { formatStreak, habitStreaks, isDueOn, scheduleOf, weekCount } from '../../lib/habits'
 import { useNow } from '../../lib/useNow'
 import { useToday } from '../../lib/useToday'
+import { useDays } from '../../data/useDays'
 import { HabitModal } from '../habits/HabitModal'
 import { InstallBanner } from './InstallBanner'
 import styles from './Home.module.css'
@@ -54,6 +55,7 @@ export function Home() {
   const { profile, demo } = useAuth()
   const planner = usePlanner()
   const habitsStore = useHabits()
+  const days = useDays()
   const toast = useToast()
   const now = useNow()
   const today = useToday()
@@ -157,8 +159,8 @@ export function Home() {
     </header>
   )
 
-  // Экран появляется целиком, когда готовы и задачи, и привычки: по частям он дёргался бы.
-  if (!ready || !habitsReady) {
+  // Экран появляется целиком, когда готовы задачи, привычки и фото дня: по частям он дёргался бы.
+  if (!ready || !habitsReady || days.photos === undefined) {
     return (
       <>
         {header}
@@ -203,39 +205,13 @@ export function Home() {
       {/* На телефоне: как добавить иконку трекера на экран. В демо для гостей не нужно. */}
       {!demo && <InstallBanner />}
 
-      <div className={styles.stats}>
-        <StatCard
-          variant="highlight"
-          // День без задач показывает 0%, как на Неделе.
-          value={`${progress(tasks) ?? 0}%`}
-          label="прогресс"
-          // Все задачи дня закрыты на глазах: карточка празднует.
-          celebrate={progress(tasks) === 100}
-        />
-        <StatCard
-          value={`${countDone(goals)}/${goals.length}`}
-          label="цели"
-        />
-        <StatCard
-          value={`${countDone(tasks)}/${tasks.length}`}
-          label="задачи"
-        />
-        <StatCard
-          value={`${habitsDoneToday}/${habits.length}`}
-          label="привычки"
-        />
-      </div>
-
-      {/* «Итогов» в меню нет: в них попадают отсюда. На телефоне плашка стоит в самом низу. */}
-      <section className={cx(styles.summary, styles.recap)}>
-        <div className={styles.summaryText}>
-          <h2 className="t-heading-5">Итоги</h2>
-          <p className={styles.summaryHint}>Как шли задачи, цели и привычки за последние недели</p>
-        </div>
-        <Link to="stats" relative="path" className={buttonClassName({ variant: 'secondary' })}>
-          Смотреть итоги
-        </Link>
-      </section>
+      {/* Показатели сегодняшнего дня: тот же ряд, что на Неделе про неделю. */}
+      <SummaryStats
+        progress={progress(tasks) ?? 0}
+        goals={{ done: countDone(goals), total: goals.length }}
+        tasks={{ done: countDone(tasks), total: tasks.length }}
+        habits={{ done: habitsDoneToday, total: habits.length }}
+      />
 
       <Section
         title="Цели недели"
@@ -371,22 +347,44 @@ export function Home() {
         )}
       </Section>
 
-      {/* Настроение сегодняшнего дня: то же, что в шапке дня на Неделе. */}
-      {planner.moods && (
-        <section className={styles.summary}>
-          <div className={styles.summaryText}>
-            <h2 className="t-heading-5">Настроение дня</h2>
-            <p className={styles.summaryHint}>
-              {planner.moods[today] ? moodLabel(planner.moods[today]) : 'Каким был день?'}
-            </p>
+      {/* Настроение и фото дня: на компьютере рядом, в две колонки, на планшете и телефоне
+          друг под другом (в одну строку там не помещаются). */}
+      {(planner.moods || days.photos) && (
+        <div className={styles.dayPair}>
+          <div className={styles.pairInner}>
+            {/* Настроение сегодняшнего дня: то же, что в шапке дня на Неделе. */}
+            {planner.moods && (
+              <section className={styles.summary}>
+                <div className={styles.summaryText}>
+                  <h2 className="t-heading-5">Настроение дня</h2>
+                  <p className={styles.summaryHint}>
+                    {planner.moods[today] ? moodLabel(planner.moods[today]) : 'Каким был день?'}
+                  </p>
+                </div>
+                <MoodRow
+                  className={styles.moods}
+                  size={40}
+                  mood={planner.moods[today] ?? null}
+                  onPick={(mood) => planner.setMood(today, mood)}
+                />
+              </section>
+            )}
+
+            {/* Фото дня устроено как настроение: плашка, справа квадрат. То же фото, что в шапке
+                дня на Неделе и в Привычках. */}
+            {days.photos && (
+              <section className={styles.summary}>
+                <div className={styles.summaryText}>
+                  <h2 className="t-heading-5">Фото дня</h2>
+                  <p className={styles.summaryHint}>
+                    {days.photos[today] || days.uploading[today] ? 'Снимок дня уже есть' : 'Один кадр на память'}
+                  </p>
+                </div>
+                <DayPhotoSlot date={today} size={40} />
+              </section>
+            )}
           </div>
-          <MoodRow
-            className={styles.moods}
-            size={36}
-            mood={planner.moods[today] ?? null}
-            onPick={(mood) => planner.setMood(today, mood)}
-          />
-        </section>
+        </div>
       )}
 
       {adding === 'habit' && (

@@ -50,21 +50,6 @@
   background: var(--bg-primary);
 }
 
-/* Этап, который идёт сейчас: карточка на ступень контрастнее, тем же цветом, что сегодняшний
-   день на Неделе (см. DayCard.module.css). */
-.now {
-  background: var(--bg-secondary);
-  --accent-subtle: var(--bg-tertiary);
-}
-
-/* Кнопка с датой лежит прямо на карточке и тоже сдвигается на ступень, иначе слилась бы
-   с фоном. Переназначение стоит на детях, а не на самой карточке: иначе сдвинулся бы и её фон.
-   Белых плашек со списками это не касается: внутри них всё как обычно. */
-.now > :not(.group) {
-  --bg-secondary: var(--accent-subtle);
-  --bg-tertiary: var(--border-default);
-}
-
 /* На узком телефоне названию с пометкой «Сейчас» и дате тесно в одной строке:
    дата уходит на строку ниже. */
 .stageHeader {
@@ -197,6 +182,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
+  /* Прижат к низу карточки: итоги этапов, стоящих рядом, на одной линии. */
   margin: auto 0 0;
   padding-top: var(--space-md);
   border-top: 1px solid var(--border-subtle);
@@ -310,16 +296,22 @@
   margin: 0;
 }
 
-/* Прочие расходы в текущем этапе: сколько можно потратить сегодня, из чего это число
-   получилось и ввод суммы. */
-.spendToday {
+/* Бюджет дня в «Прочих расходах»: подпись, под ней крупно остаток на сегодня и мелко
+   «из …». Отделён от списка трат тонкой линией. */
+.budget {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  padding: var(--space-sm) 0;
+  margin: var(--space-xs) 0 var(--space-sm);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-.spendLeft {
+.budgetSum {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-sm);
   margin: 0;
   white-space: nowrap;
 }
@@ -327,67 +319,6 @@
 /* Перерасход: сумма красная. */
 .over {
   color: var(--status-danger-text);
-}
-
-/* Расчёт по строкам: слева что это, справа сумма. */
-.math {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin: 0 0 var(--space-sm);
-  color: var(--text-tertiary);
-}
-
-.math > div {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0 var(--space-md);
-}
-
-.math dt,
-.math dd {
-  margin: 0;
-}
-
-.math dd {
-  margin-left: auto;
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-/* Поле и кнопка в одну строку: кнопка стоит на уровне поля, а не подписи над ним. */
-.spendForm {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-sm);
-}
-
-.spendForm > :first-child {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Высота подписи над полем: её строка и отступ под ней. */
-.spendForm > button {
-  flex: none;
-  margin-top: calc(var(--typography-caption-line-height) + var(--space-sm));
-}
-
-.spendOpen {
-  display: none;
-}
-
-/* Строка траты: день, сумма и корзина. */
-.spendRow {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  min-height: 40px;
-}
-
-.spendRow .title {
-  flex: 1;
 }
 
 /* Клавиатура-калькулятор: крупная сумма и кнопки три в ряд. */
@@ -444,14 +375,6 @@
 }
 
 @media (max-width: 640px) {
-  /* На телефоне суммы набирают клавиатурой-калькулятором, поля нет. */
-  .spendForm {
-    display: none;
-  }
-
-  .spendOpen {
-    display: block;
-  }
 
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));

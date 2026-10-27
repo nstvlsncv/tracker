@@ -6,7 +6,7 @@ import type { Task } from '../../data/types'
 import { usePlanner } from '../../data/usePlanner'
 import { weekStartISO } from '../../lib/dates'
 import { WEEKDAY_LABELS } from '../../lib/habits'
-import { currentStreak, formatDays, shiftDate } from '../../lib/metrics'
+import { shiftDate } from '../../lib/metrics'
 import { moodInsights, moodLabel } from '../../lib/moods'
 import { useSessionState } from '../../lib/sessionState'
 import { MoodPicker } from '../week/MoodPicker'
@@ -19,8 +19,8 @@ const MOOD_MIN_MARKS = 5
 const NO_TASKS: Task[] = []
 
 /**
- * Настроение дня среди привычек: отмечать его каждый день тоже привычка, и карточка устроена
- * так же. Свёрнутая: лицо за сегодня (нажатие открывает выбор) и серия отмеченных дней.
+ * Настроение дня в Привычках: карточка устроена как карточка привычки, но серии у неё нет,
+ * отмечать настроение не привычка. Свёрнутая: лицо за сегодня (нажатие открывает выбор).
  * Раскрытая: выводы за 30 дней и история по дням, где любой день можно отметить задним числом.
  * Пока настроений нет в базе, карточки нет.
  */
@@ -54,7 +54,6 @@ export function MoodCard({ today }: { today: string }) {
   if (!moods) return null
 
   const mood = moods[today]
-  const streak = currentStreak(Object.keys(moods), today)
   const insights = moodInsights(moods, tasks ?? NO_TASKS, today, MOOD_DAYS)
   const Caret = open ? CaretUp : CaretDown
 
@@ -75,8 +74,7 @@ export function MoodCard({ today }: { today: string }) {
             Настроение дня
           </button>
           <span className={`t-body-md ${card.streak}`}>
-            <span>{mood ? moodLabel(mood) : 'Сегодня ещё не отмечено'} ·</span>{' '}
-            <span>серия {formatDays(streak)}</span>
+            {mood ? moodLabel(mood) : 'Сегодня ещё не отмечено'}
           </span>
         </div>
         <Caret className={card.caret} aria-hidden />

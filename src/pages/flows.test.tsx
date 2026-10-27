@@ -67,7 +67,7 @@ describe('лендинг', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('heading', { level: 1, name: /Вся неделя в одном трекере/ })).toBeTruthy()
+    expect(screen.getByRole('heading', { level: 1, name: /Всё важное в.одном трекере/ })).toBeTruthy()
     expect(screen.getByRole('link', { name: 'Войти' }).getAttribute('href')).toBe('/login')
     expect(screen.getAllByRole('link', { name: /Посмотреть демо/ })[0].getAttribute('href')).toBe('/demo')
 
@@ -147,18 +147,33 @@ describe('трекер на демо-данных', () => {
     const user = openTracker('/finance')
     const block = await screen.findByRole('group', { name: 'Прочие расходы' })
 
-    await user.type(within(block).getByRole('textbox', { name: 'Трата, ₽' }), '777')
-    await user.click(within(block).getByRole('button', { name: 'Записать' }))
+    await user.click(within(block).getByRole('button', { name: 'Записать трату' }))
+    await user.type(await screen.findByRole('textbox', { name: 'Название' }), 'Цветы')
+    await user.type(screen.getByRole('textbox', { name: 'Сумма, ₽' }), '777')
+    await user.click(screen.getByRole('button', { name: 'Записать' }))
 
     expect(await screen.findByText(/^Записано: 777/)).toBeTruthy()
-    expect(within(block).getByRole('button', { name: /^Удалить трату: сегодня, 777/ })).toBeTruthy()
+    // Нажатие на трату открывает её правку с удалением.
+    await user.click(within(block).getByRole('button', { name: /^Изменить трату: Цветы, 777/ }))
+    expect(await screen.findByRole('heading', { name: 'Изменить трату' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Удалить' })).toBeTruthy()
   })
 
   it('Привычки: настроение дня отмечается в своей карточке', async () => {
     const user = openTracker('/habits')
 
     await user.click(await screen.findByRole('button', { name: 'Настроение дня' }))
-    expect(await screen.findByRole('heading', { name: 'Настроение за год' })).toBeTruthy()
+    // История открывается текущим месяцем; другой месяц или год выбирается в списке справа.
+    expect(await screen.findByRole('heading', { name: 'Настроение по дням' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Период' }).textContent).toMatch(/\d{4}/)
+  })
+
+  it('Привычки: фото дня открывает календарь года', async () => {
+    const user = openTracker('/habits')
+
+    await user.click(await screen.findByRole('button', { name: 'Фото дня' }))
+    // В демо фото нет: календарь с пустыми кружками.
+    expect(await screen.findByRole('heading', { name: 'Фото за год пока нет' })).toBeTruthy()
   })
 
   it('Неделя: пустую неделю можно начать с копии прошлой', async () => {

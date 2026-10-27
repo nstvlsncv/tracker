@@ -9,7 +9,6 @@ import {
   shiftDate,
   sortItems,
   totalChecks,
-  weekAnalytics,
 } from './metrics'
 
 const tasks = (date: string, done: number, total: number) =>
@@ -35,60 +34,6 @@ describe('shiftDate', () => {
     expect(shiftDate('2026-09-30', 1)).toBe('2026-10-01')
     expect(shiftDate('2026-01-01', -1)).toBe('2025-12-31')
     expect(shiftDate('2028-02-28', 1)).toBe('2028-02-29')
-  })
-})
-
-describe('weekAnalytics', () => {
-  const weekStart = '2026-09-14' // понедельник
-  const today = '2026-09-16' // среда
-
-  it('считает по всей неделе, включая будущие дни', () => {
-    const all = [
-      ...tasks('2026-09-14', 2, 2),
-      ...tasks('2026-09-16', 1, 3),
-      ...tasks('2026-09-19', 0, 5), // будущее
-      ...tasks('2026-09-21', 1, 1), // другая неделя
-    ]
-    const goals = [{ isDone: true }, { isDone: false }, { isDone: true }]
-    expect(weekAnalytics(all, goals, weekStart, today)).toEqual({
-      total: 10,
-      done: 3,
-      remaining: 7,
-      averageProgress: 30,
-      productiveDay: '2026-09-14',
-      goalsDone: 2,
-    })
-  })
-
-  it('пустая неделя: прочерки вместо нулей', () => {
-    const result = weekAnalytics([], [], weekStart, today)
-    expect(result.total).toBe(0)
-    expect(result.averageProgress).toBeNull()
-    expect(result.productiveDay).toBeNull()
-  })
-
-  it('продуктивный день: при равенстве берётся более ранний', () => {
-    const all = [...tasks('2026-09-14', 1, 2), ...tasks('2026-09-15', 2, 4)]
-    expect(weekAnalytics(all, [], weekStart, today).productiveDay).toBe('2026-09-14')
-  })
-
-  it('продуктивный день: будущие дни не участвуют, сегодня участвует', () => {
-    const all = [
-      ...tasks('2026-09-14', 1, 4),
-      ...tasks('2026-09-16', 3, 4),
-      ...tasks('2026-09-17', 4, 4), // завтра, отмечено заранее
-    ]
-    expect(weekAnalytics(all, [], weekStart, today).productiveDay).toBe('2026-09-16')
-  })
-
-  it('продуктивный день: день с 0% считается, если других нет', () => {
-    const all = tasks('2026-09-15', 0, 2)
-    expect(weekAnalytics(all, [], weekStart, today).productiveDay).toBe('2026-09-15')
-  })
-
-  it('продуктивный день: null, если задачи есть только в будущем', () => {
-    const all = tasks('2026-09-18', 0, 2)
-    expect(weekAnalytics(all, [], weekStart, today).productiveDay).toBeNull()
   })
 })
 

@@ -1,5 +1,4 @@
 import {
-  Camera,
   CaretRight,
   ChartBar,
   ChatCircleDots,
@@ -38,7 +37,6 @@ import { DangerZone } from './profile/DangerZone'
 import { HelpSection } from './profile/HelpSection'
 import { PasswordSection } from './profile/PasswordSection'
 import { useAccount } from './profile/useAccount'
-import { useAvatar } from './profile/useAvatar'
 import styles from './Profile.module.css'
 
 const THEMES: Array<{ value: Theme; label: string; icon: typeof Sun }> = [
@@ -64,7 +62,6 @@ export function Profile() {
   // В демо для гостей нет смены пароля и удаления аккаунта: пароля гость не знает.
   const { profile, demo } = useAuth()
   const account = useAccount()
-  const avatar = useAvatar()
   const [leaving, setLeaving] = useState(false)
   // Админка видна только тем, кто записан в базе админом. В демо о ней не спрашиваем.
   const [admin, setAdmin] = useState(false)
@@ -117,27 +114,12 @@ export function Profile() {
       <div className={cx(styles.layout, opened && styles.opened)}>
         <aside className={styles.menu}>
           <div className={styles.head}>
-            {avatar.available ? (
-              <button
-                type="button"
-                className={styles.photo}
-                aria-label="Изменить фото профиля"
-                aria-busy={avatar.busy}
-                onClick={avatar.pick}
-              >
-                <Avatar url={profile?.avatarUrl} size={64} />
-                <span className={styles.camera} aria-hidden>
-                  <Camera />
-                </span>
-              </button>
-            ) : (
-              <Avatar size={64} />
-            )}
+            {/* Фото здесь только показывается: загружается и меняется оно в «Аккаунте». */}
+            <Avatar url={profile?.avatarUrl} size={64} />
             <div className={styles.who}>
               <span className={`t-heading-5 ${styles.name}`}>{fullName}</span>
               <span className={`t-body-sm ${styles.email}`}>{account.email}</span>
             </div>
-            {avatar.input}
           </div>
 
           <nav className={styles.items} aria-label="Настройки профиля">

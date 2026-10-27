@@ -10,7 +10,7 @@
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-lg);
-  cursor: var(--cursor-pointer);
+  cursor: pointer;
 }
 
 /* Лицо настроения на месте чекбокса (карточка «Настроение дня»). */

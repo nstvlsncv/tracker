@@ -25,49 +25,6 @@ export function progress(tasks: Checkable[]): number | null {
   return percent(countDone(tasks), tasks.length)
 }
 
-export type WeekAnalytics = {
-  total: number
-  done: number
-  remaining: number
-  averageProgress: number | null
-  /** ISO-дата самого продуктивного дня или null, если подходящих дней нет. */
-  productiveDay: string | null
-  goalsDone: number
-}
-
-export function weekAnalytics(
-  tasks: DatedTask[],
-  goals: Checkable[],
-  weekStart: string,
-  today: string,
-): WeekAnalytics {
-  const weekEnd = shiftDate(weekStart, 6)
-  const weekTasks = tasks.filter((task) => task.date >= weekStart && task.date <= weekEnd)
-  const done = countDone(weekTasks)
-
-  // Будущие дни в «продуктивный день» не попадают. При равенстве берётся более ранний.
-  let productiveDay: string | null = null
-  let best = -1
-  for (let i = 0; i < 7; i++) {
-    const date = shiftDate(weekStart, i)
-    if (date > today) break
-    const value = progress(weekTasks.filter((task) => task.date === date))
-    if (value !== null && value > best) {
-      best = value
-      productiveDay = date
-    }
-  }
-
-  return {
-    total: weekTasks.length,
-    done,
-    remaining: weekTasks.length - done,
-    averageProgress: percent(done, weekTasks.length),
-    productiveDay,
-    goalsDone: countDone(goals),
-  }
-}
-
 /** За сколько прошедших дней невыполненные задачи считаются «оставшимися с прошлых дней». */
 export const OVERDUE_DAYS = 7
 

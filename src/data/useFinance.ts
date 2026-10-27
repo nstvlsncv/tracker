@@ -23,6 +23,8 @@ export type FinanceValue = {
   days: FinanceDay[]
   /** Траты по дням. null: их в этой базе нет (не применена свежая схема). */
   spends: FinanceSpend[] | null
+  /** Можно ли назвать трату: в старой базе у трат нет колонки с названием. */
+  spendTitles: boolean
   /** Повторить загрузку после ошибки. */
   reload: () => void
 
@@ -37,7 +39,9 @@ export type FinanceValue = {
   /** Число месяца этапа с месяца `month` и дальше. */
   setDay: (stage: FinanceStage, month: string, day: number) => void
   /** Записать трату на день. Показывает тост с «Отменить». */
-  addSpend: (amount: number, date: string) => void
+  addSpend: (amount: number, date: string, title: string | null) => void
+  /** Изменить название и сумму траты. */
+  editSpend: (id: string, title: string | null, amount: number) => void
   /** Убрать трату. Показывает тост с «Отменить». */
   deleteSpend: (id: string) => void
 }

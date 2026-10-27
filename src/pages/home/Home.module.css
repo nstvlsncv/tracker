@@ -105,12 +105,6 @@
   }
 }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-md);
-}
-
 /* Невыполненное с прошлых дней: строка под списком задач. */
 .overdue {
   display: flex;
@@ -168,21 +162,15 @@
   color: var(--text-tertiary);
 }
 
-/* Телефон: заголовок того же размера, что на остальных экранах, показатели в два столбца,
-   как статистика на Неделе. */
+/* Телефон: заголовок того же размера, что на остальных экранах. */
 @media (max-width: 640px) {
   .title {
     font-size: var(--typography-heading-3-font-size);
     line-height: var(--typography-heading-3-line-height);
   }
-
-  /* Четыре показателя в один ряд: карточки на телефоне плотные (см. StatCard). */
-  .stats {
-    gap: var(--space-xs);
-  }
 }
 
-/* Плашки внизу: настроение дня и «Итоги» (что в них лежит и кнопка, которая их открывает). */
+/* Плашки внизу: настроение и фото дня (что в них лежит и выбор справа). */
 .summary {
   display: flex;
   flex-wrap: wrap;
@@ -192,6 +180,38 @@
   padding: var(--space-lg);
   border-radius: var(--radius-xl);
   background: var(--bg-primary);
+}
+
+/* Настроение и фото дня: друг под другом, а на компьютере рядом, в две колонки. Колонки
+   включаются по ширине самого блока, а не окна: только когда обе плашки помещаются целиком,
+   с выбором в одну строку с названием и описанием. На узком ноутбуке с открытым меню они
+   остаются друг под другом, иначе название обрезалось бы. */
+.dayPair {
+  container-type: inline-size;
+}
+
+.pairInner {
+  display: grid;
+  gap: var(--space-md);
+}
+
+@container (min-width: 960px) {
+  .pairInner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Плашка в полширины: без переноса и с зазором поменьше, лица настроения не уходят
+     на следующую строку. */
+  .pairInner .summary {
+    flex-wrap: nowrap;
+    gap: var(--space-sm);
+  }
+}
+
+/* Лица настроения: между ними 8px. Отступ даёт поле вокруг каждого лица (4px с каждой
+   стороны, в нём же подсветка при наведении), поэтому своего зазора у ряда нет. */
+.moods {
+  gap: 0;
 }
 
 .summaryText {
@@ -220,11 +240,6 @@
     flex-direction: column;
     align-items: stretch;
     padding: var(--space-md);
-  }
-
-  /* На телефоне «Итоги» уходят в конец страницы: первый экран отдан целям и задачам. */
-  .recap {
-    order: 1;
   }
 }
 

@@ -7,6 +7,7 @@ import {
   habitStreaks,
   isDueOn,
   scheduleLabel,
+  weekHabits,
   withPause,
   withoutPause,
 } from './habits'
@@ -143,5 +144,41 @@ describe('пауза привычки', () => {
     expect(withoutPause([{ from: '2026-09-29', to: null }], TODAY)).toEqual([
       { from: '2026-09-29', to: '2026-10-02' },
     ])
+  })
+})
+
+describe('weekHabits: привычки в норме за неделю', () => {
+  // Неделя с понедельника 28 сентября 2026.
+  const week = '2026-09-28'
+  const daily: HabitSchedule = { frequency: 'daily', days: [], timesPerWeek: null }
+  const twice: HabitSchedule = { frequency: 'weekly', days: [], timesPerWeek: 2 }
+  const allWeek = ['2026-09-28', '2026-09-29', '2026-09-30', '2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04']
+
+  it('норма: каждый день, дни расписания или N раз', () => {
+    expect(
+      weekHabits(
+        [
+          { schedule: daily, checks: set(...allWeek) },
+          { schedule: daily, checks: set('2026-09-28') },
+          { schedule: monWedFri, checks: set('2026-09-28', '2026-09-30', '2026-10-02') },
+          { schedule: twice, checks: set('2026-09-29', '2026-10-03') },
+        ],
+        week,
+      ),
+    ).toEqual({ done: 3, total: 4 })
+  })
+
+  it('дни паузы не нужны для нормы, а привычка на паузе всю неделю не считается', () => {
+    const pausedFromWed: HabitSchedule = { ...daily, pauses: [{ from: '2026-09-30', to: null }] }
+    const pausedAll: HabitSchedule = { ...daily, pauses: [{ from: '2026-09-01', to: null }] }
+    expect(
+      weekHabits(
+        [
+          { schedule: pausedFromWed, checks: set('2026-09-28', '2026-09-29') },
+          { schedule: pausedAll, checks: set() },
+        ],
+        week,
+      ),
+    ).toEqual({ done: 1, total: 1 })
   })
 })

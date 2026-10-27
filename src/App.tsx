@@ -27,7 +27,6 @@ const Habits = fromWorkspace('Habits')
 const Finance = fromWorkspace('Finance')
 const Lists = fromWorkspace('Lists')
 const Profile = fromWorkspace('Profile')
-const Stats = fromWorkspace('Stats')
 
 const DevPreview = lazy(() => import('./pages/DevPreview').then((m) => ({ default: m.DevPreview })))
 const Showcase = lazy(() => import('./pages/Showcase').then((m) => ({ default: m.Showcase })))
@@ -64,7 +63,6 @@ export default function App() {
                     <Route path="/habits" element={<Habits />} />
                     <Route path="/finance" element={<Finance />} />
                     <Route path="/lists" element={<Lists />} />
-                    <Route path="/stats" element={<Stats />} />
                     <Route path="/profile/:section?" element={<Profile />} />
                   </Route>
                 </Route>

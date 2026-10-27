@@ -16,6 +16,7 @@ const TYPO_PROPS = {
   fontWeight: 'font-weight',
   fontSize: 'font-size',
   lineHeight: 'line-height',
+  letterSpacing: 'letter-spacing',
 }
 
 const kebab = (s) => s.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()

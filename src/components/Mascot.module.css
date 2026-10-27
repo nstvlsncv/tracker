@@ -9,7 +9,7 @@
 }
 
 .alive {
-  cursor: var(--cursor-pointer);
+  cursor: pointer;
   transition: transform var(--transition-press);
 }
 

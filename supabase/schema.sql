@@ -330,7 +330,7 @@ create policy "own finance days" on public.finance_days for all to authenticated
   with check (user_id = (select auth.uid()));
 grant select, insert, update, delete on public.finance_days to authenticated;
 
--- Траты по дням: сумма без названия и категории. Уменьшает свободные деньги этапа,
+-- Траты по дням: сумма с необязательным названием, без категории. Уменьшает свободные деньги этапа,
 -- в который попадает день, и от неё считается, сколько можно потратить сегодня.
 create table if not exists public.finance_spends (
   id uuid primary key default gen_random_uuid(),
@@ -348,6 +348,9 @@ create policy "own finance spends" on public.finance_spends for all to authentic
   using (user_id = (select auth.uid()))
   with check (user_id = (select auth.uid()));
 grant select, insert, update, delete on public.finance_spends to authenticated;
+
+-- Название траты («Кофе»), необязательное. Появилось позже таблицы.
+alter table public.finance_spends add column if not exists title text check (char_length(title) <= 100);
 
 -- Списки: всё, что не привязано к дню (продукты, фильмы, идеи). Список и его пункты.
 create table if not exists public.lists (
@@ -383,6 +386,41 @@ create policy "own list items" on public.list_items for all to authenticated
   using (user_id = (select auth.uid()))
   with check (user_id = (select auth.uid()));
 grant select, insert, update, delete on public.list_items to authenticated;
+
+-- Фото дня: одно на день. В таблице пути к двум файлам (само фото и миниатюра), файлы лежат
+-- в хранилище, в корзине day-photos. Корзина закрытая: фото открываются только по временным
+-- ссылкам, которые выдаются самому владельцу. У каждого своя папка с именем его id.
+create table if not exists public.day_photos (
+  user_id uuid not null default auth.uid() references auth.users on delete cascade,
+  date date not null,
+  path text not null check (char_length(path) <= 300),
+  thumb_path text not null check (char_length(thumb_path) <= 300),
+  updated_at timestamptz not null default now(),
+  primary key (user_id, date)
+);
+
+alter table public.day_photos enable row level security;
+drop policy if exists "own day photos" on public.day_photos;
+create policy "own day photos" on public.day_photos for all to authenticated
+  using (user_id = (select auth.uid()))
+  with check (user_id = (select auth.uid()));
+grant select, insert, update, delete on public.day_photos to authenticated;
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('day-photos', 'day-photos', false, 5242880, array['image/jpeg'])
+on conflict (id) do nothing;
+
+drop policy if exists "own day photo files: read" on storage.objects;
+create policy "own day photo files: read" on storage.objects for select to authenticated
+  using (bucket_id = 'day-photos' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists "own day photo files: add" on storage.objects;
+create policy "own day photo files: add" on storage.objects for insert to authenticated
+  with check (bucket_id = 'day-photos' and (storage.foldername(name))[1] = (select auth.uid())::text);
+
+drop policy if exists "own day photo files: remove" on storage.objects;
+create policy "own day photo files: remove" on storage.objects for delete to authenticated
+  using (bucket_id = 'day-photos' and (storage.foldername(name))[1] = (select auth.uid())::text);
 
 -- ---------------------------------------------------------------------------
 -- Админка (/admin): сводная статистика по всем аккаунтам для владелицы трекера.
@@ -573,7 +611,8 @@ begin
   union all select 'finance_days', count(*) from public.finance_days
   union all select 'finance_spends', count(*) from public.finance_spends
   union all select 'lists', count(*) from public.lists
-  union all select 'list_items', count(*) from public.list_items;
+  union all select 'list_items', count(*) from public.list_items
+  union all select 'day_photos', count(*) from public.day_photos;
 end;
 $$;
 

@@ -43,46 +43,6 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 
-/* Фото-кнопка: нажатие открывает выбор файла. В углу значок камеры. */
-.photo {
-  position: relative;
-  display: flex;
-  flex: none;
-  border-radius: var(--radius-full);
-  transition:
-    transform var(--transition-press),
-    opacity var(--transition-fast);
-}
-
-.photo:active {
-  transform: scale(0.94);
-}
-
-.photo[aria-busy='true'] {
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.camera {
-  position: absolute;
-  right: -4px;
-  bottom: -4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 2px solid var(--bg-primary);
-  border-radius: var(--radius-full);
-  background: var(--accent-default);
-  color: var(--accent-foreground);
-}
-
-.camera svg {
-  width: 14px;
-  height: 14px;
-}
-
 .who {
   display: flex;
   flex-direction: column;

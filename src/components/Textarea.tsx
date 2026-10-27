@@ -14,12 +14,25 @@ export function Textarea({ label, hideLabel, className, value, ...rest }: Props)
   const id = useId()
   const ref = useRef<HTMLTextAreaElement>(null)
 
-  // Высота подгоняется под текст при каждом его изменении.
+  // Высота подгоняется под текст при каждом его изменении и когда меняется ширина поля:
+  // при первой отрисовке ширина ещё могла быть другой (шрифт, раскладка экрана), и длинный
+  // текст обрезался снизу.
   useLayoutEffect(() => {
     const field = ref.current
     if (!field) return
-    field.style.height = 'auto'
-    field.style.height = `${field.scrollHeight + 2}px`
+    let width = 0
+    const fit = () => {
+      field.style.height = 'auto'
+      field.style.height = `${field.scrollHeight + 2}px`
+    }
+    fit()
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width === width) return
+      width = entry.contentRect.width
+      fit()
+    })
+    observer.observe(field)
+    return () => observer.disconnect()
   }, [value])
 
   return (

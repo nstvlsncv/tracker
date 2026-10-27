@@ -32,10 +32,12 @@ export type FinanceCheck = { itemId: string; month: string }
 export type FinanceDay = { stage: FinanceStage; month: string; day: number }
 
 /**
- * Трата: сумма без названия и категории, записанная на день. Уменьшает свободные деньги этапа,
- * в который попадает её день, и от неё пересчитывается, сколько можно потратить сегодня.
+ * Трата: сумма, записанная на день, с необязательным названием («Кофе»). Уменьшает свободные
+ * деньги этапа, в который попадает её день, и от неё пересчитывается, сколько можно потратить сегодня.
  */
-export type FinanceSpend = { id: string; date: string; amount: number; createdAt: string }
+export type FinanceSpend = { id: string; date: string; amount: number; title: string | null; createdAt: string }
+
+export type FinanceSpendPatch = { title?: string | null; amount?: number }
 
 export type FinanceItemPatch = { title?: string; amount?: number; endMonth?: string | null }
 
@@ -45,6 +47,8 @@ export type FinanceData = {
   days: FinanceDay[]
   /** null: трат в этой базе нет (не применена свежая схема), остальные финансы работают. */
   spends: FinanceSpend[] | null
+  /** Есть ли у трат в базе колонка с названием (база может быть старше кода). */
+  spendTitles: boolean
 }
 
 /**
@@ -62,5 +66,6 @@ export type FinanceApi = {
   setCheck: (itemId: string, month: string, done: boolean) => Promise<void>
   saveDay: (day: FinanceDay) => Promise<void>
   insertSpend: (spend: FinanceSpend) => Promise<void>
+  updateSpend: (id: string, patch: FinanceSpendPatch) => Promise<void>
   deleteSpend: (id: string) => Promise<void>
 }

@@ -1,29 +1,28 @@
 import { Backspace } from '@phosphor-icons/react'
 import { useState } from 'react'
 import { Button } from '../../components/Button'
+import { Input } from '../../components/Input'
 import { Modal } from '../../components/Modal'
+import { HABIT_TITLE_MAX_LENGTH } from '../../lib/constants'
 import { cx } from '../../lib/cx'
-import { PAD_KEYS, padPress, parseAmount } from '../../lib/finance'
+import { PAD_KEYS, padPress, parseAmount, spaceAmount } from '../../lib/finance'
 import type { PadKey } from '../../lib/finance'
 import styles from './Finance.module.css'
 
 type Props = {
+  /** Можно ли назвать трату: в старой базе у трат нет колонки с названием. */
+  titles: boolean
   onClose: () => void
-  onSave: (amount: number) => void
-}
-
-/** «1500,5» → «1 500,5»: тысячи разделены, как в остальных суммах. */
-const pretty = (text: string) => {
-  const [whole, cents] = text.split(',')
-  const spaced = whole.replace(/\B(?=(\d{3})+$)/g, '\u00a0')
-  return cents === undefined ? spaced : `${spaced},${cents}`
+  onSave: (amount: number, title: string | null) => void
 }
 
 /**
  * Клавиатура-калькулятор для траты на телефоне: крупная сумма и кнопки с цифрами.
- * Системная клавиатура не выезжает: сумма набирается большими кнопками одним пальцем.
+ * Для суммы системная клавиатура не выезжает: она набирается большими кнопками одним пальцем.
+ * Название необязательное, обычным полем над суммой.
  */
-export function SpendPad({ onClose, onSave }: Props) {
+export function SpendPad({ titles, onClose, onSave }: Props) {
+  const [title, setTitle] = useState('')
   const [text, setText] = useState('')
   const [error, setError] = useState(false)
 
@@ -35,13 +34,13 @@ export function SpendPad({ onClose, onSave }: Props) {
   const save = () => {
     const amount = parseAmount(text.replace(/,$/, ''))
     if (amount === null) setError(true)
-    else onSave(amount)
+    else onSave(amount, title.trim() || null)
   }
 
   return (
     <Modal
       open
-      title="Трата"
+      title="Новая трата"
       onClose={onClose}
       footer={
         <>
@@ -52,8 +51,18 @@ export function SpendPad({ onClose, onSave }: Props) {
         </>
       }
     >
+      {titles && (
+        <Input
+          label="Название"
+          placeholder="Например, кофе"
+          maxLength={HABIT_TITLE_MAX_LENGTH}
+          autoComplete="off"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+        />
+      )}
       <p className={cx('t-heading-1', styles.padSum, !text && styles.padEmpty)} aria-live="polite">
-        {pretty(text || '0')} ₽
+        {spaceAmount(text || '0')} ₽
       </p>
       <p className={cx('t-body-sm', styles.padError)} role="alert">
         {error ? 'Набери сумму' : '\u00a0'}

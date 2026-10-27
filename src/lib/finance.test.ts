@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { FinanceDay, FinanceItem, FinanceSpend } from '../data/finance'
 import {
+  spaceAmount,
   checkKey,
   currentPeriod,
   dayBudget,
@@ -171,6 +172,7 @@ describe('траты по дням', () => {
     id: `${date}-${amount}`,
     date,
     amount,
+    title: null,
     createdAt: `${date}T10:00:00Z`,
   })
 
@@ -223,5 +225,18 @@ describe('траты по дням', () => {
     expect(type('12,,345')).toBe('12,34')
     expect(type('12,3<<')).toBe('12')
     expect(type('1234567890')).toBe('123456789')
+  })
+})
+
+describe('пробелы в поле суммы', () => {
+  it('разделяет тысячи и чистит лишнее', () => {
+    expect(spaceAmount('1000')).toBe('1\u00a0000')
+    expect(spaceAmount('1250000')).toBe('1\u00a0250\u00a0000')
+    expect(spaceAmount('1\u00a000')).toBe('100')
+    expect(spaceAmount('1500.5')).toBe('1\u00a0500,5')
+    expect(spaceAmount('15,')).toBe('15,')
+    expect(spaceAmount('15,999')).toBe('15,99')
+    expect(spaceAmount('1,2,3')).toBe('1,23')
+    expect(spaceAmount('12а3')).toBe('123')
   })
 })

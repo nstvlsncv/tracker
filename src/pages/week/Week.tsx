@@ -5,14 +5,16 @@ import { Navigate, useNavigate, useParams } from 'react-router'
 import { AddItem } from '../../components/AddItem'
 import { Button } from '../../components/Button'
 import { CalendarPicker } from '../../components/CalendarPicker'
+import { Donut } from '../../components/Donut'
 import { ItemList } from '../../components/ItemList'
 import { Kbd } from '../../components/Kbd'
 import { Mascot } from '../../components/Mascot'
 import { PageLoader } from '../../components/PageLoader'
 import { Section } from '../../components/Section'
-import { StatCard } from '../../components/StatCard'
+import { SummaryStats } from '../../components/SummaryStats'
 import { useToast } from '../../components/useToast'
 import type { Repeat } from '../../data/types'
+import { useHabits } from '../../data/useHabits'
 import { usePlanner } from '../../data/usePlanner'
 import { PageHeader } from '../../layout/PageHeader'
 import {
@@ -23,21 +25,21 @@ import {
   toWeekParam,
   weekStartISO,
 } from '../../lib/dates'
+import { scheduleOf, weekHabits } from '../../lib/habits'
 import { onNewItem } from '../../lib/hotkeys'
 import { cx } from '../../lib/cx'
-import { pluralize, progress, shiftDate, weekAnalytics } from '../../lib/metrics'
+import { countDone, pluralize, progress, shiftDate } from '../../lib/metrics'
 import { recall, remember } from '../../lib/sessionState'
 import { NETWORK_ERROR_MESSAGE } from '../../lib/supabase'
 import { useToday } from '../../lib/useToday'
 import { AddTaskModal } from './AddTaskModal'
 import { DayCard } from './DayCard'
-import { WeekNote } from './WeekNote'
 import styles from './Week.module.css'
 
 const DAYS = [0, 1, 2, 3, 4, 5, 6]
+const NO_CHECKS: ReadonlySet<string> = new Set()
 
-// Телефон: дни листаются лентой, а заметка стоит под ней. На экранах шире дни стоят сеткой,
-// и заметка занимает в ней свободное место после воскресенья.
+// Телефон: дни листаются лентой. На экранах шире дни стоят сеткой.
 const PHONE = '(max-width: 640px)'
 function subscribePhone(onChange: () => void) {
   const query = window.matchMedia(PHONE)
@@ -50,6 +52,7 @@ export function Week() {
   const { isoWeek } = useParams()
   const navigate = useNavigate()
   const planner = usePlanner()
+  const habitsStore = useHabits()
   const { loadWeek } = planner
   const daysRef = useRef<HTMLDivElement>(null)
   const toast = useToast()
@@ -125,30 +128,55 @@ export function Week() {
     })
   }
 
-  const stats = weekAnalytics(tasks, goals, weekStart, today)
-  // Заметка появляется, когда неделя загружена и в базе есть место для заметок.
-  const note = planner.notes && <WeekNote key={weekStart} weekStart={weekStart} />
-  const ready = status === 'ready'
-  // На компьютере показатели стоят под целями, на телефоне под лентой дней.
-  const statsRow = (
-    <div className={styles.stats}>
-      <StatCard value={stats.total} label="всего задач" />
-      <StatCard value={stats.done} label="выполнено" />
-      <StatCard value={stats.remaining} label="осталось" />
-      <StatCard
-       
-        value={stats.averageProgress !== null ? `${stats.averageProgress}%` : '—'}
-        label="ср. прогресс"
-      />
-      <StatCard
-       
-        value={
-          stats.productiveDay ? formatWeekdayShort(parseISO(stats.productiveDay)) : '—'
-        }
-        label="лучший день"
-      />
-      <StatCard value={stats.goalsDone} label="вып. целей" />
-    </div>
+  // Показатели недели: тот же ряд, что на Главной про сегодня.
+  const weekHabitsCount = weekHabits(
+    habitsStore.habits.map((habit) => ({
+      schedule: scheduleOf(habit),
+      checks: habitsStore.checks[habit.id] ?? NO_CHECKS,
+    })),
+    weekStart,
+  )
+  // Неделя показывается, когда загружены и её задачи, и привычки (для показателей).
+  const ready = status === 'ready' && habitsStore.status !== 'loading'
+
+  // Цели недели. На телефоне стоят над лентой дней, на экранах шире первой карточкой в сетке:
+  // 3 + 3 + 2 без пустых мест (цели, пн, вт / ср, чт, пт / сб, вс).
+  const goalsSection = (
+    <Section title="Цели недели">
+      {/* В сетке дней цели выглядят как день: кольцо с долей выполненных. На телефоне над лентой без него. */}
+      {!phone && (
+        <div className={styles.goalsDonut}>
+          <Donut value={progress(goals) ?? 0} size="xl" />
+        </div>
+      )}
+      {goals.length > 0 ? (
+        <ItemList
+          items={goals}
+          burst
+          onToggle={planner.toggleGoal}
+          onRename={planner.renameGoal}
+          onDelete={planner.deleteGoal}
+        />
+      ) : (
+        <p className={styles.placeholder}>Поставь 1–3 цели на неделю</p>
+      )}
+      <AddItem label="Добавить цель" onAdd={(title) => planner.addGoal(weekStart, title)} />
+      {leftGoals.length > 0 && (
+        <div className={styles.left}>
+          <span className={styles.leftText}>
+            С прошлой недели {pluralize(leftGoals.length, 'осталась', 'остались', 'осталось')}{' '}
+            {leftGoals.length} {pluralize(leftGoals.length, 'цель', 'цели', 'целей')}
+          </span>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => planner.moveGoals(leftGoals.map((goal) => goal.id), weekStart)}
+          >
+            Перенести на эту неделю
+          </Button>
+        </div>
+      )}
+    </Section>
   )
 
   return (
@@ -215,6 +243,13 @@ export function Week() {
         <PageLoader />
       ) : (
         <>
+          <SummaryStats
+            progress={progress(tasks) ?? 0}
+            goals={{ done: countDone(goals), total: goals.length }}
+            tasks={{ done: countDone(tasks), total: tasks.length }}
+            habits={weekHabitsCount}
+          />
+
           {/* Пустая текущая или будущая неделя: с чего начать и копия прошлой недели. */}
           {empty && sourceWeek && (
             <section className={styles.start}>
@@ -242,37 +277,8 @@ export function Week() {
             </section>
           )}
 
-          <Section title="Цели недели">
-            {goals.length > 0 ? (
-              <ItemList
-                items={goals}
-                burst
-                onToggle={planner.toggleGoal}
-                onRename={planner.renameGoal}
-                onDelete={planner.deleteGoal}
-              />
-            ) : (
-              <p className={styles.placeholder}>Поставь 1–3 цели на неделю</p>
-            )}
-            <AddItem label="Добавить цель" onAdd={(title) => planner.addGoal(weekStart, title)} />
-            {leftGoals.length > 0 && (
-              <div className={styles.left}>
-                <span className={styles.leftText}>
-                  С прошлой недели {pluralize(leftGoals.length, 'осталась', 'остались', 'осталось')}{' '}
-                  {leftGoals.length} {pluralize(leftGoals.length, 'цель', 'цели', 'целей')}
-                </span>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => planner.moveGoals(leftGoals.map((goal) => goal.id), weekStart)}
-                >
-                  Перенести на эту неделю
-                </Button>
-              </div>
-            )}
-          </Section>
-
-          {!phone && statsRow}
+          {/* Телефон: цели над полоской дней. На экранах шире они первая карточка в сетке дней. */}
+          {phone && goalsSection}
 
           {/* Телефон: полоска дней над лентой. Показывает прогресс каждого дня и листает к нему. */}
           {phone && (
@@ -343,6 +349,7 @@ export function Week() {
                 if (nearest?.dataset.date) setShownDay(nearest.dataset.date)
               }}
             >
+              {!phone && <div className={styles.goalsCell}>{goalsSection}</div>}
               {DAYS.map((offset) => {
                 const date = shiftDate(weekStart, offset)
                 return (
@@ -355,13 +362,9 @@ export function Week() {
                   />
                 )
               })}
-              {!phone && note && <div className={styles.noteCell}>{note}</div>}
             </div>
           </div>
 
-          {phone && statsRow}
-
-          {phone && note}
         </>
       )}
     </>

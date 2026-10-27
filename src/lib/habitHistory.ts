@@ -1,47 +1,6 @@
 import { weekStartISO } from './dates'
 import { shiftDate } from './metrics'
 
-/** Сколько недель показывают «последние 12 месяцев»: год с запасом, чтобы влезли все месяцы. */
-export const HISTORY_WEEKS = 53
-
-const MONTHS = ['Янв', 'Февр', 'Март', 'Апр', 'Май', 'Июнь', 'Июль', 'Авг', 'Сен', 'Окт', 'Нояб', 'Дек']
-
-/** Что показывает история: последние 12 месяцев или календарный год. */
-export type HistoryPeriod = 'recent' | number
-
-export type HistoryWeek = {
-  /** Понедельник недели. */
-  start: string
-  /** Семь дней с понедельника. null: день вне периода или ещё не наступил, точка не рисуется. */
-  days: (string | null)[]
-  /** Название месяца над столбцом, если в эту неделю месяц начинается. */
-  month: string | null
-}
-
-/**
- * Сетка истории привычки: столбцы это недели с понедельника, строки дни недели.
- * Строится по настоящему календарю, даты в виде 'yyyy-MM-dd'. Недели после сегодняшней
- * не рисуются, поэтому текущий год обрывается на текущей неделе.
- */
-export function habitHistory(today: string, period: HistoryPeriod = 'recent'): HistoryWeek[] {
-  const from =
-    period === 'recent' ? shiftDate(weekStartISO(today), -7 * (HISTORY_WEEKS - 1)) : `${period}-01-01`
-  const to = period === 'recent' ? today : `${period}-12-31`
-  const inside = (date: string) => date >= from && date <= to && date <= today
-
-  const weeks: HistoryWeek[] = []
-  for (let start = weekStartISO(from); start <= to && start <= today; start = shiftDate(start, 7)) {
-    const dates = Array.from({ length: 7 }, (_, day) => shiftDate(start, day))
-    const firstOfMonth = dates.find((date) => date.endsWith('-01') && inside(date))
-    weeks.push({
-      start,
-      days: dates.map((date) => (inside(date) ? date : null)),
-      month: firstOfMonth ? MONTHS[Number(firstOfMonth.slice(5, 7)) - 1] : null,
-    })
-  }
-  return weeks
-}
-
 /** На сколько лет назад можно выбрать год, даже если привычка заведена недавно. */
 const YEARS_BACK = 4
 
@@ -53,4 +12,52 @@ export function historyYears(since: string, today: string): number[] {
   const last = Number(today.slice(0, 4))
   const first = Math.min(Number(since.slice(0, 4)), last - YEARS_BACK)
   return Array.from({ length: last - first + 1 }, (_, index) => last - index)
+}
+
+/** Месяц в виде 'yyyy-MM'. */
+export function monthOf(date: string): string {
+  return date.slice(0, 7)
+}
+
+/** Соседний месяц: shiftMonth('2026-01', -1) === '2025-12'. */
+export function shiftMonth(month: string, by: number): string {
+  const index = Number(month.slice(0, 4)) * 12 + Number(month.slice(5, 7)) - 1 + by
+  return `${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}`
+}
+
+/**
+ * Календарь месяца: строки это недели с понедельника, в каждой семь дней. null: день
+ * другого месяца, клетка пустая. Будущие дни месяца в сетке есть, их рисует календарь.
+ */
+export function monthWeeks(month: string): (string | null)[][] {
+  const first = `${month}-01`
+  const weeks: (string | null)[][] = []
+  for (let start = weekStartISO(first); monthOf(start) <= month; start = shiftDate(start, 7)) {
+    if (monthOf(shiftDate(start, 6)) < month) continue
+    weeks.push(Array.from({ length: 7 }, (_, day) => {
+      const date = shiftDate(start, day)
+      return monthOf(date) === month ? date : null
+    }))
+  }
+  return weeks
+}
+
+const MONTHS_FULL = [
+  'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
+]
+
+/** «Октябрь 2026». */
+export function formatMonth(month: string): string {
+  return `${MONTHS_FULL[Number(month.slice(5, 7)) - 1]} ${month.slice(0, 4)}`
+}
+
+/** Последние `count` месяцев, начиная с текущего, новые первыми. */
+export function recentMonths(today: string, count = 12): string[] {
+  return Array.from({ length: count }, (_, back) => shiftMonth(monthOf(today), -back))
+}
+
+/** Двенадцать месяцев года по порядку: '2026-01' … '2026-12'. */
+export function yearMonths(year: number): string[] {
+  return Array.from({ length: 12 }, (_, index) => `${year}-${String(index + 1).padStart(2, '0')}`)
 }

@@ -1,0 +1,12 @@
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-md);
+}
+
+/* Телефон: четыре показателя в один ряд, карточки плотные (см. StatCard). */
+@media (max-width: 640px) {
+  .stats {
+    gap: var(--space-xs);
+  }
+}

@@ -1,5 +1,6 @@
 import { parseISO } from 'date-fns'
 import { AddItem } from '../../components/AddItem'
+import { DayPhotoSlot } from '../../components/DayPhotoSlot'
 import { Donut } from '../../components/Donut'
 import { useEffect, useRef } from 'react'
 import { ItemList } from '../../components/ItemList'
@@ -23,7 +24,7 @@ type Props = {
   compact?: boolean
 }
 
-/** Карточка дня на экране Недели: настроение дня, донат с процентом и список задач. */
+/** Карточка дня на экране Недели: фото и настроение дня, донат с процентом и задачи. */
 export function DayCard({ date, tasks, isToday, compact = false }: Props) {
   const { addTask, toggleTask, renameTask, deleteTask, moveTasks, repeatTask, canRepeat, arrangeTasks } =
     usePlanner()
@@ -52,11 +53,16 @@ export function DayCard({ date, tasks, isToday, compact = false }: Props) {
       data-date={date}
     >
       <header className={`t-heading-5 ${styles.header}`}>
-        <span>{formatWeekdayShort(day)}</span>
+        {/* Слева день недели и число, справа фото и настроение дня. */}
         <span className={styles.side}>
-          {/* Настроение ставят прошедшим дням и сегодняшнему: у будущих его ещё нет. */}
-          {date <= today && <MoodPicker date={date} />}
+          <span>{formatWeekdayShort(day)}</span>
           <span className={styles.number}>{day.getDate()}</span>
+          {isToday && <span className={`t-caption ${styles.badge}`}>Сегодня</span>}
+        </span>
+        <span className={styles.side}>
+          {/* Фото и настроение ставят прошедшим дням и сегодняшнему: у будущих их ещё нет. */}
+          {date <= today && <DayPhotoSlot date={date} size={32} />}
+          {date <= today && <MoodPicker date={date} size={32} />}
         </span>
       </header>
       <div className={styles.donut}>

@@ -27,13 +27,13 @@ export function createMemoryFinance(): FinanceApi {
     ['salary', 'bill', 'Аренда квартиры', 40000],
     ['salary', 'bill', 'Интернет', 700],
     ['salary', 'bill', 'Мобильная связь', 650],
-    ['salary', 'saving', 'Финансовая подушка', 7000],
+    ['salary', 'bill', 'Финансовая подушка', 7000],
     ['advance', 'income', 'Аванс', 50000],
     ['advance', 'income', 'Подработка', 12000],
     ['advance', 'bill', 'Коммунальные платежи', 5600],
     ['advance', 'bill', 'Спортзал', 3200],
     ['advance', 'bill', 'Подписки', 1490],
-    ['advance', 'saving', 'Отпуск', 10000],
+    ['advance', 'bill', 'Отпуск', 10000],
   ]
   let items: FinanceItem[] = SETUP.map(([stage, kind, title, amount]) => ({
     id: newId(),
@@ -64,6 +64,7 @@ export function createMemoryFinance(): FinanceApi {
 
   // Траты текущего этапа: понемногу в каждый прошедший день и одна сегодня.
   const SPENT = [640, 1150, 380, 920, 1480, 270, 760]
+  const SPEND_TITLES = ['Обед', 'Продукты', 'Такси', null, 'Аптека', 'Кофе', 'Продукты']
   let spends: FinanceSpend[] = []
   if (now) {
     for (let date = now.start, index = 0; date <= today; date = shiftDate(date, 1), index++) {
@@ -71,6 +72,7 @@ export function createMemoryFinance(): FinanceApi {
         id: newId(),
         date,
         amount: date === today ? 350 : SPENT[index % SPENT.length],
+        title: date === today ? 'Кофе' : SPEND_TITLES[index % SPEND_TITLES.length],
         createdAt: `${date}T00:00:00.000Z`,
       })
     }
@@ -82,7 +84,7 @@ export function createMemoryFinance(): FinanceApi {
   return {
     async load() {
       await wait()
-      return { items, checks, days, spends }
+      return { items, checks, days, spends, spendTitles: true }
     },
     async insertItem(item) {
       items = [...items, item]
@@ -103,6 +105,9 @@ export function createMemoryFinance(): FinanceApi {
     },
     async insertSpend(spend) {
       spends = [...spends, spend]
+    },
+    async updateSpend(id, patch) {
+      spends = spends.map((spend) => (spend.id === id ? { ...spend, ...patch } : spend))
     },
     async deleteSpend(id) {
       spends = spends.filter((spend) => spend.id !== id)

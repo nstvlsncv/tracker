@@ -51,6 +51,7 @@
   --core-font-weight-medium: 500;
   --core-font-weight-semibold: 600;
   --core-font-weight-bold: 700;
+  --core-letter-spacing-text: 0.01em;
   --core-font-size-100: 12px;
   --core-font-size-200: 14px;
   --core-font-size-300: 16px;
@@ -114,6 +115,8 @@
   --mood-bad: var(--core-red-600);
   --effects-focus-ring: var(--core-neutral-900);
   --effects-overlay: rgba(23, 23, 23, 0.5);
+  --effects-photo-dim: rgba(0, 0, 0, 0.35);
+  --effects-on-photo: #FFFFFF;
   --effects-shadow-sm: rgba(23, 23, 23, 0.08);
   --effects-shadow-md: rgba(23, 23, 23, 0.14);
   --effects-shadow-lg: rgba(23, 23, 23, 0.22);
@@ -154,14 +157,17 @@
   --typography-body-lg-font-weight: var(--core-font-weight-regular);
   --typography-body-lg-font-size: var(--core-font-size-300);
   --typography-body-lg-line-height: var(--core-line-height-300);
+  --typography-body-lg-letter-spacing: var(--core-letter-spacing-text);
   --typography-body-md-font-family: var(--core-font-family-base);
   --typography-body-md-font-weight: var(--core-font-weight-regular);
   --typography-body-md-font-size: var(--core-font-size-200);
   --typography-body-md-line-height: var(--core-line-height-200);
+  --typography-body-md-letter-spacing: var(--core-letter-spacing-text);
   --typography-body-sm-font-family: var(--core-font-family-base);
   --typography-body-sm-font-weight: var(--core-font-weight-regular);
   --typography-body-sm-font-size: var(--core-font-size-100);
   --typography-body-sm-line-height: var(--core-line-height-100);
+  --typography-body-sm-letter-spacing: var(--core-letter-spacing-text);
   --typography-button-font-family: var(--core-font-family-base);
   --typography-button-font-weight: var(--core-font-weight-medium);
   --typography-button-font-size: var(--core-font-size-200);
@@ -170,6 +176,7 @@
   --typography-caption-font-weight: var(--core-font-weight-medium);
   --typography-caption-font-size: var(--core-font-size-100);
   --typography-caption-line-height: var(--core-line-height-100);
+  --typography-caption-letter-spacing: var(--core-letter-spacing-text);
   --typography-number-lg-font-family: var(--core-font-family-base);
   --typography-number-lg-font-weight: var(--core-font-weight-semibold);
   --typography-number-lg-font-size: var(--core-font-size-600);
@@ -229,6 +236,8 @@
   --mood-bad: var(--core-red-600);
   --effects-focus-ring: var(--core-neutral-100);
   --effects-overlay: rgba(0, 0, 0, 0.6);
+  --effects-photo-dim: rgba(0, 0, 0, 0.35);
+  --effects-on-photo: #FFFFFF;
   --effects-shadow-sm: rgba(0, 0, 0, 0.4);
   --effects-shadow-md: rgba(0, 0, 0, 0.5);
   --effects-shadow-lg: rgba(0, 0, 0, 0.6);
@@ -277,6 +286,8 @@
   --mood-bad: var(--core-red-600);
   --effects-focus-ring: var(--core-neutral-100);
   --effects-overlay: rgba(0, 0, 0, 0.6);
+  --effects-photo-dim: rgba(0, 0, 0, 0.35);
+  --effects-on-photo: #FFFFFF;
   --effects-shadow-sm: rgba(0, 0, 0, 0.4);
   --effects-shadow-md: rgba(0, 0, 0, 0.5);
   --effects-shadow-lg: rgba(0, 0, 0, 0.6);
@@ -324,6 +335,8 @@
   --mood-bad: var(--core-red-600);
   --effects-focus-ring: var(--core-neutral-900);
   --effects-overlay: rgba(23, 23, 23, 0.5);
+  --effects-photo-dim: rgba(0, 0, 0, 0.35);
+  --effects-on-photo: #FFFFFF;
   --effects-shadow-sm: rgba(23, 23, 23, 0.08);
   --effects-shadow-md: rgba(23, 23, 23, 0.14);
   --effects-shadow-lg: rgba(23, 23, 23, 0.22);
@@ -392,6 +405,7 @@
   font-weight: var(--typography-body-lg-font-weight);
   font-size: var(--typography-body-lg-font-size);
   line-height: var(--typography-body-lg-line-height);
+  letter-spacing: var(--typography-body-lg-letter-spacing);
 }
 
 .t-body-md {
@@ -399,6 +413,7 @@
   font-weight: var(--typography-body-md-font-weight);
   font-size: var(--typography-body-md-font-size);
   line-height: var(--typography-body-md-line-height);
+  letter-spacing: var(--typography-body-md-letter-spacing);
 }
 
 .t-body-sm {
@@ -406,6 +421,7 @@
   font-weight: var(--typography-body-sm-font-weight);
   font-size: var(--typography-body-sm-font-size);
   line-height: var(--typography-body-sm-line-height);
+  letter-spacing: var(--typography-body-sm-letter-spacing);
 }
 
 .t-button {
@@ -420,6 +436,7 @@
   font-weight: var(--typography-caption-font-weight);
   font-size: var(--typography-caption-font-size);
   line-height: var(--typography-caption-line-height);
+  letter-spacing: var(--typography-caption-letter-spacing);
 }
 
 .t-number-lg {

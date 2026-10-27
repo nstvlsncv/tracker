@@ -1,0 +1,135 @@
+.slot {
+  --side: 64px;
+
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--side);
+  height: var(--side);
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  transition:
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-press);
+}
+
+/* Во всю клетку календаря года: кружок, как точки привычек и лица настроения. */
+.fill {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-full);
+}
+
+.small {
+  border-radius: var(--radius-sm);
+}
+
+/* Сегодняшний день в календаре: обводка снаружи, как у лиц настроения (поверх фото её не видно). */
+.today {
+  box-shadow: 0 0 0 1.5px var(--accent-default);
+}
+
+.slot:active {
+  transform: scale(0.94);
+}
+
+@media (hover: hover) {
+  .empty:hover {
+    background: var(--bg-tertiary);
+  }
+}
+
+/* Над квадратом тянут файл: рамка цвета акцента. */
+.over {
+  box-shadow: inset 0 0 0 2px var(--highlight-default);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: appear 240ms ease-out;
+}
+
+.loading {
+  width: 100%;
+  height: 100%;
+  background: var(--bg-tertiary);
+}
+
+/* Загрузка: превью притушено, по центру крутится дуга, как у вложений в ChatGPT. */
+.progress {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--effects-photo-dim);
+}
+
+.progress svg {
+  width: min(28px, 50%);
+  height: min(28px, 50%);
+  animation: spin 900ms linear infinite;
+}
+
+.progress circle {
+  fill: none;
+  stroke: var(--effects-on-photo);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 40 100;
+}
+
+/* Шторка выбора источника: две большие плитки рядом. */
+.sources {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.source {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  height: 112px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: transform var(--transition-press);
+}
+
+.source:active {
+  transform: scale(0.96);
+}
+
+@media (hover: hover) {
+  .source:hover {
+    background: var(--bg-tertiary);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image {
+    animation: none;
+  }
+}
