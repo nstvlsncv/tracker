@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import type { DayPhoto } from '../data/days'
 import { useDays, usePhotoUrl } from '../data/useDays'
 import { formatDayMonth } from '../lib/dates'
+import { PHONE_QUERY, useMediaQuery } from '../lib/useMediaQuery'
 import { Button } from './Button'
 import { ConfirmModal } from './ConfirmModal'
 import { IconButton } from './IconButton'
@@ -21,15 +22,16 @@ type Props = {
 
 /**
  * Фото дня в обычной модалке (на телефоне шторкой). Пока грузится само фото, видно миниатюру.
- * Внизу одним рядом: корзина (спрашивает подтверждение: вернуть фото нельзя), «Заменить» и
- * стрелки к предыдущему и следующему фото (по датам, через дни без фото), на компьютере
- * листают и клавиши ← и →.
+ * Внизу справа стрелки к предыдущему и следующему фото (по датам, через дни без фото) и
+ * «Заменить», на компьютере листают и клавиши ← и →. Слева внизу «Удалить» (спрашивает
+ * подтверждение: вернуть фото нельзя). На телефоне всё одним рядом: корзина, «Заменить», стрелки.
  */
 export function PhotoViewer({ photo, onMove, onReplace, onClose }: Props) {
   const { photos, deletePhoto } = useDays()
   const full = usePhotoUrl(photo, 'full')
   const thumb = usePhotoUrl(photo, 'thumb')
   const [confirming, setConfirming] = useState(false)
+  const phone = useMediaQuery(PHONE_QUERY)
 
   const dates = Object.keys(photos ?? {}).sort()
   const index = dates.indexOf(photo.date)
@@ -53,18 +55,29 @@ export function PhotoViewer({ photo, onMove, onReplace, onClose }: Props) {
         open={!confirming}
         title={`Фото дня, ${formatDayMonth(parseISO(photo.date))}`}
         onClose={onClose}
+        footerStart={
+          phone ? undefined : (
+            <Button tone="danger" variant="ghost" onClick={() => setConfirming(true)}>
+              Удалить
+            </Button>
+          )
+        }
         footer={
           <div className={styles.nav}>
-            <IconButton
-              tone="danger"
-              variant="ghost"
-              aria-label="Удалить фото"
-              icon={<Trash aria-hidden />}
-              onClick={() => setConfirming(true)}
-            />
-            <Button className={styles.replace} onClick={onReplace}>
-              Заменить
-            </Button>
+            {phone && (
+              <>
+                <IconButton
+                  tone="danger"
+                  variant="ghost"
+                  aria-label="Удалить фото"
+                  icon={<Trash aria-hidden />}
+                  onClick={() => setConfirming(true)}
+                />
+                <Button className={styles.replace} onClick={onReplace}>
+                  Заменить
+                </Button>
+              </>
+            )}
             {/* У первого и последнего фото стрелки в ту сторону нет. */}
             {previous && (
               <IconButton
@@ -82,6 +95,7 @@ export function PhotoViewer({ photo, onMove, onReplace, onClose }: Props) {
                 onClick={() => onMove(next)}
               />
             )}
+            {!phone && <Button onClick={onReplace}>Заменить</Button>}
           </div>
         }
       >

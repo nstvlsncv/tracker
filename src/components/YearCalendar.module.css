@@ -56,6 +56,35 @@
   gap: 3px;
 }
 
+/* Дни недели над столбцами: серые, по центру столбца. */
+.weekday {
+  color: var(--text-tertiary);
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Один месяц: под кружком число дня. */
+.dated {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  min-width: 0;
+}
+
+.dated > .cell {
+  width: 100%;
+}
+
+.number {
+  color: var(--text-tertiary);
+  line-height: 1;
+}
+
+.todayNumber {
+  color: var(--text-primary);
+}
+
 /* Клетка дня квадратная. Сама себе контейнер: лицо настроения меряет себя её шириной (100cqi). */
 .cell {
   display: flex;

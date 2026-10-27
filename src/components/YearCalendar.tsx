@@ -20,14 +20,19 @@ const MONTH_NAMES = [
   'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
 ]
 
+/** Дни недели над столбцами, с понедельника: в году буквами, у одного месяца двумя буквами. */
+const WEEKDAYS_SHORT = ['П', 'В', 'С', 'Ч', 'П', 'С', 'В']
+const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+
 /** Подсказка не подходит к краю окна ближе этого. */
 const TIP_EDGE_PX = 8
 
 /**
- * Год сеткой из двенадцати маленьких календарей: у каждого месяца название и дни кружками,
- * недели с понедельника. Сколько месяцев в ряд (6 на компьютере, 4, 3, 2), решает ширина
+ * Год сеткой из двенадцати маленьких календарей: у каждого месяца название, над столбцами
+ * дни недели, дни кружками, недели с понедельника. Сколько месяцев в ряд (6 на компьютере, 4, 3, 2), решает ширина
  * самого блока; клетки растягиваются по ширине месяца. Один месяц (так история устроена
- * на телефоне) стоит во всю ширину и без названия: месяц назван в списке над ним.
+ * на телефоне) стоит во всю ширину и без названия: месяц назван в списке над ним, а под
+ * каждым кружком стоит число.
  * Над днём под курсором тёмная подсказка с днём недели и числом («Вторник, 27 октября»).
  * Общий для истории привычки, настроения и фото дня: что лежит в клетке, решает экран.
  */
@@ -60,12 +65,26 @@ export function YearCalendar({ months, today, renderDay }: Props) {
           <div key={month} className={styles.month}>
             {!single && <span className={`t-caption ${styles.name}`}>{MONTH_NAMES[Number(month.slice(5, 7)) - 1]}</span>}
             <div className={styles.days}>
+              {(single ? WEEKDAYS : WEEKDAYS_SHORT).map((name, column) => (
+                <span key={`weekday-${column}`} className={`t-caption ${styles.weekday}`} aria-hidden>
+                  {name}
+                </span>
+              ))}
               {monthWeeks(month).flatMap((week, row) =>
                 week.map((date, column) => {
                   if (!date) return <span key={`${row}-${column}`} />
-                  return (
+                  const cell = (
                     <div key={date} className={styles.cell} data-date={date}>
                       {date > today ? <span className={styles.future} /> : renderDay(date)}
+                    </div>
+                  )
+                  if (!single) return cell
+                  return (
+                    <div key={date} className={styles.dated}>
+                      {cell}
+                      <span className={cx('t-caption', styles.number, date === today && styles.todayNumber)} aria-hidden>
+                        {Number(date.slice(8))}
+                      </span>
                     </div>
                   )
                 }),
