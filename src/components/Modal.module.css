@@ -165,7 +165,7 @@
     /* У краёв содержимое шторки не «пружинит»: иначе при свайпе вниз её верх растягивался. */
     overscroll-behavior: none;
     /* Выше экрана шторка не бывает: длинное содержимое прокручивается внутри неё. */
-    max-height: calc(100dvh - var(--space-xl));
+    max-height: calc(100dvh - var(--safe-top));
     padding: var(--space-lg) var(--space-md) calc(var(--space-md) + env(safe-area-inset-bottom));
     overflow-y: auto;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;

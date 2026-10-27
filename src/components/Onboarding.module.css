@@ -123,7 +123,8 @@
   .card {
     width: 100%;
     min-height: 100dvh;
-    padding: var(--space-md) var(--space-md) calc(var(--space-md) + env(safe-area-inset-bottom));
+    padding: calc(var(--space-md) + var(--safe-top)) var(--space-md)
+      calc(var(--space-md) + env(safe-area-inset-bottom));
     border-radius: 0;
     box-shadow: none;
     animation: none;

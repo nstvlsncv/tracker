@@ -385,6 +385,7 @@
   .shell {
     /* Экран занимает всю высоту: фраза-заглушка пустого раздела встаёт по центру свободного места. */
     flex-direction: column;
+    padding-top: calc(var(--page-pad) + var(--safe-top));
     /* Место под нижнюю панель: её высота плюс отступ. */
     padding-bottom: calc(64px + var(--space-lg) + env(safe-area-inset-bottom));
   }

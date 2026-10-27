@@ -9,6 +9,17 @@
 
   --transition-fast: 150ms ease-out;
   --transition-press: 120ms ease-out;
+
+  /* Отступ сверху под строку статуса телефона. В браузере на iPhone поверх страницы лежит
+     размытие под строкой статуса, и всё, что стоит вплотную к верху, уходит под него, поэтому
+     к системной зоне добавляется ещё 24px (как в «Рядом»). На планшете и компьютере ноль. */
+  --safe-top: 0px;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --safe-top: calc(env(safe-area-inset-top, 0px) + var(--space-xl));
+  }
 }
 
 /*
@@ -87,11 +98,43 @@ input {
   color: inherit;
 }
 
+/*
+ * Свой курсор по всему трекеру: скруглённая чёрная стрелка с белой обводкой, а над тем, что
+ * нажимается, та же стрелка лаймовая. В обеих темах курсор один (как в macOS): тёмный ореол
+ * в тёмной теме выглядел жирным. Рисунки в src/assets/cursors, нарисованы вдвое крупнее (2x),
+ * чтобы на ретине не мылились. Над полями ввода остаётся системная текстовая черта.
+ */
+:root {
+  --cursor-default: image-set(url('../assets/cursors/arrow.svg') 2x) 3 3, default;
+  --cursor-pointer: image-set(url('../assets/cursors/arrow-lime.svg') 2x) 3 3, pointer;
+}
+
+html {
+  cursor: var(--cursor-default);
+}
+
+a[href],
+button,
+select,
+summary,
+label:has(input[type='checkbox'], input[type='radio'], input[type='file']),
+[role='button'],
+[role='tab'],
+[role='option'],
+[role='menuitem'] {
+  cursor: var(--cursor-pointer);
+}
+
+input:not([type='checkbox'], [type='radio'], [type='button'], [type='submit'], [type='file']),
+textarea,
+[contenteditable='true'] {
+  cursor: text;
+}
+
 button {
   padding: 0;
   border: 0;
   background: none;
-  cursor: pointer;
 }
 
 button:disabled {

@@ -28,7 +28,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       <Toaster
         position="top-center"
         offset={48}
-        mobileOffset={24}
+        mobileOffset={{ top: 'calc(24px + var(--safe-top))' }}
         gap={8}
         visibleToasts={STACK_AFTER}
         expand={toasts.length <= STACK_AFTER}

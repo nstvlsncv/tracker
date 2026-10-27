@@ -176,7 +176,7 @@
 /* Телефон: блок ближе к верху, поля карточки меньше. */
 @media (max-width: 640px) {
   .side {
-    padding-top: var(--space-2xl);
+    padding-top: calc(var(--space-2xl) + var(--safe-top));
     /* На айфоне карточка с демо стоит выше полоски «домой». */
     padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
   }
